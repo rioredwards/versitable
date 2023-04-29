@@ -1,3 +1,5 @@
+export type Table = string[][];
+
 export interface CustomColors {
   column?: number;
   row?: number;

@@ -1,13 +1,16 @@
 import chalk from "chalk";
 import { countCharsWithEmojis } from "../testData/emojis.js";
-import { TableOptions } from "./tableTypes.js";
+import { Table, TableOptions } from "./tableTypes.js";
 import { TABLE_DEFAULTS } from "./tableDefaults.js";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations.js";
 
-// hello
+const temp_table = [
+  ["test1", "test2"],
+  ["test3", "test4"],
+];
 
 // /* Helper functions for limiting/trimming cells */
 // function limitRows(table: string[][], max: number) {
@@ -124,7 +127,7 @@ import {
 //   }
 // }
 
-export function createTable(cells: string[][], options?: TableOptions) {
+export function create(cells: string[][], options?: TableOptions) {
   const {
     maxColumns,
     maxRows,
@@ -154,12 +157,20 @@ export function createTable(cells: string[][], options?: TableOptions) {
   //   ? [topRow, ...formattedTable, bottomRow]
   //   : formattedTable;
 
-  const temp_table = ["test", "test2"];
   return temp_table;
 }
 
-export function printTable(table: string[]) {
-  table.forEach((row) => {
-    console.log(row);
-  });
+export function log(table: Table, options?: TableOptions) {
+  table = temp_table;
+  const createdTable = create(table, options);
+  const joinedTable = createdTable.map((row) => row.join("")).join("\n");
+  console.log(joinedTable);
+  // createdTable.forEach((row) => {
+  //   console.log(row.join(""));
+  // });
 }
+
+export const versitable = {
+  create,
+  log,
+};
