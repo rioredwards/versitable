@@ -7,6 +7,8 @@ import {
   checkTableOptionsAreValid,
 } from "./tableValidations.js";
 
+// hello
+
 // /* Helper functions for limiting/trimming cells */
 // function limitRows(table: string[][], max: number) {
 //   if (table.length <= max) return table;
