@@ -1,0 +1,48 @@
+{
+  "name": "versitable",
+  "version": "1.0.0",
+  "description": "A versatile alternative to console.table()",
+  "main": "dist/index.js",
+  "bin": "dist/index.js",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rioredwards/versitable.git"
+  },
+  "keywords": [
+    "utility",
+    "table",
+    "javascript",
+    "log",
+    "cli",
+    "formatter"
+  ],
+  "private": false,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node --esm test/sandbox.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "bugs": {
+    "url": "https://github.com/rioredwards/versitable/issues"
+  },
+  "dependencies": {
+    "@types/node": "^18.15.11",
+    "chalk": "^5.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4",
+    "ts-node": "^10.9.1",
+    "@types/inquirer": "^9.0.3"
+  },
+  "author": "Rio Edwards <rioredwards@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "homepage": "https://github.com/rioredwards/versitable#readme"
+}
