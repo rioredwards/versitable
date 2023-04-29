@@ -1,6 +1,6 @@
 {
   "name": "versitable",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A versatile alternative to console.table()",
   "main": "dist/index.js",
   "bin": "dist/index.js",
@@ -25,7 +25,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node --esm tests/sandbox.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/rioredwards/versitable/issues"
