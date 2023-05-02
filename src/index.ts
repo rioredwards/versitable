@@ -135,7 +135,6 @@ function create(table: string[][], options?: TableOptions) {
   // Guard clauses
   checkTableIsValid(table);
   if (options) checkTableOptionsAreValid(table, options);
-  console.log("cells: ", table);
 
   // Trim rows, columns and truncate cells
   // const limitedRows = limitRows(cells, maxRows);

@@ -235,8 +235,9 @@ export function checkTableOptionsAreValid(
 }
 
 export function checkTableIsValid(table: string[][]): true | never {
-  if (!table || table.length === 0)
-    throw new Error("Table must have at least one row");
+  if (!table) throw new Error("A table must be provided");
+  if (!Array.isArray(table)) throw new Error("Table must be an array");
+  if (table.length === 0) throw new Error("Table must have at least one row");
   if (table[0].length === 0)
     throw new Error("Table must have at least one cell");
   if (!subArraysAreSameLength(table))
