@@ -1,5 +1,4 @@
-import chalk from "chalk";
-import { countCharsWithEmojis } from "../testData/emojis.js";
+import { countCharsWithEmojis } from "./emojis.js";
 import { Table, TableOptions } from "./tableTypes.js";
 import { TABLE_DEFAULTS } from "./tableDefaults.js";
 import {
@@ -127,7 +126,7 @@ const temp_table = [
 //   }
 // }
 
-export function create(cells: string[][], options?: TableOptions) {
+export function create(cells: any[][], options?: TableOptions) {
   const {
     maxColumns,
     maxRows,
@@ -141,6 +140,7 @@ export function create(cells: string[][], options?: TableOptions) {
   // Guard clauses
   checkTableIsValid(cells);
   if (options) checkTableOptionsAreValid(cells, options);
+  console.log("cells: ", cells);
 
   // Trim rows, columns and truncate cells
   // const limitedRows = limitRows(cells, maxRows);
@@ -161,7 +161,6 @@ export function create(cells: string[][], options?: TableOptions) {
 }
 
 export function log(table: Table, options?: TableOptions) {
-  table = temp_table;
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);

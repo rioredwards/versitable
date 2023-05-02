@@ -1,6 +1,7 @@
-import { hotkeys } from "../testData/hotkeys.js";
+import { hotkeys } from "../mocks/hotkeys.js";
 import { TableOptions } from "../src/tableTypes.js";
 import { versitable } from "../src/index.js";
+import { User, users } from "../mocks/faker.js";
 
 function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
@@ -37,7 +38,15 @@ function main() {
     },
   };
 
-  versitable.log(hotkeysFormattedForTable, tableOptions);
+  let usersFormattedForTable: User[][] = [];
+  for (const user of users) {
+    for (const [_, value] of Object.entries(user)) {
+      usersFormattedForTable.push(value);
+    }
+  }
+
+  versitable.log(usersFormattedForTable, tableOptions);
+  // versitable.log(hotkeysFormattedForTable, tableOptions);
 }
 
 main();

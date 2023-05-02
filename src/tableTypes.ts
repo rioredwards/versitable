@@ -1,4 +1,4 @@
-export type Table = string[][];
+export type Table = any[][];
 
 export interface CustomColors {
   column?: number;

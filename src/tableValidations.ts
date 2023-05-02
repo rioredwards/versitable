@@ -2,7 +2,7 @@ import chalkPipe from "chalk-pipe";
 import { Borders, Colors, CustomColors, TableOptions } from "./tableTypes.js";
 
 /* Helper functions for ensuring data integrity */
-function subArraysAreSameLength(table: string[][]) {
+function subArraysAreSameLength(table: any[][]) {
   const firstLength = table[0].length;
 
   for (let i = 1; i < table.length; i++) {
@@ -235,7 +235,8 @@ export function checkTableOptionsAreValid(
 }
 
 export function checkTableIsValid(table: string[][]): true | never {
-  if (table.length === 0) throw new Error("Table must have at least one row");
+  if (!table || table.length === 0)
+    throw new Error("Table must have at least one row");
   if (table[0].length === 0)
     throw new Error("Table must have at least one cell");
   if (!subArraysAreSameLength(table))

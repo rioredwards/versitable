@@ -36,6 +36,7 @@
     "chalk-pipe": "^6.0.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11",
