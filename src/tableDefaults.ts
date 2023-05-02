@@ -1,4 +1,4 @@
-import { TableOptions } from "./tableTypes.js";
+import { TableOptions } from "./tableTypes";
 
 /* Defaults */
 const CELL_PADDING = 2;

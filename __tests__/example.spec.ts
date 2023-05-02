@@ -1,14 +1,12 @@
-import { users } from "../mocks/faker";
+import { getStringUsers } from "../mocks/faker";
+import { versitable } from "../src";
 
-describe("users should", () => {
-  it("be an array of users", () => {
-    console.log("users: ", users);
-    expect(users).toBeInstanceOf(Array);
-  });
-});
+const users = getStringUsers(5);
 
+/* Versitable */
 describe("versitable.create should", () => {
   it("create a string[][]", () => {
-    expect(1 + 1).toBe(2);
+    versitable.create(users);
+    console.log("users: ", users);
   });
 });

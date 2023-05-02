@@ -1,4 +1,4 @@
-import chalkPipe from "chalk-pipe";
+import chalkPipe = require("chalk-pipe");
 import { Borders, Colors, CustomColors, TableOptions } from "./tableTypes.js";
 
 /* Helper functions for ensuring data integrity */

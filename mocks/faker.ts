@@ -8,7 +8,6 @@ export interface User {
   emoji: string;
   emojis: string;
   avatar: string;
-  birthday: Date;
   email: string;
   firstName: string;
   lastName: string;
@@ -21,7 +20,6 @@ export class User implements User {
   avatar: string;
   emoji: string;
   emojis: string;
-  birthday: Date;
   email: string;
   firstName: string;
   lastName: string;
@@ -35,7 +33,6 @@ export class User implements User {
     this.emojis = Array.from({ length: 3 }, () => faker.internet.emoji()).join(
       ""
     );
-    this.birthday = faker.date.birthdate();
     this.sex = faker.name.sexType();
     this.firstName = faker.name.firstName(this.sex);
     this.lastName = faker.name.lastName();
@@ -51,4 +48,12 @@ export class User implements User {
   }
 }
 
-export const users: User[] = Array.from({ length: 30 }, () => new User());
+export function getUsers(num: number = 5) {
+  return Array.from({ length: num }, () => new User());
+}
+
+export function getStringUsers(num: number = 5): string[][] {
+  return Array.from({ length: num }, () => {
+    return Object.values(new User());
+  });
+}

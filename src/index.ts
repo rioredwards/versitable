@@ -1,10 +1,9 @@
-import { countCharsWithEmojis } from "./emojis.js";
-import { Table, TableOptions } from "./tableTypes.js";
-import { TABLE_DEFAULTS } from "./tableDefaults.js";
+import { Table, TableOptions } from "./tableTypes";
+import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
-} from "./tableValidations.js";
+} from "./tableValidations";
 
 const temp_table = [
   ["test1", "test2"],
@@ -126,7 +125,8 @@ const temp_table = [
 //   }
 // }
 
-export function create(cells: any[][], options?: TableOptions) {
+// Creates a valid table from a 2D array of cells
+function create(table: string[][], options?: TableOptions) {
   const {
     maxColumns,
     maxRows,
@@ -138,9 +138,9 @@ export function create(cells: any[][], options?: TableOptions) {
   } = { ...TABLE_DEFAULTS, ...options };
 
   // Guard clauses
-  checkTableIsValid(cells);
-  if (options) checkTableOptionsAreValid(cells, options);
-  console.log("cells: ", cells);
+  checkTableIsValid(table);
+  if (options) checkTableOptionsAreValid(table, options);
+  console.log("cells: ", table);
 
   // Trim rows, columns and truncate cells
   // const limitedRows = limitRows(cells, maxRows);
@@ -160,7 +160,7 @@ export function create(cells: any[][], options?: TableOptions) {
   return temp_table;
 }
 
-export function log(table: Table, options?: TableOptions) {
+function log(table: Table, options?: TableOptions) {
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);
