@@ -5,11 +5,6 @@ import {
   checkTableOptionsAreValid,
 } from "./tableValidations";
 
-const temp_table = [
-  ["test1", "test2"],
-  ["test3", "test4"],
-];
-
 // /* Helper functions for limiting/trimming cells */
 // function limitRows(table: string[][], max: number) {
 //   if (table.length <= max) return table;
@@ -157,7 +152,7 @@ function create(table: string[][], options?: TableOptions) {
   //   ? [topRow, ...formattedTable, bottomRow]
   //   : formattedTable;
 
-  return temp_table;
+  return table;
 }
 
 function log(table: Table, options?: TableOptions) {

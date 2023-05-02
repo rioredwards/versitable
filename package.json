@@ -23,6 +23,7 @@
   "private": false,
   "scripts": {
     "test": "jest",
+    "test:watch": "npm run test -- --watch",
     "start": "ts-node sandbox/index.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
