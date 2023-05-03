@@ -4,6 +4,7 @@ import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
+import { countCharsWithEmojis } from "./emojis";
 
 // /* Helper functions for limiting/trimming cells */
 function limitRows(table: string[][], max: number) {
@@ -21,26 +22,45 @@ function limitColumns(table: string[][], max: number) {
   return result;
 }
 
-function truncateCells(table: string[][], max: number[] | number) {
-  let truncated: string[][] = [];
-  for (let i = 0; i < table.length; i++) {
-    const row = table[i];
-    const maxRow = Array.isArray(max) ? max[i] : max;
-    truncated.push(row.map((cell) => cell.substring(0, maxRow)));
-  }
-  return truncated;
+function formatCells(
+  table: string[][],
+  { cellPadding, maxColWidths }: TableOptions
+) {
+  const formattedRows = table.map((row, rowIdx) => {
+    const formattedCells = row.map((cell, colIdx) => {
+      let formattedCell = cell;
+      const maxColWidth = Array.isArray(maxColWidths)
+        ? maxColWidths[colIdx]
+        : maxColWidths;
+      const cellChars = countCharsWithEmojis(cell);
+
+      // Truncate cell if it exceeds maxColWidth
+      if (cellChars > maxColWidth!) {
+        if (maxColWidth! - 3 >= 3) {
+          // Room for ellipsis
+          formattedCell = cell.substring(0, maxColWidth! - 3) + "...";
+        } else {
+          // No room for ellipsis
+          formattedCell = cell.substring(0, maxColWidth!);
+        }
+      }
+
+      // Pad cell if cellPadding is specified
+      if (cellPadding && cellPadding > 0) {
+        formattedCell = formattedCell + " ".repeat(cellPadding);
+      }
+
+      return formattedCell;
+    });
+    return formattedCells;
+  });
+  return formattedRows;
 }
 
 // /* Helper functions for limiting/trimming cells */
-// function custom_CoLORSPadEnd(str: string, length: number, fill: string = " ") {
+// function customPadEnd(str: string, length: number, fill: string = " ") {
 //   const chars = countCharsWithEmojis(str);
 //   return str + fill.repeat(length - chars);
-// }
-
-// function getColumns(table: string[][]) {
-//   if (table.length === 0) return [];
-//   if (table.length === 1) return table;
-//   return table[0].map((_, i) => table.map((row) => row[i]));
 // }
 
 // function truncate(str: string, nun: number) {
@@ -143,8 +163,8 @@ function truncateCells(table: string[][], max: number[] | number) {
 // Creates a valid table from a 2D array of cells
 function create(table: string[][], options?: TableOptions) {
   const {
-    maxColumns,
     maxRows,
+    maxColumns,
     cellPadding,
     maxColWidths,
     maxRowHeight,
@@ -160,8 +180,11 @@ function create(table: string[][], options?: TableOptions) {
   // Trim rows, columns and truncate cells
   const limitedRows = limitRows(table, maxRows!);
   const limitedColumns = limitColumns(limitedRows, maxColumns!);
-  const truncatedCells = truncateCells(limitedColumns, maxColWidths!);
-  // const truncatedCells = truncateCells(trimmedCells);
+  const formattedCells = formatCells(limitedColumns, {
+    cellPadding,
+    maxColWidths,
+  });
+  // console.log("truncatedCells: ", truncatedCells);
   // const columns = getColumns(truncatedCells);
   // const columnWidths = getColumnMaxWidths(columns);
   // const formattedTable = formatTable(truncatedCells, columnWidths);
@@ -173,7 +196,7 @@ function create(table: string[][], options?: TableOptions) {
   //   ? [topRow, ...formattedTable, bottomRow]
   //   : formattedTable;
 
-  return truncatedCells;
+  return formattedCells;
 }
 
 function log(table: Table, options?: TableOptions) {
