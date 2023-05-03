@@ -26,6 +26,7 @@ export interface Borders {
 }
 
 export interface TableOptions {
+  strict?: boolean;
   cellPadding?: number;
   maxColumns?: number;
   maxRows?: number;

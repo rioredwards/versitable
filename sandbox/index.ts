@@ -1,7 +1,7 @@
-import { hotkeys } from "../__mocks__/hotkeys";
+import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import { TableOptions } from "../src/tableTypes";
 import { versitable } from "../src/index";
-import { getStringUsers } from "../__mocks__/faker";
+import { getStringUsers } from "../__tests__/__mocks__/faker";
 
 function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
