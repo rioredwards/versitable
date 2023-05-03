@@ -11,8 +11,9 @@ export const invalidTableData = [
 // Array of invalid table options
 export const invalidTableOptions = [
   { cellPadding: "2" }, // string instead of number
-  { maxColumns: 2000000 }, // too many columns
+  { maxColumns: 200 }, // too many columns
   { maxRows: -1 }, // negative number of rows
+  { maxRows: 1001 }, // too many rows
   { maxColWidths: false }, // boolean instead of number[]
   { maxRowHeight: 100 }, // too large row height
   { topAndBottomBorder: 1 }, // number instead of boolean

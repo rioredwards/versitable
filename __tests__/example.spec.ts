@@ -9,6 +9,10 @@ import { validTableData, validTableOptions } from "./fixtures/validTableData";
 const users = getStringUsers(5);
 
 describe("versitable.create", () => {
+  beforeEach(() => {
+    jest.resetModules();
+  });
+
   it("should create a string[][] if passed in a string[][]", () => {
     const table = versitable.create(validTableData);
     expect(table).toBeInstanceOf(Array);
@@ -38,5 +42,15 @@ describe("versitable.create", () => {
         } as any)
       ).toThrowError();
     }
+  });
+
+  it("should limit the rows created based on the maxRows option", () => {
+    const table = versitable.create(validTableData, { maxRows: 10 });
+    expect(table.length).toBeLessThanOrEqual(10);
+  });
+
+  it.skip("should limit the columns created based on the maxColumns option", () => {
+    const table = versitable.create(validTableData, { maxColumns: 10 });
+    expect(table[0].length).toBeLessThanOrEqual(10);
   });
 });

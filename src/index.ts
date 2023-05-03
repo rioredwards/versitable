@@ -6,10 +6,10 @@ import {
 } from "./tableValidations";
 
 // /* Helper functions for limiting/trimming cells */
-// function limitRows(table: string[][], max: number) {
-//   if (table.length <= max) return table;
-//   return table.slice(0, max);
-// }
+function limitRows(table: string[][], max: number) {
+  if (table.length > max) return table.slice(0, max);
+  else return table;
+}
 
 // /* Helper functions for limiting/trimming cells */
 // function custom_CoLORSPadEnd(str: string, length: number, fill: string = " ") {
@@ -137,7 +137,8 @@ function create(table: string[][], options?: TableOptions) {
   if (options) checkTableOptionsAreValid(table, options);
 
   // Trim rows, columns and truncate cells
-  // const limitedRows = limitRows(cells, maxRows);
+  console.log("maxRows: ", maxRows);
+  const limitedRows = limitRows(table, maxRows!);
   // const trimmedCells = cells.map((row) => row.map((cell) => cell.trim()));
   // const truncatedCells = truncateCells(trimmedCells);
   // const columns = getColumns(truncatedCells);
@@ -151,7 +152,7 @@ function create(table: string[][], options?: TableOptions) {
   //   ? [topRow, ...formattedTable, bottomRow]
   //   : formattedTable;
 
-  return table;
+  return limitedRows;
 }
 
 function log(table: Table, options?: TableOptions) {
