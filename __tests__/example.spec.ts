@@ -49,8 +49,8 @@ describe("versitable.create", () => {
     expect(table.length).toBeLessThanOrEqual(10);
   });
 
-  it.skip("should limit the columns created based on the maxColumns option", () => {
-    const table = versitable.create(validTableData, { maxColumns: 10 });
-    expect(table[0].length).toBeLessThanOrEqual(10);
+  it("should limit the columns created based on the maxColumns option", () => {
+    const table = versitable.create(validTableData, { maxColumns: 2 });
+    expect(table[0].length).toBeLessThanOrEqual(2);
   });
 });
