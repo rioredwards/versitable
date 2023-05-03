@@ -32,9 +32,14 @@ function isValidMaxRows(maxRows: number) {
   return true;
 }
 
-function isValidMaxColWidths(maxColWidths: number[]) {
-  if (!Array.isArray(maxColWidths)) return false;
-  if (maxColWidths.length <= 0 || maxColWidths.length > 100) return false;
+function isValidMaxColWidths(maxColWidths: number[] | number) {
+  if (Array.isArray(maxColWidths)) {
+    if (maxColWidths.length <= 0 || maxColWidths.length > 100) return false;
+  } else if (typeof maxColWidths === "number") {
+    if (maxColWidths <= 0 || maxColWidths > 100) return false;
+  } else {
+    return false;
+  }
   return true;
 }
 

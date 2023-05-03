@@ -21,6 +21,16 @@ function limitColumns(table: string[][], max: number) {
   return result;
 }
 
+function truncateCells(table: string[][], max: number[] | number) {
+  let truncated: string[][] = [];
+  for (let i = 0; i < table.length; i++) {
+    const row = table[i];
+    const maxRow = Array.isArray(max) ? max[i] : max;
+    truncated.push(row.map((cell) => cell.substring(0, maxRow)));
+  }
+  return truncated;
+}
+
 // /* Helper functions for limiting/trimming cells */
 // function custom_CoLORSPadEnd(str: string, length: number, fill: string = " ") {
 //   const chars = countCharsWithEmojis(str);
@@ -135,6 +145,7 @@ function create(table: string[][], options?: TableOptions) {
   const {
     maxColumns,
     maxRows,
+    cellPadding,
     maxColWidths,
     maxRowHeight,
     topAndBottomBorder,
@@ -149,7 +160,7 @@ function create(table: string[][], options?: TableOptions) {
   // Trim rows, columns and truncate cells
   const limitedRows = limitRows(table, maxRows!);
   const limitedColumns = limitColumns(limitedRows, maxColumns!);
-  // const trimmedCells = cells.map((row) => row.map((cell) => cell.trim()));
+  const truncatedCells = truncateCells(limitedColumns, maxColWidths!);
   // const truncatedCells = truncateCells(trimmedCells);
   // const columns = getColumns(truncatedCells);
   // const columnWidths = getColumnMaxWidths(columns);
@@ -162,7 +173,7 @@ function create(table: string[][], options?: TableOptions) {
   //   ? [topRow, ...formattedTable, bottomRow]
   //   : formattedTable;
 
-  return limitedColumns;
+  return truncatedCells;
 }
 
 function log(table: Table, options?: TableOptions) {

@@ -30,7 +30,7 @@ export interface TableOptions {
   cellPadding?: number;
   maxColumns?: number;
   maxRows?: number;
-  maxColWidths?: number[];
+  maxColWidths?: number[] | number;
   maxRowHeight?: number;
   topAndBottomBorder?: boolean;
   header?: boolean;

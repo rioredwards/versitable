@@ -53,4 +53,9 @@ describe("versitable.create", () => {
     const table = versitable.create(validTableData, { maxColumns: 2 });
     expect(table[0].length).toBeLessThanOrEqual(2);
   });
+
+  it("should truncate the cells based on the maxColWidths option", () => {
+    const table = versitable.create(validTableData, { maxColWidths: 7 });
+    expect(table[0][0].length).toBeLessThanOrEqual(7);
+  });
 });

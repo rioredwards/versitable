@@ -14,7 +14,7 @@ export const invalidTableOptions = [
   { maxColumns: 200 }, // too many columns
   { maxRows: -1 }, // negative number of rows
   { maxRows: 1001 }, // too many rows
-  { maxColWidths: false }, // boolean instead of number[]
+  { maxColWidths: false }, // boolean instead of number[] or number
   { maxRowHeight: 100 }, // too large row height
   { topAndBottomBorder: 1 }, // number instead of boolean
   { header: "true" }, // string instead of boolean
