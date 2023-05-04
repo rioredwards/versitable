@@ -6,7 +6,7 @@ import {
 } from "./tableValidations";
 import { countCharsWithEmojis } from "./emojis";
 
-function getCellLengths(table: string[][]) {
+export function getCellLengths(table: string[][]) {
   const cellLengths: number[][] = table.map((row) => {
     return row.map((cell) => {
       return countCharsWithEmojis(cell);
@@ -16,7 +16,7 @@ function getCellLengths(table: string[][]) {
   return cellLengths;
 }
 
-function getActualMaxColWidths(
+export function getActualMaxColWidths(
   cellLengths: number[][],
   maxColWidthsOption: number[] | number
 ) {
@@ -33,7 +33,7 @@ function getActualMaxColWidths(
   return actualMaxColWidths;
 }
 
-function longestStringInColumns(lengths: number[][]) {
+export function longestStringInColumns(lengths: number[][]) {
   return lengths[0].map((_, colIdx) => {
     return lengths.reduce((maxLength, row) => {
       return Math.max(maxLength, row[colIdx]);
@@ -41,7 +41,7 @@ function longestStringInColumns(lengths: number[][]) {
   });
 }
 
-function arrayFromMaxColOpt(
+export function arrayFromMaxColOpt(
   lengths: number[][],
   maxColWidthsOption: number[] | number
 ) {
@@ -59,12 +59,12 @@ function arrayFromMaxColOpt(
   }
 }
 
-function limitRows(table: string[][], max: number) {
+export function limitRows(table: string[][], max: number) {
   if (table.length > max) return table.slice(0, max);
   return table;
 }
 
-function limitColumns(table: string[][], max: number) {
+export function limitColumns(table: string[][], max: number) {
   if (table.length === 0) return [];
   if (table.length === 1) return table;
   const result: string[][] = [];
@@ -89,24 +89,24 @@ function limitColumns(table: string[][], max: number) {
 //   }
 // }
 
-function splitCell(cell: string, maxColWidth: number) {
+export function splitCell(cell: string, maxColWidth: number) {
   const firstSlice = cell.slice(0, maxColWidth);
   const secondSlice = cell.slice(maxColWidth);
   return [firstSlice, secondSlice];
 }
 
-function padCell(cell: string, cellPadding: number) {
+export function padCell(cell: string, cellPadding: number) {
   if (cellPadding > 0) return cell + " ".repeat(cellPadding);
   else return cell;
 }
 
-function newInsertRow(maxColWidths: number[], cellPadding: number) {
+export function newInsertRow(maxColWidths: number[], cellPadding: number) {
   return maxColWidths.map((maxColWidth) => {
     return " ".repeat(maxColWidth + cellPadding);
   });
 }
 
-function formatTable(
+export function formatTable(
   table: string[][],
   lengths: number[][],
   { cellPadding, actualMaxColWidths, maxRowHeight }: FormatTableOptions
@@ -152,7 +152,7 @@ function formatTable(
 }
 
 // Creates a valid table from a 2D array of cells
-function create(table: string[][], options?: TableOptions) {
+export function create(table: string[][], options?: TableOptions) {
   const {
     maxRows,
     maxColumns,
@@ -183,7 +183,7 @@ function create(table: string[][], options?: TableOptions) {
   return formattedCells;
 }
 
-function log(table: Table, options?: TableOptions) {
+export function log(table: Table, options?: TableOptions) {
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);

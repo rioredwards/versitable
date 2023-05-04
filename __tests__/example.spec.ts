@@ -1,4 +1,3 @@
-import { getStringUsers } from "./__mocks__/faker";
 import { versitable } from "../src";
 import {
   invalidTableData,
@@ -6,21 +5,13 @@ import {
 } from "./__mocks__/invalidTableData";
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
-const users = getStringUsers(5);
+describe("checkTableIsValid", () => {
+  it("should throw an error if logLevel is set to 'error' and table argument is invalid", () => {});
+});
 
 describe("versitable.create", () => {
   beforeEach(() => {
     jest.resetModules();
-  });
-
-  it("temp test for debugging", () => {
-    const updatedOptions = {
-      ...validTableOptions,
-      maxColWidths: 23,
-      cellPPadding: 1,
-    };
-    const table = versitable.create(validTableData, updatedOptions);
-    versitable.log(table, updatedOptions);
   });
 
   it("should create a string[][] if passed in a string[][]", () => {
@@ -55,7 +46,14 @@ describe("versitable.create", () => {
   });
 
   it("should limit the rows created based on the maxRows option", () => {
-    const table = versitable.create(validTableData, { maxRows: 10 });
+    // This doesn't work anymore because rows can have height > 1
+    // const table = versitable.create(validTableData, { maxRows: 10 });
+    // expect(table.length).toBeLessThanOrEqual(10);
+
+    const table = versitable.create(validTableData, {
+      maxRows: 10,
+      maxRowHeight: 1,
+    });
     expect(table.length).toBeLessThanOrEqual(10);
   });
 

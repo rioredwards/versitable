@@ -28,9 +28,9 @@ export interface Borders {
 export interface TableOptions {
   strict?: boolean; // Errors or warnings
   cellPadding?: number; // Padding between cell content and cell border (minimum if cells vary in length) (end of cell only)
-  maxColumns?: number; // Maximum number of columns
-  maxRows?: number; // Maximum number of rows
-  maxColWidths?: number[] | number; // Maximum column widths (doesn't include padding)
+  maxColumns?: number; // Max number of columns
+  maxRows?: number; // Max number of rows (not including "overflow rows": rows with height > 1)
+  maxColWidths?: number[] | number; // Max column widths (doesn't include padding)
   maxRowHeight?: number; // Lines of text per cell (only applies if cell content will be truncated)
   topAndBottomBorder?: boolean; // Whether to include a top and bottom border
   header?: boolean; // Whether to include a header row (this defaults to the first row of the table)
