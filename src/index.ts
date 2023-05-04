@@ -7,6 +7,60 @@ import {
 import { countCharsWithEmojis } from "./emojis";
 
 // /* Helper functions for limiting/trimming cells */
+function getCellLengths(table: string[][]) {
+  const cellLengths: number[][] = [];
+  table.map((row, rowIdx) =>
+    row.map(
+      (_, colIdx) =>
+        (cellLengths[rowIdx][colIdx] = countCharsWithEmojis(
+          table[rowIdx][colIdx]
+        ))
+    )
+  );
+  return cellLengths;
+}
+
+function getActualMaxColWidths(
+  table: string[][],
+  maxColWidthsOption: number[] | number
+) {
+  const maxColWidthsOptionArray = arrayFromMaxColOpt(table, maxColWidthsOption);
+  const maxCharsPerColumn = longestStringInColumns(table);
+
+  const actualMaxColWidths = table[0].map((_, colIdx) => {
+    return Math.min(maxColWidthsOptionArray[colIdx], maxCharsPerColumn[colIdx]);
+  });
+
+  return actualMaxColWidths;
+}
+
+function longestStringInColumns(table: string[][]) {
+  return table[0].map((_, colIdx) => {
+    return table.reduce((maxLength, row) => {
+      const cellLength = countCharsWithEmojis(row[colIdx]);
+      return Math.max(maxLength, cellLength);
+    }, 0);
+  });
+}
+
+function arrayFromMaxColOpt(
+  table: string[][],
+  maxColWidthsOption: number[] | number
+) {
+  // format maxColWidthsOption
+  if (typeof maxColWidthsOption === "number") {
+    return Array(table[0].length).fill(maxColWidthsOption);
+  } else if (maxColWidthsOption.length < table[0].length) {
+    // This extends the maxColWidthsOption array to match the number of columns in the table
+    const defaultWidthsArr = Array(
+      table[0].length - maxColWidthsOption.length
+    ).fill(TABLE_DEFAULTS.maxColWidths);
+    return maxColWidthsOption.concat(defaultWidthsArr);
+  } else {
+    return maxColWidthsOption;
+  }
+}
+
 function limitRows(table: string[][], max: number) {
   if (table.length > max) return table.slice(0, max);
   return table;
@@ -22,9 +76,7 @@ function limitColumns(table: string[][], max: number) {
   return result;
 }
 
-function truncateCell(cell: string, cellWidth: number, maxColWidth: number) {
-  // Return cell if it doesn't exceed maxColWidth
-  if (cellWidth < maxColWidth) return cell;
+function truncateCell(cell: string, maxColWidth: number) {
   // Truncate cell if it exceeds maxColWidth
   if (maxColWidth! - 3 >= 3) {
     // Room for ellipsis
@@ -42,16 +94,33 @@ function padCell(cell: string, cellPadding: number) {
 
 function formatCells(
   table: string[][],
-  { cellPadding, maxColWidths }: TableOptions
+  { cellPadding, maxColWidths, maxRowHeight }: TableOptions
 ) {
   const formattedRows = table.map((row, rowIdx) => {
+    // let truncatedCellsContent: string[] = [];
+    let insertRow: string[] | undefined = undefined;
+
     const formattedCells = row.map((cell, colIdx) => {
       const maxColWidth = Array.isArray(maxColWidths)
         ? maxColWidths[colIdx]
         : maxColWidths;
       const cellChars = countCharsWithEmojis(cell);
 
-      const truncatedCell = truncateCell(cell, cellChars, maxColWidth!);
+      // Return cell if it doesn't exceed maxColWidth
+      let truncatedCell: string;
+      if (cellChars && cellChars < maxColWidth!) {
+        truncatedCell = cell;
+      } else {
+        truncatedCell = truncateCell(cell, maxColWidth!);
+        if (maxRowHeight! > 1) {
+          if (insertRow !== undefined) {
+            insertRow[colIdx] = truncatedCell;
+          } else {
+            insertRow = Array(row.length).fill("");
+            insertRow[colIdx] = truncatedCell;
+          }
+        }
+      }
       const paddedCell = padCell(truncatedCell, cellPadding!);
 
       return paddedCell;
@@ -181,12 +250,17 @@ function create(table: string[][], options?: TableOptions) {
   checkTableIsValid(table);
   if (options) checkTableOptionsAreValid(table, options);
 
+  // Get max column widths - maxColWidths is specified in options, but is just an upper limit
+  const cellLengths = getCellLengths(table);
+  const actualMaxColWidths = getActualMaxColWidths(table, maxColWidths!);
+
   // Trim rows, columns and truncate cells
   const limitedRows = limitRows(table, maxRows!);
   const limitedColumns = limitColumns(limitedRows, maxColumns!);
   const formattedCells = formatCells(limitedColumns, {
     cellPadding,
     maxColWidths,
+    maxRowHeight,
   });
   // console.log("truncatedCells: ", truncatedCells);
   // const columns = getColumns(truncatedCells);
