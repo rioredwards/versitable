@@ -100,6 +100,12 @@ function padCell(cell: string, cellPadding: number) {
   else return cell;
 }
 
+function newInsertRow(maxColWidths: number[], cellPadding: number) {
+  return maxColWidths.map((maxColWidth) => {
+    return " ".repeat(maxColWidth + cellPadding);
+  });
+}
+
 function formatTable(
   table: string[][],
   lengths: number[][],
@@ -107,41 +113,40 @@ function formatTable(
 ) {
   let formattedRows: string[][] = [];
   table.forEach((row, rowIdx) => {
-    let formattedRow: string[] = [];
-    let insertRow: string[] | undefined = undefined;
+    let insertRows: string[][] = [];
 
     row.forEach((cell, colIdx) => {
       const cellLength = lengths[rowIdx][colIdx];
       const maxColWidth = actualMaxColWidths[colIdx];
 
-      let truncatedCell: string;
       if (cellLength <= maxColWidth) {
-        truncatedCell = cell;
+        const additionalPadding = maxColWidth - cellLength;
+        const paddedCell = padCell(cell, additionalPadding + cellPadding!);
+        if (insertRows[0] === undefined) {
+          insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+        }
+        insertRows[0][colIdx] = paddedCell;
       } else {
-        const [firstSlice, secondSlice] = splitCell(cell, maxColWidth!);
-        truncatedCell = firstSlice;
+        let sliceIdx = 0;
         // if cell is too long and maxRowHeight is greater than 1, truncate cell and insert remainder into next row
-        if (maxRowHeight! > 1) {
-          if (insertRow === undefined) insertRow = new Array(row.length);
-          insertRow[colIdx] = secondSlice;
+        while (sliceIdx < maxRowHeight!) {
+          const charAtSliceIdx = cell[sliceIdx * maxColWidth!];
+          if (charAtSliceIdx === undefined) break;
+          const startSliceIdx = sliceIdx * maxColWidth!;
+          const endSliceIdx = maxColWidth! + sliceIdx * maxColWidth!;
+          const slice = cell.substring(startSliceIdx, endSliceIdx);
+          const additionalPadding = maxColWidth - endSliceIdx - startSliceIdx;
+          const paddedSlice = padCell(slice, additionalPadding + cellPadding!);
+          // Check if new row is needed
+          if (insertRows[sliceIdx] === undefined) {
+            insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+          }
+          insertRows[sliceIdx][colIdx] = paddedSlice;
+          sliceIdx++;
         }
       }
-      const paddedCell = padCell(truncatedCell, cellPadding!);
-      formattedRow.push(paddedCell);
     });
-    formattedRows.push(formattedRow);
-    if (insertRow !== undefined) {
-      // if any cells of insertRow are undefined, fill them with empty strings with the same length as the corresponding cell in formattedRow
-      const formattedInsertRow = row.map((_, colIdx) => {
-        let cell = insertRow![colIdx];
-        if (cell !== undefined) return padCell(cell, cellPadding!);
-
-        const maxColWidth = actualMaxColWidths[colIdx];
-        const emptyCell = " ".repeat(maxColWidth!);
-        return padCell(emptyCell, cellPadding!);
-      });
-      formattedRows.push(formattedInsertRow);
-    }
+    formattedRows = formattedRows.concat(insertRows);
   });
   return formattedRows;
 }

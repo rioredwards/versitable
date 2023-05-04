@@ -3,7 +3,7 @@ import { TableOptions } from "../../src/tableTypes";
 export const validTableOptions: TableOptions = {
   strict: true,
   cellPadding: 1,
-  maxColumns: 2,
+  maxColumns: 6,
   maxRows: 8,
   maxColWidths: [20, 20, 60],
   maxRowHeight: 2,

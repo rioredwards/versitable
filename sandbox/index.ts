@@ -13,8 +13,8 @@ function main() {
   // versitable.log(hotkeysFormattedForTable, validTableOptions);
   const updatedOptions = {
     ...validTableOptions,
-    maxColWidths: [1, 10, 50],
-    cellPadding: 1,
+    maxColWidths: [20, 20, 50],
+    cellPadding: 3,
   };
 
   console.log("__________________________________________________");
