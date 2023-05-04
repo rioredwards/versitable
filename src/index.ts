@@ -135,7 +135,7 @@ function formatTable(
           const startSliceIdx = sliceIdx * maxColWidth!;
           const endSliceIdx = maxColWidth! + sliceIdx * maxColWidth!;
           const slice = cell.substring(startSliceIdx, endSliceIdx);
-          const additionalPadding = maxColWidth - endSliceIdx - startSliceIdx;
+          const additionalPadding = maxColWidth - countCharsWithEmojis(slice);
           const paddedSlice = padCell(slice, additionalPadding + cellPadding!);
           // Check if new row is needed
           if (insertRows[sliceIdx] === undefined) {

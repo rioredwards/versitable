@@ -1,10 +1,10 @@
-import { getStringUsers } from "./fixtures/faker";
+import { getStringUsers } from "./__mocks__/faker";
 import { versitable } from "../src";
 import {
   invalidTableData,
   invalidTableOptions,
-} from "./fixtures/invalidTableData";
-import { validTableData, validTableOptions } from "./fixtures/validTableData";
+} from "./__mocks__/invalidTableData";
+import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
 const users = getStringUsers(5);
 

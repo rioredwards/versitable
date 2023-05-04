@@ -1,10 +1,10 @@
 import { TableOptions } from "../src/tableTypes";
 import { versitable } from "../src/index";
-import { hotkeys } from "../__tests__/fixtures/hotkeys";
+import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import {
   validTableOptions,
   validTableData,
-} from "../__tests__/fixtures/validTableData";
+} from "../__tests__/__mocks__/validTableData";
 
 function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
@@ -18,6 +18,8 @@ function main() {
   };
 
   console.log("__________________________________________________");
+  // benchmark test
+  performance.now();
   versitable.log(validTableData, updatedOptions);
 }
 

@@ -24,7 +24,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "npm run test -- --watch",
-    "dev": "nodemon -q --exec ts-node sandbox/index.ts",
+    "dev": "nodemon -q --exec ts-node scripts/index.ts",
     "typecheck": "tsc --noEmit",
     "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build"

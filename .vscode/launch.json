@@ -24,9 +24,9 @@
       "request": "launch",
       "name": "Debug Sandbox with ts-node",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/sandbox/index.ts",
+      "program": "${workspaceFolder}/scripts/index.ts",
       "runtimeArgs": ["-r", "ts-node/register"],
-      "args": ["${workspaceFolder}/src/your-entry-file.ts"],
+      "args": ["${workspaceFolder}/scripts/index.ts"],
       "console": "integratedTerminal",
       "outFiles": ["${workspaceFolder}/**/*.js"],
       "outputCapture": "std"
@@ -45,7 +45,7 @@
 //       "request": "launch",
 //       "name": "Launch Service",
 //       "skipFiles": ["<node_internals>/**"],
-//       "program": "${workspaceFolder}/sandbox/index.ts",
+//       "program": "${workspaceFolder}/scripts/index.ts",
 //       "preLaunchTask": "tsc: build - tsconfig.json",
 //       "console": "integratedTerminal",
 //       "outFiles": ["${workspaceFolder}/**/*.js"]
