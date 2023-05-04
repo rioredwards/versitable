@@ -168,9 +168,10 @@ function create(table: string[][], options?: TableOptions) {
   if (options) checkTableOptionsAreValid(table, options);
 
   const limitedRows = limitRows(table, maxRows!);
-  const limitedColumns = limitColumns(limitedRows, maxColumns!);
+  const actualMaxColumns = Math.min(maxColumns!, table[0].length);
+  const limitedColumns = limitColumns(limitedRows, actualMaxColumns!);
 
-  const cellLengths = getCellLengths(table);
+  const cellLengths = getCellLengths(limitedColumns);
   const actualMaxColWidths = getActualMaxColWidths(cellLengths, maxColWidths!);
 
   const formattedCells = formatTable(limitedColumns, cellLengths, {

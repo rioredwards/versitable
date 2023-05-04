@@ -16,7 +16,7 @@ describe("versitable.create", () => {
   it("temp test for debugging", () => {
     const updatedOptions = {
       ...validTableOptions,
-      maxColWidths: [1, 10, 50],
+      maxColWidths: 23,
       cellPPadding: 1,
     };
     const table = versitable.create(validTableData, updatedOptions);

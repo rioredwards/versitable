@@ -18,6 +18,18 @@
       "args": ["${relativeFile}", "--runInBand"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Sandbox with ts-node",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/sandbox/index.ts",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/src/your-entry-file.ts"],
+      "console": "integratedTerminal",
+      "outFiles": ["${workspaceFolder}/**/*.js"],
+      "outputCapture": "std"
     }
   ]
 }
