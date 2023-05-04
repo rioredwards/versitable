@@ -43,7 +43,7 @@ export const validTableOptions: TableOptions = {
 
 export const validTableData = [
   [
-    "6db3e8c1-78cb-48f5-993d-4eb517ced2e4",
+    "4",
     "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/973.jpg",
     "🦵🏾",
     "🐪🕊️🧨",

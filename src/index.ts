@@ -6,54 +6,52 @@ import {
 } from "./tableValidations";
 import { countCharsWithEmojis } from "./emojis";
 
-// /* Helper functions for limiting/trimming cells */
 function getCellLengths(table: string[][]) {
-  const cellLengths: number[][] = [];
-  table.map((row, rowIdx) =>
-    row.map(
-      (_, colIdx) =>
-        (cellLengths[rowIdx][colIdx] = countCharsWithEmojis(
-          table[rowIdx][colIdx]
-        ))
-    )
-  );
+  const cellLengths: number[][] = table.map((row) => {
+    return row.map((cell) => {
+      return countCharsWithEmojis(cell);
+    });
+  });
+
   return cellLengths;
 }
 
 function getActualMaxColWidths(
-  table: string[][],
+  cellLengths: number[][],
   maxColWidthsOption: number[] | number
 ) {
-  const maxColWidthsOptionArray = arrayFromMaxColOpt(table, maxColWidthsOption);
-  const maxCharsPerColumn = longestStringInColumns(table);
+  const maxColWidthsOptionArray = arrayFromMaxColOpt(
+    cellLengths,
+    maxColWidthsOption
+  );
+  const maxCharsPerColumn = longestStringInColumns(cellLengths);
 
-  const actualMaxColWidths = table[0].map((_, colIdx) => {
+  const actualMaxColWidths = cellLengths[0].map((_, colIdx) => {
     return Math.min(maxColWidthsOptionArray[colIdx], maxCharsPerColumn[colIdx]);
   });
 
   return actualMaxColWidths;
 }
 
-function longestStringInColumns(table: string[][]) {
-  return table[0].map((_, colIdx) => {
-    return table.reduce((maxLength, row) => {
-      const cellLength = countCharsWithEmojis(row[colIdx]);
-      return Math.max(maxLength, cellLength);
+function longestStringInColumns(lengths: number[][]) {
+  return lengths[0].map((_, colIdx) => {
+    return lengths.reduce((maxLength, row) => {
+      return Math.max(maxLength, row[colIdx]);
     }, 0);
   });
 }
 
 function arrayFromMaxColOpt(
-  table: string[][],
+  lengths: number[][],
   maxColWidthsOption: number[] | number
 ) {
   // format maxColWidthsOption
   if (typeof maxColWidthsOption === "number") {
-    return Array(table[0].length).fill(maxColWidthsOption);
-  } else if (maxColWidthsOption.length < table[0].length) {
+    return Array(lengths[0].length).fill(maxColWidthsOption);
+  } else if (maxColWidthsOption.length < lengths[0].length) {
     // This extends the maxColWidthsOption array to match the number of columns in the table
     const defaultWidthsArr = Array(
-      table[0].length - maxColWidthsOption.length
+      lengths[0].length - maxColWidthsOption.length
     ).fill(TABLE_DEFAULTS.maxColWidths);
     return maxColWidthsOption.concat(defaultWidthsArr);
   } else {
@@ -94,6 +92,7 @@ function padCell(cell: string, cellPadding: number) {
 
 function formatCells(
   table: string[][],
+  lengths: number[][],
   { cellPadding, maxColWidths, maxRowHeight }: TableOptions
 ) {
   const formattedRows = table.map((row, rowIdx) => {
@@ -104,7 +103,7 @@ function formatCells(
       const maxColWidth = Array.isArray(maxColWidths)
         ? maxColWidths[colIdx]
         : maxColWidths;
-      const cellChars = countCharsWithEmojis(cell);
+      const cellChars = lengths[rowIdx][colIdx];
 
       // Return cell if it doesn't exceed maxColWidth
       let truncatedCell: string;
@@ -246,33 +245,20 @@ function create(table: string[][], options?: TableOptions) {
     colors,
   } = { ...TABLE_DEFAULTS, ...options };
 
-  // Guard clauses
   checkTableIsValid(table);
   if (options) checkTableOptionsAreValid(table, options);
 
-  // Get max column widths - maxColWidths is specified in options, but is just an upper limit
-  const cellLengths = getCellLengths(table);
-  const actualMaxColWidths = getActualMaxColWidths(table, maxColWidths!);
-
-  // Trim rows, columns and truncate cells
   const limitedRows = limitRows(table, maxRows!);
   const limitedColumns = limitColumns(limitedRows, maxColumns!);
-  const formattedCells = formatCells(limitedColumns, {
+
+  const cellLengths = getCellLengths(table);
+  const actualMaxColWidths = getActualMaxColWidths(cellLengths, maxColWidths!);
+
+  const formattedCells = formatCells(limitedColumns, cellLengths, {
     cellPadding,
     maxColWidths,
     maxRowHeight,
   });
-  // console.log("truncatedCells: ", truncatedCells);
-  // const columns = getColumns(truncatedCells);
-  // const columnWidths = getColumnMaxWidths(columns);
-  // const formattedTable = formatTable(truncatedCells, columnWidths);
-  // const formattedWidths = getFormattedColumnWidths(columnWidths);
-  // const topRow = createTopOrBottom("top", formattedWidths);
-  // const bottomRow = createTopOrBottom("bottom", formattedWidths);
-
-  // const result = topAndBottomBorder
-  //   ? [topRow, ...formattedTable, bottomRow]
-  //   : formattedTable;
 
   return formattedCells;
 }
@@ -281,9 +267,6 @@ function log(table: Table, options?: TableOptions) {
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);
-  // createdTable.forEach((row) => {
-  //   console.log(row.join(""));
-  // });
 }
 
 export const versitable = {
