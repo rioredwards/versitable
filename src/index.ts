@@ -152,8 +152,9 @@ export function formatTable(
 }
 
 // Creates a valid table from a 2D array of cells
-export function create(table: string[][], options?: TableOptions) {
+export function create(table: string[][], options?: Partial<TableOptions>) {
   const {
+    validationMode,
     maxRows,
     maxColumns,
     cellPadding,
@@ -162,7 +163,7 @@ export function create(table: string[][], options?: TableOptions) {
     topAndBottomBorder,
     header,
     colors,
-  } = { ...TABLE_DEFAULTS, ...options };
+  } = { ...TABLE_DEFAULTS, ...options } as TableOptions;
 
   checkTableIsValid(table);
   if (options) checkTableOptionsAreValid(table, options);
@@ -183,7 +184,7 @@ export function create(table: string[][], options?: TableOptions) {
   return formattedCells;
 }
 
-export function log(table: Table, options?: TableOptions) {
+export function log(table: Table, options?: Partial<TableOptions>) {
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);

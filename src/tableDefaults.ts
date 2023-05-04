@@ -1,6 +1,7 @@
 import { TableOptions } from "./tableTypes";
 
 /* Defaults */
+const VALIDATION_MODE = "error";
 const CELL_PADDING = 2;
 const MAX_COLUMNS = 12;
 const MAX_ROWS = 100;
@@ -21,6 +22,7 @@ const TOP_SEPARATOR = "┬";
 const BOTTOM_SEPARATOR = "┴";
 
 export const TABLE_DEFAULTS: TableOptions = {
+  validationMode: VALIDATION_MODE,
   cellPadding: CELL_PADDING,
   maxColumns: MAX_COLUMNS,
   maxRows: MAX_ROWS,

@@ -6,7 +6,11 @@ import {
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
 describe("checkTableIsValid", () => {
-  it("should throw an error if logLevel is set to 'error' and table argument is invalid", () => {});
+  it("should throw an error if validationMode is set to 'error' and table argument is invalid", () => {
+    expect(() =>
+      versitable.create(invalidTableData[0], { validationMode: "error" })
+    ).toThrowError();
+  });
 });
 
 describe("versitable.create", () => {
