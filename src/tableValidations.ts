@@ -16,7 +16,7 @@ function subArraysAreSameLength(table: any[][]) {
 
 function isValidCellPadding(cellPadding: number) {
   if (typeof cellPadding !== "number") return false;
-  if (cellPadding <= 0 || cellPadding > 10) return false;
+  if (cellPadding < 0 || cellPadding > 10) return false;
   return true;
 }
 
