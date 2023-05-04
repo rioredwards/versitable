@@ -13,6 +13,16 @@ describe("versitable.create", () => {
     jest.resetModules();
   });
 
+  it("temp test for debugging", () => {
+    const updatedOptions = {
+      ...validTableOptions,
+      maxColWidths: [1, 10, 50],
+      cellPPadding: 1,
+    };
+    const table = versitable.create(validTableData, updatedOptions);
+    versitable.log(table, updatedOptions);
+  });
+
   it("should create a string[][] if passed in a string[][]", () => {
     const table = versitable.create(validTableData);
     expect(table).toBeInstanceOf(Array);

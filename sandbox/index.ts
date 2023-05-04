@@ -14,6 +14,7 @@ function main() {
   const updatedOptions = {
     ...validTableOptions,
     maxColWidths: [1, 10, 50],
+    cellPadding: 1,
   };
 
   console.log("__________________________________________________");

@@ -115,12 +115,8 @@ function formatTable(
       const maxColWidth = actualMaxColWidths[colIdx];
 
       let truncatedCell: string;
-      if (cellLength < maxColWidth) {
+      if (cellLength <= maxColWidth) {
         truncatedCell = cell;
-        if (insertRow !== undefined) {
-          const emptyInsertCell = " ".repeat(maxColWidth + cellPadding!);
-          insertRow[colIdx] = emptyInsertCell;
-        }
       } else {
         const [firstSlice, secondSlice] = splitCell(cell, maxColWidth!);
         truncatedCell = firstSlice;
@@ -134,6 +130,18 @@ function formatTable(
       formattedRow.push(paddedCell);
     });
     formattedRows.push(formattedRow);
+    if (insertRow !== undefined) {
+      // if any cells of insertRow are undefined, fill them with empty strings with the same length as the corresponding cell in formattedRow
+      const formattedInsertRow = row.map((_, colIdx) => {
+        let cell = insertRow![colIdx];
+        if (cell !== undefined) return padCell(cell, cellPadding!);
+
+        const maxColWidth = actualMaxColWidths[colIdx];
+        const emptyCell = " ".repeat(maxColWidth!);
+        return padCell(emptyCell, cellPadding!);
+      });
+      formattedRows.push(formattedInsertRow);
+    }
   });
   return formattedRows;
 }
