@@ -38,4 +38,8 @@ export interface TableOptions {
   borders?: Borders; // Border characters
 }
 
+export interface FormatTableOptions extends TableOptions {
+  actualMaxColWidths: number[];
+}
+
 export type CellPos = "first" | "center" | "last";
