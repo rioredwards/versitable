@@ -1,136 +1,162 @@
-import chalk from "chalk";
-import { countCharsWithEmojis } from "../testData/emojis.js";
-import { Table, TableOptions } from "./tableTypes.js";
-import { TABLE_DEFAULTS } from "./tableDefaults.js";
+import { FormatTableOptions, Table, TableOptions } from "./tableTypes";
+import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
-} from "./tableValidations.js";
+} from "./tableValidations";
+import { countCharsWithEmojis } from "./emojis";
 
-const temp_table = [
-  ["test1", "test2"],
-  ["test3", "test4"],
-];
+function getCellLengths(table: string[][]) {
+  const cellLengths: number[][] = table.map((row) => {
+    return row.map((cell) => {
+      return countCharsWithEmojis(cell);
+    });
+  });
 
-// /* Helper functions for limiting/trimming cells */
-// function limitRows(table: string[][], max: number) {
-//   if (table.length <= max) return table;
-//   return table.slice(0, max);
-// }
+  return cellLengths;
+}
 
-// /* Helper functions for limiting/trimming cells */
-// function custom_CoLORSPadEnd(str: string, length: number, fill: string = " ") {
-//   const chars = countCharsWithEmojis(str);
-//   return str + fill.repeat(length - chars);
-// }
+function getActualMaxColWidths(
+  cellLengths: number[][],
+  maxColWidthsOption: number[] | number
+) {
+  const maxColWidthsOptionArray = arrayFromMaxColOpt(
+    cellLengths,
+    maxColWidthsOption
+  );
+  const maxCharsPerColumn = longestStringInColumns(cellLengths);
 
-// function getColumns(table: string[][]) {
-//   if (table.length === 0) return [];
-//   if (table.length === 1) return table;
-//   return table[0].map((_, i) => table.map((row) => row[i]));
-// }
+  const actualMaxColWidths = cellLengths[0].map((_, colIdx) => {
+    return Math.min(maxColWidthsOptionArray[colIdx], maxCharsPerColumn[colIdx]);
+  });
 
-// function truncate(str: string, nun: number) {
-//   return countCharsWithEmojis(str) > nun
-//     ? str.substring(0, nun - 3) + "..."
-//     : str;
-// }
+  return actualMaxColWidths;
+}
 
-// function truncateCells(table: string[][]) {
-//   return table.map((row) =>
-//     row.map((cell, i) => truncate(cell, MAX_WIDTH_PER_COLUMN[i]))
-//   );
-// }
+function longestStringInColumns(lengths: number[][]) {
+  return lengths[0].map((_, colIdx) => {
+    return lengths.reduce((maxLength, row) => {
+      return Math.max(maxLength, row[colIdx]);
+    }, 0);
+  });
+}
 
-// function getColumnMaxWidths(columns: string[][]) {
-//   const colMaxWidths = columns.map((column) => {
-//     return Math.max(...column.map((cell) => countCharsWithEmojis(cell)));
-//   });
+function arrayFromMaxColOpt(
+  lengths: number[][],
+  maxColWidthsOption: number[] | number
+) {
+  // format maxColWidthsOption
+  if (typeof maxColWidthsOption === "number") {
+    return Array(lengths[0].length).fill(maxColWidthsOption);
+  } else if (maxColWidthsOption.length < lengths[0].length) {
+    // This extends the maxColWidthsOption array to match the number of columns in the table
+    const defaultWidthsArr = Array(
+      lengths[0].length - maxColWidthsOption.length
+    ).fill(TABLE_DEFAULTS.maxColWidths);
+    return maxColWidthsOption.concat(defaultWidthsArr);
+  } else {
+    return maxColWidthsOption;
+  }
+}
 
-//   return colMaxWidths;
-// }
+function limitRows(table: string[][], max: number) {
+  if (table.length > max) return table.slice(0, max);
+  return table;
+}
 
-// function formatTable(table: string[][], colWidths: number[]) {
-//   const formattedTable = table.map((row, i) => {
-//     const color = i % 2 === 0 ? ROW_COLOR_1 : ROW_COLOR_2;
-//     const formattedRow = formatRow(row, colWidths, color);
-//     return formattedRow.join("");
-//   });
+function limitColumns(table: string[][], max: number) {
+  if (table.length === 0) return [];
+  if (table.length === 1) return table;
+  const result: string[][] = [];
+  for (const row of table) {
+    result.push(row.slice(0, max));
+  }
+  return result;
+}
 
-//   return formattedTable;
-// }
-
-// function formatRow(row: string[], colWidths: number[], color: string) {
-//   const formattedRow = row.map((cell, i) => {
-//     const cellPos =
-//       i === 0 ? "first" : i === row.length - 1 ? "last" : "center";
-//     let formattedCell = custom_CoLORSPadEnd(cell, colWidths[i]);
-//     let coloredCells = "";
-
-//     switch (cellPos) {
-//       case "first":
-//         coloredCells = chalk.bgHex(color)(padding + formattedCell + padding);
-//         return verticalLine + coloredCells;
-
-//       case "last":
-//         coloredCells = chalk.bgHex(color)(padding + formattedCell + padding);
-//         return coloredCells + verticalLine;
-
-//       default:
-//         coloredCells = chalk.bgHex(color)(
-//           verticalLine + padding + formattedCell + padding + verticalLine
-//         );
-//         return coloredCells;
-//     }
-//   });
-//   return formattedRow;
-// }
-
-// function getFormattedColumnWidths(columnWidths: number[]) {
-//   const formattedColWidths = columnWidths.map((_, i) => {
-//     if (i === 0 || i === columnWidths.length - 1) {
-//       return columnWidths[i] + padding.length * 2 + verticalLine.length;
-//     } else {
-//       return columnWidths[i] + padding.length * 2 + verticalLine.length * 2;
-//     }
-//   });
-//   return formattedColWidths;
-// }
-
-// function createTopOrBottom(rowPos: "top" | "bottom", colWidths: number[]) {
-//   if (rowPos === "top") {
-//     const topRow =
-//       topLeftCorner +
-//       colWidths
-//         .map((width, i) => {
-//           if (i === 0) return horizontalLine.repeat(width - 1);
-//           else if (i === colWidths.length - 1)
-//             return horizontalLine.repeat(width - 1);
-//           else return horizontalLine.repeat(width - 2);
-//         })
-//         .join(topSeparator) +
-//       topRightCorner;
-//     return topRow;
+// function truncateCell(
+//   cell: string,
+//   maxColWidth: number,
+//   cutOffString: "..." | "-"
+// ) {
+//   // Truncate cell if it exceeds maxColWidth
+//   if (maxColWidth! - cutOffString.length >= 3) {
+//     // Room for cutOffString
+//     return cell.substring(0, maxColWidth! - 3) + cutOffString;
 //   } else {
-//     const bottomRow =
-//       bottomLeftCorner +
-//       colWidths
-//         .map((width, i) => {
-//           if (i === 0) return horizontalLine.repeat(width - 1);
-//           else if (i === colWidths.length - 1)
-//             return horizontalLine.repeat(width - 1);
-//           else return horizontalLine.repeat(width - 2);
-//         })
-//         .join(bottomSeparator) +
-//       bottomRightCorner;
-//     return bottomRow;
+//     // No room for cutOffString
+//     return cell.substring(0, maxColWidth!);
 //   }
 // }
 
-export function create(cells: string[][], options?: TableOptions) {
+function splitCell(cell: string, maxColWidth: number) {
+  const firstSlice = cell.slice(0, maxColWidth);
+  const secondSlice = cell.slice(maxColWidth);
+  return [firstSlice, secondSlice];
+}
+
+function padCell(cell: string, cellPadding: number) {
+  if (cellPadding > 0) return cell + " ".repeat(cellPadding);
+  else return cell;
+}
+
+function newInsertRow(maxColWidths: number[], cellPadding: number) {
+  return maxColWidths.map((maxColWidth) => {
+    return " ".repeat(maxColWidth + cellPadding);
+  });
+}
+
+function formatTable(
+  table: string[][],
+  lengths: number[][],
+  { cellPadding, actualMaxColWidths, maxRowHeight }: FormatTableOptions
+) {
+  let formattedRows: string[][] = [];
+  table.forEach((row, rowIdx) => {
+    let insertRows: string[][] = [];
+
+    row.forEach((cell, colIdx) => {
+      const cellLength = lengths[rowIdx][colIdx];
+      const maxColWidth = actualMaxColWidths[colIdx];
+
+      if (cellLength <= maxColWidth) {
+        const additionalPadding = maxColWidth - cellLength;
+        const paddedCell = padCell(cell, additionalPadding + cellPadding!);
+        if (insertRows[0] === undefined) {
+          insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+        }
+        insertRows[0][colIdx] = paddedCell;
+      } else {
+        let sliceIdx = 0;
+        // if cell is too long and maxRowHeight is greater than 1, truncate cell and insert remainder into next row
+        while (sliceIdx < maxRowHeight!) {
+          const charAtSliceIdx = cell[sliceIdx * maxColWidth!];
+          if (charAtSliceIdx === undefined) break;
+          const startSliceIdx = sliceIdx * maxColWidth!;
+          const endSliceIdx = maxColWidth! + sliceIdx * maxColWidth!;
+          const slice = cell.substring(startSliceIdx, endSliceIdx);
+          const additionalPadding = maxColWidth - endSliceIdx - startSliceIdx;
+          const paddedSlice = padCell(slice, additionalPadding + cellPadding!);
+          // Check if new row is needed
+          if (insertRows[sliceIdx] === undefined) {
+            insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+          }
+          insertRows[sliceIdx][colIdx] = paddedSlice;
+          sliceIdx++;
+        }
+      }
+    });
+    formattedRows = formattedRows.concat(insertRows);
+  });
+  return formattedRows;
+}
+
+// Creates a valid table from a 2D array of cells
+function create(table: string[][], options?: TableOptions) {
   const {
-    maxColumns,
     maxRows,
+    maxColumns,
+    cellPadding,
     maxColWidths,
     maxRowHeight,
     topAndBottomBorder,
@@ -138,36 +164,28 @@ export function create(cells: string[][], options?: TableOptions) {
     colors,
   } = { ...TABLE_DEFAULTS, ...options };
 
-  // Guard clauses
-  checkTableIsValid(cells);
-  if (options) checkTableOptionsAreValid(cells, options);
+  checkTableIsValid(table);
+  if (options) checkTableOptionsAreValid(table, options);
 
-  // Trim rows, columns and truncate cells
-  // const limitedRows = limitRows(cells, maxRows);
-  // const trimmedCells = cells.map((row) => row.map((cell) => cell.trim()));
-  // const truncatedCells = truncateCells(trimmedCells);
-  // const columns = getColumns(truncatedCells);
-  // const columnWidths = getColumnMaxWidths(columns);
-  // const formattedTable = formatTable(truncatedCells, columnWidths);
-  // const formattedWidths = getFormattedColumnWidths(columnWidths);
-  // const topRow = createTopOrBottom("top", formattedWidths);
-  // const bottomRow = createTopOrBottom("bottom", formattedWidths);
+  const limitedRows = limitRows(table, maxRows!);
+  const limitedColumns = limitColumns(limitedRows, maxColumns!);
 
-  // const result = topAndBottomBorder
-  //   ? [topRow, ...formattedTable, bottomRow]
-  //   : formattedTable;
+  const cellLengths = getCellLengths(table);
+  const actualMaxColWidths = getActualMaxColWidths(cellLengths, maxColWidths!);
 
-  return temp_table;
+  const formattedCells = formatTable(limitedColumns, cellLengths, {
+    cellPadding,
+    actualMaxColWidths,
+    maxRowHeight,
+  });
+
+  return formattedCells;
 }
 
-export function log(table: Table, options?: TableOptions) {
-  table = temp_table;
+function log(table: Table, options?: TableOptions) {
   const createdTable = create(table, options);
   const joinedTable = createdTable.map((row) => row.join("")).join("\n");
   console.log(joinedTable);
-  // createdTable.forEach((row) => {
-  //   console.log(row.join(""));
-  // });
 }
 
 export const versitable = {

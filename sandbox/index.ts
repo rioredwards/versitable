@@ -1,43 +1,24 @@
-import { hotkeys } from "../testData/hotkeys.js";
-import { TableOptions } from "../src/tableTypes.js";
-import { versitable } from "../src/index.js";
+import { TableOptions } from "../src/tableTypes";
+import { versitable } from "../src/index";
+import { hotkeys } from "../__tests__/fixtures/hotkeys";
+import {
+  validTableOptions,
+  validTableData,
+} from "../__tests__/fixtures/validTableData";
 
 function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
-
-  const tableOptions: TableOptions = {
-    cellPadding: 1,
-    maxColumns: 2,
-    maxRows: 8,
-    maxColWidths: [20, 20, 60],
-    maxRowHeight: 2,
-    topAndBottomBorder: false,
-    header: true,
-    colors: {
-      borderColor: "yellow",
-      alternateRows: ["red", "blue"],
-      customColors: [
-        {
-          column: 0,
-          row: 0,
-          fgColor: "orange",
-          style: "bold",
-          bgColor: "magenta",
-        },
-        {
-          column: 2,
-          row: 1,
-          style: "italic",
-          fgColor: "magentaBright",
-          bgColor: "yellowBright",
-        },
-      ],
-    },
+  // versitable.log(hotkeysFormattedForTable, validTableOptions);
+  const updatedOptions = {
+    ...validTableOptions,
+    maxColWidths: [20, 20, 50],
+    cellPadding: 3,
   };
 
-  versitable.log(hotkeysFormattedForTable, tableOptions);
+  console.log("__________________________________________________");
+  versitable.log(validTableData, updatedOptions);
 }
 
 main();

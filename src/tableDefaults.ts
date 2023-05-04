@@ -1,11 +1,10 @@
-import { TableOptions } from "./tableTypes.js";
+import { TableOptions } from "./tableTypes";
 
 /* Defaults */
 const CELL_PADDING = 2;
 const MAX_COLUMNS = 12;
 const MAX_ROWS = 100;
-const MAX_WIDTH_PER_COLUMN = 20;
-const MAX_COL_WIDTHS = new Array(MAX_COLUMNS).fill(MAX_WIDTH_PER_COLUMN);
+const MAX_COL_WIDTHS = 20;
 const MAX_ROW_HEIGHT = 3;
 const TOP_AND_BOTTOM_BORDER = true;
 const HEADER = true;

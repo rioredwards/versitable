@@ -4,7 +4,7 @@
   "description": "A versatile alternative to console.table()",
   "main": "dist/index.js",
   "bin": "dist/index.js",
-  "type": "module",
+  "type": "commonjs",
   "files": [
     "dist"
   ],
@@ -23,22 +23,28 @@
   "private": false,
   "scripts": {
     "test": "jest",
-    "start": "ts-node --esm sandbox/index.ts",
+    "test:watch": "npm run test -- --watch",
+    "dev": "nodemon -q --exec ts-node sandbox/index.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "prepublishOnly": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/rioredwards/versitable/issues"
   },
   "dependencies": {
-    "chalk": "^5.2.0",
-    "chalk-pipe": "^6.0.0"
+    "chalk": "^4.0.0",
+    "chalk-pipe": "^4.0.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.21.5",
+    "@babel/preset-typescript": "^7.21.5",
+    "@faker-js/faker": "^7.6.0",
+    "@types/chalk-pipe": "^2.0.1",
     "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11",
+    "error-affirmations": "^1.2.7",
     "jest": "^29.5.0",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
