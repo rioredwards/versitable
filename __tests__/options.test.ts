@@ -13,6 +13,7 @@ import {
   validMaxColumns,
   validMaxRowHeight,
   validMaxRows,
+  validTopAndBottomBorder,
 } from "./__mocks__/validTableData";
 
 describe("checkTableOptionsAreValid", () => {
@@ -128,6 +129,14 @@ describe("checkTableOptionsAreValid", () => {
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ topAndBottomBorder })
       ).toThrowError();
+    });
+  });
+  it("should return true if topAndBottomBorder option is valid", () => {
+    validTopAndBottomBorder.forEach((topAndBottomBorder: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        topAndBottomBorder,
+      });
+      expect(result).toBeTruthy();
     });
   });
 });
