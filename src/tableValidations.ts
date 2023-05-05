@@ -273,10 +273,23 @@ function isValidBorderSidesOption(
 }
 
 function isValidBordersOption(
-  bordersOption: Partial<Borders> | undefined,
+  bordersOption: Borders | undefined,
   optionChecks: OptionChecks
 ) {
-  if (!bordersOption) return true;
+  if (typeof bordersOption === "boolean") return true;
+  if (typeof bordersOption !== "object") {
+    handleInvalidEntry(
+      "Invalid border option. Must be an object.",
+      optionChecks
+    );
+    return false;
+  }
+  if (!("sides" in bordersOption) && !("glyphs" in bordersOption)) {
+    handleInvalidEntry(
+      "Invalid border option. Must include sides or glyphs.",
+      optionChecks
+    );
+  }
   for (const [option, value] of Object.entries(bordersOption)) {
     if (option === "glyphs") {
       // Handle color validations

@@ -43,7 +43,6 @@ describe("versitable.create", () => {
 
   it("should error if passed in invalid options (with strict mode)", () => {
     for (const option of invalidTableOptions) {
-      console.log("option: ", option);
       expect(() =>
         versitable.create(validTableData, {
           ...validTableOptions,
