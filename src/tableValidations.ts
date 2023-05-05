@@ -385,6 +385,14 @@ function isValidColorsOption(
   return true;
 }
 
+function isValidOptionChecks(optionChecks: any) {
+  return (
+    optionChecks === "error" ||
+    optionChecks === "skip" ||
+    optionChecks === "warn"
+  );
+}
+
 export function isValid(
   value: any,
   validationFn: ValidationFn,
@@ -399,17 +407,21 @@ export function isValid(
 export function checkTableOptionsAreValid(
   options: Partial<TableOptions>
 ): true | never | void {
-  const { optionChecks } = options as TableOptions;
+  const { optionChecks } = options;
+  isValid(optionChecks, isValidOptionChecks, "Invalid value for optionChecks");
   if (optionChecks === "skip") return;
 
   for (const [option, value] of Object.entries(options)) {
     if (option === "optionChecks") continue;
     if (option === "colors") {
       // Handle color validations
-      isValidColorsOption(value as Partial<Colors> | undefined, optionChecks);
+      isValidColorsOption(value as Partial<Colors> | undefined, optionChecks!);
     } else if (option === "borders") {
       // Handle border validations
-      isValidBordersOption(value as Partial<Borders> | undefined, optionChecks);
+      isValidBordersOption(
+        value as Partial<Borders> | undefined,
+        optionChecks!
+      );
     } else {
       // Handle all other validations
       const { validationFn, errorMsg } = defaultOptionValidators[option];
