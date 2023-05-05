@@ -1,5 +1,345 @@
 import chalkPipe = require("chalk-pipe");
-import { Borders, Colors, CustomColors, TableOptions } from "./tableTypes.js";
+import {
+  Borders,
+  Colors,
+  CustomColors,
+  TableOptions,
+  OptionChecks,
+} from "./tableTypes.js";
+
+type ValidationFn = (value: any) => boolean;
+
+const MAX_MAX_COLUMNS = 100;
+const MAX_MAX_ROWS = 1000;
+const MAX_CELL_PADDING = 20;
+const MAX_MAX_COL_WIDTH = 400;
+const MAX_ROW_HEIGHT = 50;
+
+const defaultOptionValidators: Record<
+  string,
+  { validationFn: ValidationFn; errorMsg?: string }
+> = {
+  cellPadding: {
+    validationFn: isValidCellPadding,
+    errorMsg: `cellPadding must be a number between 0 and ${MAX_CELL_PADDING}`,
+  },
+  maxColumns: {
+    validationFn: isValidMaxColumns,
+    errorMsg: `maxColumns must be a number between 1 and ${MAX_MAX_COLUMNS}`,
+  },
+  maxRows: {
+    validationFn: isValidMaxRows,
+    errorMsg: `maxRows must be a number between 1 and ${MAX_MAX_ROWS}`,
+  },
+  maxColWidths: {
+    validationFn: isValidMaxColWidths,
+    errorMsg: `maxColWidths must be a number between 1 and ${MAX_MAX_COL_WIDTH}`,
+  },
+  maxRowHeight: {
+    validationFn: isValidMaxRowHeight,
+    errorMsg: `maxRowHeight must be a number between 1 and ${MAX_ROW_HEIGHT}`,
+  },
+  topAndBottomBorder: {
+    validationFn: isValidTopAndBottomBorder,
+    errorMsg: "topAndBottomBorder must be a boolean",
+  },
+  header: { validationFn: isValidHeader, errorMsg: "header must be a boolean" },
+  colors: { validationFn: isValidColorsOption },
+  borders: { validationFn: isValidBordersOption },
+};
+
+const colorOptionValidators: Record<
+  string,
+  { validationFn: ValidationFn; errorMsg?: string }
+> = {
+  customColors: {
+    validationFn: isValidCustomColors,
+  },
+  borderColor: {
+    validationFn: isValidColor,
+    errorMsg: "Invalid borderColor",
+  },
+  alternateRows: {
+    validationFn: isValidAlternateRows,
+    errorMsg: "Invalid alternateRows",
+  },
+};
+
+const customColorOptionValidators: Record<
+  string,
+  { validationFn: ValidationFn; errorMsg: string }
+> = {
+  column: {
+    validationFn: isValidColorColumn,
+    errorMsg: "Invalid color column",
+  },
+  row: {
+    validationFn: isValidColorRow,
+    errorMsg: "Invalid color row",
+  },
+  fgColor: {
+    validationFn: isValidColor,
+    errorMsg: "Invalid fgColor",
+  },
+  bgColor: {
+    validationFn: isValidColor,
+    errorMsg: "Invalid bgColor",
+  },
+  style: {
+    validationFn: isValidStyle,
+    errorMsg: "Invalid color style",
+  },
+};
+
+const borderOptionValidators: Record<
+  string,
+  { validationFn: ValidationFn; errorMsg: string }
+> = {
+  horizontalLine: {
+    validationFn: isValidBorderElement,
+    errorMsg: "horizontalLine must be a single character",
+  },
+  verticalLine: {
+    validationFn: isValidBorderElement,
+    errorMsg: "verticalLine must be a single character",
+  },
+  topLeftCorner: {
+    validationFn: isValidBorderElement,
+    errorMsg: "topLeftCorner must be a single character",
+  },
+  topRightCorner: {
+    validationFn: isValidBorderElement,
+    errorMsg: "topRightCorner must be a single character",
+  },
+  bottomLeftCorner: {
+    validationFn: isValidBorderElement,
+    errorMsg: "bottomLeftCorner must be a single character",
+  },
+  bottomRightCorner: {
+    validationFn: isValidBorderElement,
+    errorMsg: "bottomRightCorner must be a single character",
+  },
+  topSeparator: {
+    validationFn: isValidBorderElement,
+    errorMsg: "topSeparator must be a single character",
+  },
+  bottomSeparator: {
+    validationFn: isValidBorderElement,
+    errorMsg: "bottomSeparator must be a single character",
+  },
+};
+
+function handleInvalidEntry(
+  message: string,
+  optionChecks: OptionChecks = "error"
+) {
+  switch (optionChecks) {
+    case "error":
+      throw new Error(message);
+    case "warn":
+      console.warn(message);
+    case "skip":
+      break;
+    default:
+      throw new Error(
+        "optionChecks unset. Must be set to 'error', 'warn', or 'skip'"
+      );
+  }
+}
+
+function isValidCellPadding(cellPadding: number) {
+  if (typeof cellPadding !== "number") return false;
+  if (cellPadding < 0 || cellPadding > MAX_CELL_PADDING) return false;
+  return true;
+}
+
+function isValidMaxColumns(maxColumns: number) {
+  if (typeof maxColumns !== "number") return false;
+  if (maxColumns <= 0 || maxColumns > MAX_MAX_COLUMNS) return false;
+  return true;
+}
+
+function isValidMaxRows(maxRows: number) {
+  if (typeof maxRows !== "number") return false;
+  if (maxRows <= 0 || maxRows > MAX_MAX_ROWS) return false;
+  return true;
+}
+
+function isValidMaxColWidth(maxColWidth: any) {
+  if (typeof maxColWidth !== "number") return false;
+  if (maxColWidth <= 0 || maxColWidth > MAX_MAX_COL_WIDTH) return false;
+  return true;
+}
+
+function isValidMaxColWidths(maxColWidths: number[] | number) {
+  if (Array.isArray(maxColWidths)) {
+    if (maxColWidths.length <= 0 || maxColWidths.length > MAX_MAX_COL_WIDTH)
+      return false;
+    if (!maxColWidths.every(isValidMaxColWidth)) {
+      return false;
+    }
+  } else {
+    if (!isValidMaxColWidth(maxColWidths)) return false;
+  }
+  return true;
+}
+
+function isValidMaxRowHeight(maxRowHeight: number) {
+  if (typeof maxRowHeight !== "number") return false;
+  if (maxRowHeight <= 0 || maxRowHeight > MAX_ROW_HEIGHT) return false;
+  return true;
+}
+
+function isValidTopAndBottomBorder(topAndBottomBorder: boolean) {
+  return typeof topAndBottomBorder === "boolean";
+}
+
+function isValidHeader(header: boolean) {
+  return typeof header === "boolean";
+}
+
+function isValidBorderElement(borderElement: string) {
+  return borderElement.length === 1;
+}
+
+function isValidBordersOption(
+  bordersOption: Partial<Borders> | undefined,
+  optionChecks: OptionChecks = "error"
+) {
+  if (!bordersOption) return true;
+  for (const [option, value] of Object.entries(bordersOption)) {
+    const { validationFn, errorMsg } = borderOptionValidators[option];
+    isValid(value, validationFn, errorMsg, optionChecks);
+  }
+  return true;
+}
+
+function isValidColor(color: string) {
+  if (typeof color !== "string") {
+    return false;
+  }
+  try {
+    chalkPipe(color)("test");
+  } catch (err) {
+    return false;
+  }
+  return true;
+}
+
+function isValidStyle(style: string) {
+  try {
+    chalkPipe(style)("test");
+  } catch (err) {
+    return false;
+  }
+  return true;
+}
+
+function isValidCustomColors(
+  customColorsOptions: Partial<CustomColors>[] | undefined,
+  optionChecks: OptionChecks = "error"
+) {
+  if (!customColorsOptions) return true;
+  if (!Array.isArray(customColorsOptions)) {
+    handleInvalidEntry(
+      "customColors must be an array of objects",
+      optionChecks
+    );
+  }
+  customColorsOptions.forEach((customColorsOption) => {
+    for (const [option, value] of Object.entries(customColorsOption)) {
+      const { validationFn, errorMsg } = customColorOptionValidators[option];
+      isValid(value, validationFn, errorMsg, optionChecks);
+    }
+  });
+  return true;
+}
+
+function isValidColorColumn(colorColumn: number | undefined) {
+  if (!colorColumn) return true;
+  if (colorColumn < 0 || colorColumn > MAX_MAX_COLUMNS) return false;
+  return true;
+}
+
+function isValidColorRow(colorRow: number | undefined) {
+  if (!colorRow) return true;
+  if (colorRow < 0 || colorRow > MAX_MAX_ROWS) return false;
+  return true;
+}
+
+function isValidAlternateRows(alternateRows: string[]) {
+  if (!alternateRows) return true;
+  if (!Array.isArray(alternateRows)) return false;
+  if (!alternateRows.every((color) => isValidColor(color))) return false;
+  return true;
+}
+
+function isValidColorsOption(
+  colorsOption: Partial<Colors> | undefined,
+  optionChecks: OptionChecks = "error"
+) {
+  if (!colorsOption) return true;
+  const { borderColor, alternateRows, customColors } = colorsOption;
+  if (!borderColor && !alternateRows && !customColors) {
+    handleInvalidEntry(
+      "colors must contain at least one of borderColor, alternateRows, or customColors",
+      optionChecks
+    );
+  }
+
+  for (const [option, value] of Object.entries(colorsOption)) {
+    if (option === "customColors") {
+      isValidCustomColors(
+        value as Partial<CustomColors>[] | undefined,
+        optionChecks
+      );
+    } else {
+      const { validationFn, errorMsg } = colorOptionValidators[option];
+      isValid(value, validationFn, errorMsg!, optionChecks);
+    }
+  }
+
+  return true;
+}
+
+export function isValid(
+  value: any,
+  validationFn: ValidationFn,
+  errorMsg: string,
+  optionChecks: OptionChecks = "error"
+) {
+  if (value !== undefined && !validationFn(value)) {
+    handleInvalidEntry(errorMsg, optionChecks);
+  }
+}
+
+export function checkTableOptionsAreValid(
+  options: Partial<TableOptions>
+): true | never | void {
+  // Filter out optionChecks from options
+  let optionChecks: OptionChecks = "error";
+  if (options.optionChecks) {
+    optionChecks = options.optionChecks;
+    delete options.optionChecks;
+  }
+
+  if (optionChecks === "skip") return;
+
+  for (const [option, value] of Object.entries(options)) {
+    if (option === "color") {
+      // Handle color validations
+      isValidColorsOption(value as Partial<Colors> | undefined, optionChecks);
+    } else if (option === "border") {
+      // Handle border validations
+      isValidBordersOption(value as Partial<Borders> | undefined, optionChecks);
+    } else {
+      // Handle all other validations
+      const { validationFn, errorMsg } = defaultOptionValidators[option];
+      isValid(value, validationFn, errorMsg!, optionChecks);
+    }
+  }
+  return true;
+}
 
 /* Helper functions for ensuring data integrity */
 function subArraysAreSameLength(table: any[][]) {
@@ -14,317 +354,15 @@ function subArraysAreSameLength(table: any[][]) {
   return true;
 }
 
-function isValidCellPadding(cellPadding: number) {
-  if (typeof cellPadding !== "number") return false;
-  if (cellPadding <= 0 || cellPadding > 10) return false;
-  return true;
-}
-
-function isValidMaxColumns(maxColumns: number) {
-  if (typeof maxColumns !== "number") return false;
-  if (maxColumns <= 0 || maxColumns > 100) return false;
-  return true;
-}
-
-function isValidMaxRows(maxRows: number) {
-  if (typeof maxRows !== "number") return false;
-  if (maxRows <= 0 || maxRows > 1000) return false;
-  return true;
-}
-
-function isValidMaxColWidths(maxColWidths: number[] | number) {
-  if (Array.isArray(maxColWidths)) {
-    if (maxColWidths.length <= 0 || maxColWidths.length > 100) return false;
-  } else if (typeof maxColWidths === "number") {
-    if (maxColWidths <= 0 || maxColWidths > 100) return false;
-  } else {
-    return false;
-  }
-  return true;
-}
-
-function isValidMaxRowHeight(maxRowHeight: number) {
-  if (typeof maxRowHeight !== "number") return false;
-  if (maxRowHeight <= 0 || maxRowHeight > 20) return false;
-  return true;
-}
-
-function isValidTopAndBottomBorder(topAndBottomBorder: boolean) {
-  return typeof topAndBottomBorder === "boolean";
-}
-
-function isValidHeader(header: boolean) {
-  return typeof header === "boolean";
-}
-
-function isValidColor(color: string, strict: boolean = false) {
-  // FIXME: This doesn't work for checking for valid colors. They don't error out.
-  if (typeof color !== "string") {
-    if (strict) throw new Error("Invalid color");
-    else console.warn("Invalid color");
-  }
-  try {
-    chalkPipe(color)("test");
-  } catch (err) {
-    if (strict) throw new Error("Invalid color");
-    else console.warn("Invalid color");
-  }
-  return true;
-}
-
-function isValidStyle(style: string, strict: boolean = false) {
-  try {
-    chalkPipe(style)("test");
-  } catch (err) {
-    if (strict) throw new Error("Invalid style");
-    else console.warn("Invalid style");
-  }
-  return true;
-}
-
-function isValidCustomColors(
-  customColors: CustomColors[] | undefined,
-  table: string[][],
-  strict: boolean = false
-) {
-  if (!customColors) return true;
-  if (!Array.isArray(customColors)) {
-    if (strict) throw new Error("customColors must be an array of objects");
-    else console.warn("customColors must be an array of objects");
-  }
-  for (const color of customColors) {
-    const { column, row, fgColor, bgColor, style } = color;
-    const numRows = table.length;
-    const numColumns = table[0].length;
-    isValidColorColumn(column, numColumns, strict);
-    isValidColorRow(row, numRows, strict);
-    isValid(fgColor, isValidColor, "invalid fgColor for customColors", strict);
-    isValid(bgColor, isValidColor, "invalid bgColor for customColors", strict);
-    isValid(style, isValidStyle, "invalid style for customColors", strict);
-  }
-  return true;
-}
-
-function isValidColorColumn(
-  colorColumn: number | undefined,
-  numColumns: number,
-  strict: boolean = false
-) {
-  if (!colorColumn) return true;
-  if (colorColumn < 0 || colorColumn > numColumns - 1) {
-    if (strict) throw new Error("Invalid colorColumn");
-    else console.warn("Invalid colorColumn");
-  }
-}
-
-function isValidColorRow(
-  colorRow: number | undefined,
-  numRows: number,
-  strict: boolean = false
-) {
-  if (!colorRow) return true;
-  if (colorRow < 0 || colorRow > numRows - 1) {
-    if (strict) throw new Error("Invalid colorRow");
-    else console.warn("Invalid colorRow");
-  }
-}
-
-function isValidAlternateRows(
-  alternateRows: string[],
-  strict: boolean = false
-) {
-  if (alternateRows) {
-    if (!Array.isArray(alternateRows)) {
-      if (strict) throw new Error("alternateRows must be an array of colors");
-      else console.warn("alternateRows must be an array of colors");
-    }
-    for (const color of alternateRows) {
-      if (!isValidColor(color)) {
-        if (strict) throw new Error("alternateRows must contain valid colors");
-        else console.warn("alternateRows must contain valid colors");
-      }
-    }
-  }
-  return true;
-}
-
-function isValidColorsOption(
-  colors: Colors | undefined,
-  table: string[][],
-  strict: boolean = false
-) {
-  if (!colors) return true;
-  const { borderColor, alternateRows, customColors } = colors;
-  if (!borderColor && !alternateRows && !customColors) {
-    if (strict) {
-      throw new Error(
-        "colors must contain at least one of borderColor, alternateRows, or customColors"
-      );
-    } else {
-      console.warn(
-        "colors must contain at least one of borderColor, alternateRows, or customColors"
-      );
-    }
-  }
-
-  isValid(borderColor, isValidColor, "Invalid borderColor", strict);
-  isValid(alternateRows, isValidAlternateRows, "Invalid alternateRows", strict);
-  isValidCustomColors(customColors, table, strict);
-
-  return true;
-}
-
-function isValidBorderElement(borderElement: string) {
-  return borderElement.length === 1;
-}
-
-function isValidBordersOption(
-  borders: Borders | undefined,
-  strict: boolean = false
-) {
-  if (!borders) return true;
-  const {
-    horizontalLine,
-    verticalLine,
-    topLeftCorner,
-    topRightCorner,
-    bottomLeftCorner,
-    bottomRightCorner,
-    topSeparator,
-    bottomSeparator,
-  } = borders;
-
-  isValid(
-    horizontalLine,
-    isValidBorderElement,
-    "horizontalLine must be a single character",
-    strict
-  );
-  isValid(
-    verticalLine,
-    isValidBorderElement,
-    "verticalLine must be a single character",
-    strict
-  );
-  isValid(
-    topLeftCorner,
-    isValidBorderElement,
-    "topLeftCorner must be a single character",
-    strict
-  );
-  isValid(
-    topRightCorner,
-    isValidBorderElement,
-    "topRightCorner must be a single character",
-    strict
-  );
-  isValid(
-    bottomLeftCorner,
-    isValidBorderElement,
-    "bottomLeftCorner must be a single character",
-    strict
-  );
-  isValid(
-    bottomRightCorner,
-    isValidBorderElement,
-    "bottomRightCorner must be a single character",
-    strict
-  );
-  isValid(
-    topSeparator,
-    isValidBorderElement,
-    "topSeparator must be a single character",
-    strict
-  );
-  isValid(
-    bottomSeparator,
-    isValidBorderElement,
-    "bottomSeparator must be a single character",
-    strict
-  );
-}
-
-function isValid(
-  value: any,
-  validationFn: Function,
-  errorMsg: string,
-  strict: boolean = false
-) {
-  if (value !== undefined && !validationFn(value, strict)) {
-    if (strict) {
-      throw new Error(errorMsg);
-    } else console.warn(errorMsg);
-  }
-}
-
-export function checkTableOptionsAreValid(
-  table: string[][],
-  options: TableOptions
-): true | never {
-  const {
-    strict,
-    cellPadding,
-    maxColumns,
-    maxRows,
-    maxColWidths,
-    maxRowHeight,
-    topAndBottomBorder,
-    header,
-    colors,
-    borders,
-  } = options;
-
-  isValid(
-    cellPadding,
-    isValidCellPadding,
-    "cellPadding must be a number between 0 and 10",
-    strict
-  );
-  isValid(
-    maxColumns,
-    isValidMaxColumns,
-    "maxColumns must be a number between 1 and 100",
-    strict
-  );
-  isValid(
-    maxRows,
-    isValidMaxRows,
-    "maxRows must be a number between 1 and 1000",
-    strict
-  );
-  isValid(
-    maxColWidths,
-    isValidMaxColWidths,
-    "maxColWidths must be a number between 1 and 100",
-    strict
-  );
-  isValid(
-    maxRowHeight,
-    isValidMaxRowHeight,
-    "maxRowHeight must be a number between 1 and 20",
-    strict
-  );
-  isValid(
-    topAndBottomBorder,
-    isValidTopAndBottomBorder,
-    "topAndBottomBorder must be a boolean",
-    strict
-  );
-  isValid(header, isValidHeader, "header must be a boolean", strict);
-
-  isValidColorsOption(colors, table, strict);
-  isValidBordersOption(borders, strict);
-
-  return true;
-}
-
 export function checkTableIsValid(table: string[][]): true | never {
-  if (!table) throw new Error("A table must be provided");
-  if (!Array.isArray(table)) throw new Error("Table must be an array");
-  if (table.length === 0) throw new Error("Table must have at least one row");
+  if (!table) handleInvalidEntry("A table must be provided", "error");
+  if (!Array.isArray(table))
+    handleInvalidEntry("Table must be an array", "error");
+  if (table.length === 0)
+    handleInvalidEntry("Table must have at least one row", "error");
   if (table[0].length === 0)
-    throw new Error("Table must have at least one cell");
+    handleInvalidEntry("Table must have at least one cell", "error");
   if (!subArraysAreSameLength(table))
-    throw new Error("All rows must have same number of columns");
+    handleInvalidEntry("All rows must have same number of columns", "error");
   return true;
 }

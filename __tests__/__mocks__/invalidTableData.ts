@@ -10,6 +10,7 @@ export const invalidTableData = [
 
 // Array of invalid table options
 export const invalidTableOptions = [
+  { optionChecks: 0 }, // number instead of OptionChecks type
   { cellPadding: "2" }, // string instead of number
   { maxColumns: 200 }, // too many columns
   { maxRows: -1 }, // negative number of rows
@@ -48,4 +49,61 @@ export const invalidTableOptions = [
       horizontalLine: "hello", // string instead of character
     },
   },
+];
+
+export const invalidCellPaddings = [
+  -1,
+  -100,
+  21,
+  100,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];
+
+export const invalidMaxColumns = [
+  -1,
+  -100,
+  0,
+  101,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];
+
+export const invalidMaxRows = [
+  -1,
+  -100,
+  0,
+  1001,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];
+
+export const invalidMaxColWidths = [
+  -1,
+  -100,
+  0,
+  401,
+  [],
+  [-1],
+  [0],
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
 ];

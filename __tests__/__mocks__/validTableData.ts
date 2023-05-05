@@ -1,7 +1,7 @@
 import { TableOptions } from "../../src/tableTypes";
 
 export const validTableOptions: TableOptions = {
-  strict: true,
+  optionChecks: "error",
   cellPadding: 1,
   maxColumns: 6,
   maxRows: 8,
@@ -41,9 +41,13 @@ export const validTableOptions: TableOptions = {
   },
 };
 
+export const validCellPaddings = [0, 1, 3, 7, 15, 20];
+export const validMaxColumns = [1, 3, 10, 55, 100];
+export const validMaxRows = [1, 10, 100, 500, 1000];
+
 export const validTableData = [
   [
-    "4",
+    "88fb3ba4-d3d4-48ff-b3a3-15f07fc9aa3b",
     "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/973.jpg",
     "🦵🏾",
     "🐪🕊️🧨",

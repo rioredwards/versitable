@@ -9,5 +9,5 @@ module.exports = {
       { mode: "normal", color: "driven", border: "waves" },
     ],
   ],
-  testPathIgnorePatterns: ["/node_modules/", "/fixtures/"],
+  testPathIgnorePatterns: ["/node_modules/", "/__mocks__/"],
 };

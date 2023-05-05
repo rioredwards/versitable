@@ -18,25 +18,31 @@
       "args": ["${relativeFile}", "--runInBand"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest: Specific Test",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "-t",
+        "should throw an error if cellPadding option is invalid",
+        "--runInBand"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Sandbox with ts-node",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/scripts/index.ts",
+      "runtimeArgs": ["-r", "ts-node/register"],
+      "args": ["${workspaceFolder}/scripts/index.ts"],
+      "console": "integratedTerminal",
+      "outFiles": ["${workspaceFolder}/**/*.js"],
+      "outputCapture": "std"
     }
   ]
 }
-
-// {
-//   // Use IntelliSense to learn about possible attributes.
-//   // Hover to view descriptions of existing attributes.
-//   // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-//   "version": "0.2.0",
-//   "configurations": [
-//     {
-//       "type": "node",
-//       "request": "launch",
-//       "name": "Launch Service",
-//       "skipFiles": ["<node_internals>/**"],
-//       "program": "${workspaceFolder}/sandbox/index.ts",
-//       "preLaunchTask": "tsc: build - tsconfig.json",
-//       "console": "integratedTerminal",
-//       "outFiles": ["${workspaceFolder}/**/*.js"]
-//     }
-//   ]
-// }
