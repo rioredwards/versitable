@@ -166,7 +166,7 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
   } = { ...TABLE_DEFAULTS, ...options } as TableOptions;
 
   checkTableIsValid(table);
-  if (options) checkTableOptionsAreValid(table, options);
+  if (options) checkTableOptionsAreValid(options);
 
   const limitedRows = limitRows(table, maxRows!);
   const actualMaxColumns = Math.min(maxColumns!, table[0].length);

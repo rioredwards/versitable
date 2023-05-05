@@ -40,7 +40,8 @@ export interface TableOptions {
   borders: Borders; // Border characters
 }
 
-export interface FormatTableOptions extends TableOptions {
+export interface FormatTableOptions
+  extends Pick<TableOptions, "cellPadding" | "maxRowHeight"> {
   actualMaxColWidths: number[];
 }
 
