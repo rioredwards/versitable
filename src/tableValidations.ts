@@ -316,16 +316,11 @@ export function isValid(
 export function checkTableOptionsAreValid(
   options: Partial<TableOptions>
 ): true | never | void {
-  // Filter out optionChecks from options
-  let optionChecks: OptionChecks = "error";
-  if (options.optionChecks) {
-    optionChecks = options.optionChecks;
-    delete options.optionChecks;
-  }
-
+  const { optionChecks } = options;
   if (optionChecks === "skip") return;
 
   for (const [option, value] of Object.entries(options)) {
+    if (option === "optionChecks") continue;
     if (option === "color") {
       // Handle color validations
       isValidColorsOption(value as Partial<Colors> | undefined, optionChecks);

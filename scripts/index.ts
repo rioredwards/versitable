@@ -13,13 +13,13 @@ function main() {
   // versitable.log(hotkeysFormattedForTable, validTableOptions);
   const updatedOptions = {
     ...validTableOptions,
+    maxRows: 10,
     maxColWidths: 24,
+    maxRowHeight: 1,
     cellPadding: 2,
   };
 
   console.log("__________________________________________________");
-  // benchmark test
-  performance.now();
   versitable.log(validTableData, updatedOptions);
 }
 

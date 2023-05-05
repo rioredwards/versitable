@@ -1,4 +1,9 @@
-import { FormatTableOptions, Table, TableOptions } from "./tableTypes";
+import {
+  FormatTableOptions,
+  OptionChecks,
+  Table,
+  TableOptions,
+} from "./tableTypes";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
   checkTableIsValid,
