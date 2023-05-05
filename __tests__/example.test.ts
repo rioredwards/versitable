@@ -10,6 +10,7 @@ import {
 import {
   validCellPaddings,
   validMaxColumns,
+  validMaxRows,
   validTableData,
   validTableOptions,
 } from "./__mocks__/validTableData";
@@ -82,6 +83,14 @@ describe("checkTableOptionsAreValid", () => {
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ maxRows })
       ).toThrowError();
+    });
+  });
+  it("should return true if maxRows option is valid", () => {
+    validMaxRows.forEach((maxRows: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxRows,
+      });
+      expect(result).toBeTruthy();
     });
   });
 });
