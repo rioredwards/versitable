@@ -165,14 +165,21 @@ function isValidMaxRows(maxRows: number) {
   return true;
 }
 
+function isValidMaxColWidth(maxColWidth: any) {
+  if (typeof maxColWidth !== "number") return false;
+  if (maxColWidth <= 0 || maxColWidth > MAX_MAX_COL_WIDTH) return false;
+  return true;
+}
+
 function isValidMaxColWidths(maxColWidths: number[] | number) {
   if (Array.isArray(maxColWidths)) {
     if (maxColWidths.length <= 0 || maxColWidths.length > MAX_MAX_COL_WIDTH)
       return false;
-  } else if (typeof maxColWidths === "number") {
-    if (maxColWidths <= 0 || maxColWidths > 200) return false;
+    if (!maxColWidths.every(isValidMaxColWidth)) {
+      return false;
+    }
   } else {
-    return false;
+    if (!isValidMaxColWidth(maxColWidths)) return false;
   }
   return true;
 }

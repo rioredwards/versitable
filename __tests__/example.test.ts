@@ -2,6 +2,7 @@ import { versitable } from "../src";
 import * as tableValidations from "../src/tableValidations";
 import {
   invalidCellPaddings,
+  invalidMaxColWidths,
   invalidMaxColumns,
   invalidMaxRows,
   invalidTableData,
@@ -91,6 +92,14 @@ describe("checkTableOptionsAreValid", () => {
         maxRows,
       });
       expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if maxColWidths option is invalid", () => {
+    invalidMaxColWidths.forEach((maxColWidths: any) => {
+      console.log("maxColWidths: ", maxColWidths);
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ maxColWidths })
+      ).toThrowError();
     });
   });
 });

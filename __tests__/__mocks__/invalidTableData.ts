@@ -92,3 +92,18 @@ export const invalidMaxRows = [
   [],
   [1],
 ];
+
+export const invalidMaxColWidths = [
+  -1,
+  -100,
+  0,
+  401,
+  [],
+  [-1],
+  [0],
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+];
