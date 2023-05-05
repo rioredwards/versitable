@@ -6,7 +6,6 @@ import {
   invalidMaxColumns,
   invalidMaxRowHeight,
   invalidMaxRows,
-  invalidTopAndBottomBorder,
 } from "./__mocks__/invalidTableData";
 import {
   validCellPaddings,
@@ -15,7 +14,6 @@ import {
   validMaxColumns,
   validMaxRowHeight,
   validMaxRows,
-  validTopAndBottomBorder,
 } from "./__mocks__/validTableData";
 
 describe("checkTableOptionsAreValid", () => {
@@ -122,21 +120,6 @@ describe("checkTableOptionsAreValid", () => {
     validMaxRowHeight.forEach((maxRowHeight: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         maxRowHeight,
-      });
-      expect(result).toBeTruthy();
-    });
-  });
-  it("should throw an error if topAndBottomBorder option is invalid", () => {
-    invalidTopAndBottomBorder.forEach((topAndBottomBorder: any) => {
-      expect(() =>
-        tableValidations.checkTableOptionsAreValid({ topAndBottomBorder })
-      ).toThrowError();
-    });
-  });
-  it("should return true if topAndBottomBorder option is valid", () => {
-    validTopAndBottomBorder.forEach((topAndBottomBorder: any) => {
-      const result = tableValidations.checkTableOptionsAreValid({
-        topAndBottomBorder,
       });
       expect(result).toBeTruthy();
     });

@@ -48,7 +48,6 @@ export interface TableOptions {
   maxRows: number; // Max number of rows (not including "overflow rows": rows with height > 1)
   maxColWidths: number[] | number; // Max column widths (doesn't include padding)
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
-  topAndBottomBorder: boolean; // Whether to include a top and bottom border
   header: boolean; // Whether to include a header row (this defaults to the first row of the table)
   colors?: Colors; // Colors for borders, alternate rows and custom colors
   borders: Borders; // Border characters

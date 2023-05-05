@@ -7,7 +7,6 @@ export const validTableOptions: TableOptions = {
   maxRows: 8,
   maxColWidths: [20, 20, 60],
   maxRowHeight: 2,
-  topAndBottomBorder: false,
   header: true,
   colors: {
     borderColor: "yellow",
@@ -62,7 +61,6 @@ export const validMaxColWidths = [
   [1, 10, 100, 400],
 ];
 export const validMaxRowHeight = [1, 7, 25, 50];
-export const validTopAndBottomBorder = [true, false];
 export const validHeader = [true, false];
 
 export const validTableData = [

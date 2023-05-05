@@ -150,7 +150,6 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
     cellPadding,
     maxColWidths,
     maxRowHeight,
-    topAndBottomBorder,
     header,
     colors,
   } = { ...TABLE_DEFAULTS, ...options } as TableOptions;

@@ -17,7 +17,6 @@ export const invalidTableOptions = [
   { maxRows: 1001 }, // too many rows
   { maxColWidths: false }, // boolean instead of number[] or number
   { maxRowHeight: 100 }, // too large row height
-  { topAndBottomBorder: 1 }, // number instead of boolean
   { header: "true" }, // string instead of boolean
   { colors: "yellow" }, // string instead of object
   {
@@ -140,19 +139,6 @@ export const invalidMaxRowHeight = [
   [-1],
   [0],
   true,
-  "",
-  "hello",
-  "10",
-  { foo: "bar" },
-];
-
-export const invalidTopAndBottomBorder = [
-  -1,
-  0,
-  51,
-  [],
-  [-1],
-  [0],
   "",
   "hello",
   "10",
