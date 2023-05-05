@@ -1,25 +1,25 @@
 import { versitable } from "../src";
 import * as tableValidations from "../src/tableValidations";
 import {
+  invalidCellPaddings,
   invalidTableData,
   invalidTableOptions,
 } from "./__mocks__/invalidTableData";
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
-describe("checkTableIsValid", () => {
+describe("checkTableOptionsAreValid", () => {
   it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
     expect(() =>
-      versitable.create(validTableData, {
+      tableValidations.checkTableOptionsAreValid({
         optionChecks: "error",
         maxColWidths: -1,
       })
     ).toThrowError();
   });
   it("should log a warning if optionChecks is set to 'warn' and option arguments are invalid", () => {
-    // check if warning was logged to console
     const warnMock = jest.spyOn(console, "warn").mockImplementation(() => {});
 
-    versitable.create(validTableData, {
+    tableValidations.checkTableOptionsAreValid({
       optionChecks: "warn",
       maxColWidths: -1,
     });
@@ -27,19 +27,26 @@ describe("checkTableIsValid", () => {
     expect(warnMock).toHaveBeenCalled();
     warnMock.mockRestore();
   });
-  it("should skip checks if optionChecks is set to 'skip' and option arguments are invalid", () => {
-    // check if warning was logged to console
+  it("should not execute if optionChecks is set to 'skip' and option arguments are invalid", () => {
     const checkMock = jest
       .spyOn(tableValidations, "isValid")
       .mockImplementation(() => {});
 
-    versitable.create(validTableData, {
+    tableValidations.checkTableOptionsAreValid({
       optionChecks: "skip",
       maxColWidths: -1,
     });
 
     expect(checkMock).toHaveBeenCalledTimes(0);
     checkMock.mockRestore();
+  });
+  it("should throw an error if cellPadding option is invalid", () => {
+    invalidCellPaddings.forEach((cellPadding: any) => {
+      console.log("cellPadding: ", cellPadding);
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ cellPadding })
+      ).toThrowError();
+    });
   });
 });
 

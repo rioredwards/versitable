@@ -50,3 +50,17 @@ export const invalidTableOptions = [
     },
   },
 ];
+
+export const invalidCellPaddings = [
+  -1,
+  -100,
+  21,
+  100,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];

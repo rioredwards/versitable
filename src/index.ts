@@ -74,21 +74,6 @@ export function limitColumns(table: string[][], max: number) {
   return result;
 }
 
-// function truncateCell(
-//   cell: string,
-//   maxColWidth: number,
-//   cutOffString: "..." | "-"
-// ) {
-//   // Truncate cell if it exceeds maxColWidth
-//   if (maxColWidth! - cutOffString.length >= 3) {
-//     // Room for cutOffString
-//     return cell.substring(0, maxColWidth! - 3) + cutOffString;
-//   } else {
-//     // No room for cutOffString
-//     return cell.substring(0, maxColWidth!);
-//   }
-// }
-
 export function splitCell(cell: string, maxColWidth: number) {
   const firstSlice = cell.slice(0, maxColWidth);
   const secondSlice = cell.slice(maxColWidth);
@@ -154,7 +139,7 @@ export function formatTable(
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
   const {
-    optionChecks: OptionChecks,
+    optionChecks,
     maxRows,
     maxColumns,
     cellPadding,
