@@ -3,6 +3,7 @@ import * as tableValidations from "../src/tableValidations";
 import {
   invalidCellPaddings,
   invalidMaxColumns,
+  invalidMaxRows,
   invalidTableData,
   invalidTableOptions,
 } from "./__mocks__/invalidTableData";
@@ -74,6 +75,13 @@ describe("checkTableOptionsAreValid", () => {
         maxColumns,
       });
       expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if maxRows option is invalid", () => {
+    invalidMaxRows.forEach((maxRows: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ maxRows })
+      ).toThrowError();
     });
   });
 });

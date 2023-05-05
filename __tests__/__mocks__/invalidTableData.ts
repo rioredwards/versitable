@@ -78,3 +78,17 @@ export const invalidMaxColumns = [
   [],
   [1],
 ];
+
+export const invalidMaxRows = [
+  -1,
+  -100,
+  0,
+  1001,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];
