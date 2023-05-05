@@ -226,7 +226,7 @@ function isValidBorderSide(borderSide: boolean) {
 }
 
 function isValidBorderGlyphsOption(
-  borderGlyphsOption: Partial<BorderGlyphs> | undefined,
+  borderGlyphsOption: BorderGlyphs,
   optionChecks: OptionChecks
 ) {
   if (!borderGlyphsOption) return true;
@@ -251,10 +251,10 @@ function isValidBorderGlyphsOption(
 }
 
 function isValidBorderSidesOption(
-  borderSidesOption: Partial<BorderSides> | undefined,
+  borderSidesOption: BorderSides,
   optionChecks: OptionChecks
 ) {
-  if (!borderSidesOption) return true;
+  if (borderSidesOption === undefined) return true;
   if (typeof borderSidesOption !== "object") {
     handleInvalidEntry(
       "Invalid border sides option. Must be an object.",
@@ -273,7 +273,7 @@ function isValidBorderSidesOption(
 }
 
 function isValidBordersOption(
-  bordersOption: Borders | undefined,
+  bordersOption: Borders,
   optionChecks: OptionChecks
 ) {
   if (typeof bordersOption === "boolean") return true;
@@ -293,16 +293,10 @@ function isValidBordersOption(
   for (const [option, value] of Object.entries(bordersOption)) {
     if (option === "glyphs") {
       // Handle color validations
-      isValidBorderGlyphsOption(
-        value as Partial<BorderGlyphs> | undefined,
-        optionChecks
-      );
+      isValidBorderGlyphsOption(value as BorderGlyphs, optionChecks);
     } else if (option === "sides") {
       // Handle color validations
-      isValidBorderSidesOption(
-        value as Partial<BorderSides> | undefined,
-        optionChecks
-      );
+      isValidBorderSidesOption(value as BorderSides, optionChecks);
     } else {
       handleInvalidEntry(`Invalid border option: ${option}`, optionChecks);
     }
@@ -332,10 +326,9 @@ function isValidStyle(style: string) {
 }
 
 function isValidCustomColors(
-  customColorsOptions: Partial<CustomColors>[] | undefined,
+  customColorsOptions: CustomColors[],
   optionChecks: OptionChecks
 ) {
-  if (!customColorsOptions) return true;
   if (!Array.isArray(customColorsOptions)) {
     handleInvalidEntry(
       "customColors must be an array of objects",
@@ -352,43 +345,40 @@ function isValidCustomColors(
 }
 
 function isValidColorColumn(colorColumn: number | undefined) {
-  if (!colorColumn) return true;
+  if (typeof colorColumn !== "number") return false;
   if (colorColumn < 0 || colorColumn > MAX_MAX_COLUMNS) return false;
   return true;
 }
 
 function isValidColorRow(colorRow: number | undefined) {
-  if (!colorRow) return true;
+  if (typeof colorRow !== "number") return false;
   if (colorRow < 0 || colorRow > MAX_MAX_ROWS) return false;
   return true;
 }
 
 function isValidAlternateRows(alternateRows: string[]) {
-  if (!alternateRows) return true;
   if (!Array.isArray(alternateRows)) return false;
   if (!alternateRows.every((color) => isValidColor(color))) return false;
   return true;
 }
 
-function isValidColorsOption(
-  colorsOption: Partial<Colors> | undefined,
-  optionChecks: OptionChecks
-) {
-  if (!colorsOption) return true;
-  const { borderColor, alternateRows, customColors } = colorsOption;
-  if (!borderColor && !alternateRows && !customColors) {
+function isValidColorsOption(colorsOption: Colors, optionChecks: OptionChecks) {
+  if (typeof colorsOption !== "object") {
+    handleInvalidEntry("colors option must be an object", optionChecks);
+  }
+  if (
+    !("borderColor" in colorsOption) &&
+    !("alternateRows" in colorsOption) &&
+    !("customColors" in colorsOption)
+  ) {
     handleInvalidEntry(
       "colors must contain at least one of borderColor, alternateRows, or customColors",
       optionChecks
     );
   }
-
   for (const [option, value] of Object.entries(colorsOption)) {
     if (option === "customColors") {
-      isValidCustomColors(
-        value as Partial<CustomColors>[] | undefined,
-        optionChecks
-      );
+      isValidCustomColors(value as CustomColors[], optionChecks);
     } else {
       const { validationFn, errorMsg } = colorOptionValidators[option];
       isValid(value, validationFn, errorMsg!, optionChecks);
@@ -418,7 +408,7 @@ export function isValid(
 }
 
 export function checkTableOptionsAreValid(
-  options: Partial<TableOptions>
+  options: TableOptions
 ): true | never | void {
   const { optionChecks } = options;
   isValid(optionChecks, isValidOptionChecks, "Invalid value for optionChecks");
@@ -428,13 +418,10 @@ export function checkTableOptionsAreValid(
     if (option === "optionChecks") continue;
     if (option === "colors") {
       // Handle color validations
-      isValidColorsOption(value as Partial<Colors> | undefined, optionChecks!);
+      isValidColorsOption(value as Colors, optionChecks!);
     } else if (option === "borders") {
       // Handle border validations
-      isValidBordersOption(
-        value as Partial<Borders> | undefined,
-        optionChecks!
-      );
+      isValidBordersOption(value as Borders, optionChecks!);
     } else {
       // Handle all other validations
       const { validationFn, errorMsg } = defaultOptionValidators[option];
