@@ -110,6 +110,7 @@ export function formatTable(
       const maxColWidth = actualMaxColWidths[colIdx];
 
       if (cellLength <= maxColWidth) {
+        // Cell is not too long, so just pad it + add it
         const additionalPadding = maxColWidth - cellLength;
         const paddedCell = padCell(cell, additionalPadding + cellPadding!);
         if (insertRows[0] === undefined) {
@@ -117,8 +118,8 @@ export function formatTable(
         }
         insertRows[0][colIdx] = paddedCell;
       } else {
+        // cell is too long, truncate cell and insert remainder into next row
         let sliceIdx = 0;
-        // if cell is too long and maxRowHeight is greater than 1, truncate cell and insert remainder into next row
         while (sliceIdx < maxRowHeight!) {
           const charAtSliceIdx = cell[sliceIdx * maxColWidth!];
           if (charAtSliceIdx === undefined) break;

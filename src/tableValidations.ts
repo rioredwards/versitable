@@ -136,7 +136,7 @@ function isNumInRange(num: number, min: number, max: number) {
 }
 
 function isValidBorderGlyph(glyph: string) {
-  if (typeof glyph !== "string" || glyph.length === 1) {
+  if (typeof glyph !== "string" || glyph.length !== 1) {
     handleInvalidEntry(
       `Invalid border glyph: ${glyph}. Must be a single character string.`
     );
@@ -167,7 +167,7 @@ function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
     return false;
   }
   for (const [_, glyph] of Object.entries(glyphs)) {
-    if (isValidBorderGlyph(glyph)) {
+    if (!isValidBorderGlyph(glyph)) {
       return false;
     }
   }

@@ -78,7 +78,7 @@ describe("versitable.create", () => {
     expect(table[0][0].length).toBeLessThanOrEqual(7);
   });
 
-  it.skip("should create a border around the table if border === true", () => {
+  it("should create a border around the table if border === true", () => {
     const table = versitable.create(validTableData, {
       borders: true,
     });
