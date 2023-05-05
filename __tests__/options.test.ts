@@ -3,6 +3,7 @@ import {
   invalidCellPaddings,
   invalidMaxColWidths,
   invalidMaxColumns,
+  invalidMaxRowHeight,
   invalidMaxRows,
 } from "./__mocks__/invalidTableData";
 import {
@@ -103,6 +104,13 @@ describe("checkTableOptionsAreValid", () => {
         maxColWidths,
       });
       expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if maxRowHeight option is invalid", () => {
+    invalidMaxRowHeight.forEach((maxRowHeight: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ maxRowHeight })
+      ).toThrowError();
     });
   });
 });

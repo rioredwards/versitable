@@ -107,3 +107,18 @@ export const invalidMaxColWidths = [
   "10",
   { foo: "bar" },
 ];
+
+export const invalidMaxRowHeight = [
+  -1,
+  -100,
+  0,
+  51,
+  [],
+  [-1],
+  [0],
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+];
