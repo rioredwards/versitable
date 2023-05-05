@@ -4,7 +4,7 @@ import {
   Colors,
   CustomColors,
   TableOptions,
-  ValidationMode,
+  OptionChecks,
 } from "./tableTypes.js";
 
 type ValidationFn = (value: any) => boolean;
@@ -131,9 +131,9 @@ const borderOptionValidators: Record<
 
 function handleInvalidEntry(
   message: string,
-  validationMode: ValidationMode = "error"
+  optionChecks: OptionChecks = "error"
 ) {
-  switch (validationMode) {
+  switch (optionChecks) {
     case "error":
       throw new Error(message);
     case "warn":
@@ -142,7 +142,7 @@ function handleInvalidEntry(
       break;
     default:
       throw new Error(
-        "validationMode unset. Must be set to 'error', 'warn', or 'skipChecks'"
+        "optionChecks unset. Must be set to 'error', 'warn', or 'skipChecks'"
       );
   }
 }
@@ -197,12 +197,12 @@ function isValidBorderElement(borderElement: string) {
 
 function isValidBordersOption(
   bordersOption: Partial<Borders> | undefined,
-  validationMode: ValidationMode = "error"
+  optionChecks: OptionChecks = "error"
 ) {
   if (!bordersOption) return true;
   for (const [option, value] of Object.entries(bordersOption)) {
     const { validationFn, errorMsg } = borderOptionValidators[option];
-    isValid(value, validationFn, errorMsg, validationMode);
+    isValid(value, validationFn, errorMsg, optionChecks);
   }
   return true;
 }
@@ -230,19 +230,19 @@ function isValidStyle(style: string) {
 
 function isValidCustomColors(
   customColorsOptions: Partial<CustomColors>[] | undefined,
-  validationMode: ValidationMode = "error"
+  optionChecks: OptionChecks = "error"
 ) {
   if (!customColorsOptions) return true;
   if (!Array.isArray(customColorsOptions)) {
     handleInvalidEntry(
       "customColors must be an array of objects",
-      validationMode
+      optionChecks
     );
   }
   customColorsOptions.forEach((customColorsOption) => {
     for (const [option, value] of Object.entries(customColorsOption)) {
       const { validationFn, errorMsg } = customColorOptionValidators[option];
-      isValid(value, validationFn, errorMsg, validationMode);
+      isValid(value, validationFn, errorMsg, optionChecks);
     }
   });
   return true;
@@ -269,14 +269,14 @@ function isValidAlternateRows(alternateRows: string[]) {
 
 function isValidColorsOption(
   colorsOption: Partial<Colors> | undefined,
-  validationMode: ValidationMode = "error"
+  optionChecks: OptionChecks = "error"
 ) {
   if (!colorsOption) return true;
   const { borderColor, alternateRows, customColors } = colorsOption;
   if (!borderColor && !alternateRows && !customColors) {
     handleInvalidEntry(
       "colors must contain at least one of borderColor, alternateRows, or customColors",
-      validationMode
+      optionChecks
     );
   }
 
@@ -284,11 +284,11 @@ function isValidColorsOption(
     if (option === "customColors") {
       isValidCustomColors(
         value as Partial<CustomColors>[] | undefined,
-        validationMode
+        optionChecks
       );
     } else {
       const { validationFn, errorMsg } = colorOptionValidators[option];
-      isValid(value, validationFn, errorMsg!, validationMode);
+      isValid(value, validationFn, errorMsg!, optionChecks);
     }
   }
 
@@ -299,39 +299,36 @@ function isValid(
   value: any,
   validationFn: ValidationFn,
   errorMsg: string,
-  validationMode: ValidationMode = "error"
+  optionChecks: OptionChecks = "error"
 ) {
   if (value !== undefined && !validationFn(value)) {
-    handleInvalidEntry(errorMsg, validationMode);
+    handleInvalidEntry(errorMsg, optionChecks);
   }
 }
 
 export function checkTableOptionsAreValid(
   options: Partial<TableOptions>
 ): never | void {
-  // Filter out validationMode from options
-  let validationMode: ValidationMode = "error";
-  if (options.validationMode) {
-    validationMode = options.validationMode;
-    delete options.validationMode;
+  // Filter out optionChecks from options
+  let optionChecks: OptionChecks = "error";
+  if (options.optionChecks) {
+    optionChecks = options.optionChecks;
+    delete options.optionChecks;
   }
 
-  if (validationMode === "skipChecks") return;
+  if (optionChecks === "skipChecks") return;
 
   for (const [option, value] of Object.entries(options)) {
     if (option === "color") {
       // Handle color validations
-      isValidColorsOption(value as Partial<Colors> | undefined, validationMode);
+      isValidColorsOption(value as Partial<Colors> | undefined, optionChecks);
     } else if (option === "border") {
       // Handle border validations
-      isValidBordersOption(
-        value as Partial<Borders> | undefined,
-        validationMode
-      );
+      isValidBordersOption(value as Partial<Borders> | undefined, optionChecks);
     } else {
       // Handle all other validations
       const { validationFn, errorMsg } = defaultOptionValidators[option];
-      isValid(value, validationFn, errorMsg!, validationMode);
+      isValid(value, validationFn, errorMsg!, optionChecks);
     }
   }
 }
@@ -350,12 +347,14 @@ function subArraysAreSameLength(table: any[][]) {
 }
 
 export function checkTableIsValid(table: string[][]): true | never {
-  if (!table) throw new Error("A table must be provided");
-  if (!Array.isArray(table)) throw new Error("Table must be an array");
-  if (table.length === 0) throw new Error("Table must have at least one row");
+  if (!table) handleInvalidEntry("A table must be provided", "error");
+  if (!Array.isArray(table))
+    handleInvalidEntry("Table must be an array", "error");
+  if (table.length === 0)
+    handleInvalidEntry("Table must have at least one row", "error");
   if (table[0].length === 0)
-    throw new Error("Table must have at least one cell");
+    handleInvalidEntry("Table must have at least one cell", "error");
   if (!subArraysAreSameLength(table))
-    throw new Error("All rows must have same number of columns");
+    handleInvalidEntry("All rows must have same number of columns", "error");
   return true;
 }

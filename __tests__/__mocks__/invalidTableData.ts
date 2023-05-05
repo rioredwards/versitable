@@ -10,7 +10,7 @@ export const invalidTableData = [
 
 // Array of invalid table options
 export const invalidTableOptions = [
-  { validationMode: 0 }, // number instead of ValidationMode type
+  { optionChecks: 0 }, // number instead of OptionChecks type
   { cellPadding: "2" }, // string instead of number
   { maxColumns: 200 }, // too many columns
   { maxRows: -1 }, // negative number of rows

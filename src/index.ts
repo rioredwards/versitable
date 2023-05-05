@@ -154,7 +154,7 @@ export function formatTable(
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
   const {
-    validationMode,
+    optionChecks: OptionChecks,
     maxRows,
     maxColumns,
     cellPadding,

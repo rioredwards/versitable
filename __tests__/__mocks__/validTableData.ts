@@ -1,7 +1,7 @@
 import { TableOptions } from "../../src/tableTypes";
 
 export const validTableOptions: TableOptions = {
-  validationMode: "error",
+  optionChecks: "error",
   cellPadding: 1,
   maxColumns: 6,
   maxRows: 8,

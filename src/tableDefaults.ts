@@ -22,7 +22,7 @@ const TOP_SEPARATOR = "┬";
 const BOTTOM_SEPARATOR = "┴";
 
 export const TABLE_DEFAULTS: TableOptions = {
-  validationMode: VALIDATION_MODE,
+  optionChecks: VALIDATION_MODE,
   cellPadding: CELL_PADDING,
   maxColumns: MAX_COLUMNS,
   maxRows: MAX_ROWS,

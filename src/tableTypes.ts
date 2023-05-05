@@ -1,6 +1,6 @@
 export type Table = any[][];
 
-export type ValidationMode = "error" | "warn" | "skipChecks";
+export type OptionChecks = "error" | "warn" | "skipChecks";
 
 export interface CustomColors {
   column?: number;
@@ -28,7 +28,7 @@ export interface Borders {
 }
 
 export interface TableOptions {
-  validationMode: ValidationMode; // Should createTable throw errors, warnings or skip checks altogether?
+  optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether?
   cellPadding: number; // Padding between cell content and cell border (minimum if cells vary in length) (end of cell only)
   maxColumns: number; // Max number of columns
   maxRows: number; // Max number of rows (not including "overflow rows": rows with height > 1)

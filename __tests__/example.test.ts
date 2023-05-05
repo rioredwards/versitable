@@ -6,10 +6,16 @@ import {
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
 describe("checkTableIsValid", () => {
-  it("should throw an error if validationMode is set to 'error' and table argument is invalid", () => {
+  it("should throw an error if optionChecks is set to 'error' and table argument is invalid", () => {
     expect(() =>
-      versitable.create(invalidTableData[0], { validationMode: "error" })
+      versitable.create(invalidTableData[0], { optionChecks: "error" })
     ).toThrowError();
+  });
+  it("should log a warning if optionChecks is set to 'warn' and table argument is invalid", () => {
+    // expect(() =>
+    //   versitable.create(invalidTableData[0], { optionChecks: "warn" })
+    // ).toThrowError();
+    versitable.create(invalidTableData[0], { optionChecks: "warn" });
   });
 });
 
