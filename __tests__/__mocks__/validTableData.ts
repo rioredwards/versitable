@@ -53,6 +53,7 @@ export const validMaxColWidths = [
   [1, 2, 3],
   [1, 10, 100, 400],
 ];
+export const validMaxRowHeight = [1, 7, 25, 50];
 
 export const validTableData = [
   [

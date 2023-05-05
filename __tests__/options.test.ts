@@ -10,6 +10,7 @@ import {
   validCellPaddings,
   validMaxColWidths,
   validMaxColumns,
+  validMaxRowHeight,
   validMaxRows,
 } from "./__mocks__/validTableData";
 
@@ -111,6 +112,14 @@ describe("checkTableOptionsAreValid", () => {
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ maxRowHeight })
       ).toThrowError();
+    });
+  });
+  it("should return true if maxRowHeight option is valid", () => {
+    validMaxRowHeight.forEach((maxRowHeight: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxRowHeight,
+      });
+      expect(result).toBeTruthy();
     });
   });
 });
