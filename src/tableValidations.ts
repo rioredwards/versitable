@@ -308,7 +308,7 @@ export function isValid(
 
 export function checkTableOptionsAreValid(
   options: Partial<TableOptions>
-): never | void {
+): true | never | void {
   // Filter out optionChecks from options
   let optionChecks: OptionChecks = "error";
   if (options.optionChecks) {
@@ -331,6 +331,7 @@ export function checkTableOptionsAreValid(
       isValid(value, validationFn, errorMsg!, optionChecks);
     }
   }
+  return true;
 }
 
 /* Helper functions for ensuring data integrity */

@@ -41,6 +41,9 @@ export const validTableOptions: TableOptions = {
   },
 };
 
+export const validCellPaddings = [0, 1, 3, 7, 15, 20];
+export const validMaxColumns = [1, 3, 10, 55, 100];
+
 export const validTableData = [
   [
     "88fb3ba4-d3d4-48ff-b3a3-15f07fc9aa3b",

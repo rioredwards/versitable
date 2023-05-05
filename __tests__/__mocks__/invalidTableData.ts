@@ -64,3 +64,17 @@ export const invalidCellPaddings = [
   [],
   [1],
 ];
+
+export const invalidMaxColumns = [
+  -1,
+  -100,
+  0,
+  101,
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [],
+  [1],
+];

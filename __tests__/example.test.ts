@@ -2,10 +2,16 @@ import { versitable } from "../src";
 import * as tableValidations from "../src/tableValidations";
 import {
   invalidCellPaddings,
+  invalidMaxColumns,
   invalidTableData,
   invalidTableOptions,
 } from "./__mocks__/invalidTableData";
-import { validTableData, validTableOptions } from "./__mocks__/validTableData";
+import {
+  validCellPaddings,
+  validMaxColumns,
+  validTableData,
+  validTableOptions,
+} from "./__mocks__/validTableData";
 
 describe("checkTableOptionsAreValid", () => {
   it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
@@ -42,10 +48,32 @@ describe("checkTableOptionsAreValid", () => {
   });
   it("should throw an error if cellPadding option is invalid", () => {
     invalidCellPaddings.forEach((cellPadding: any) => {
-      console.log("cellPadding: ", cellPadding);
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ cellPadding })
       ).toThrowError();
+    });
+  });
+  it("should return true if cellPadding option is valid", () => {
+    validCellPaddings.forEach((cellPadding: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        cellPadding,
+      });
+      expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if maxColumns option is invalid", () => {
+    invalidMaxColumns.forEach((maxColumns: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ maxColumns })
+      ).toThrowError();
+    });
+  });
+  it("should return true if maxColumns option is valid", () => {
+    validMaxColumns.forEach((maxColumns: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxColumns,
+      });
+      expect(result).toBeTruthy();
     });
   });
 });
