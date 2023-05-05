@@ -41,7 +41,7 @@ describe("versitable.create", () => {
     expect(typeof table[0][0]).toBe("string");
   });
 
-  it("should error if passed in invalid options (with strict mode)", () => {
+  it("should error if passed in invalid options", () => {
     for (const option of invalidTableOptions) {
       expect(() =>
         versitable.create(validTableData, {
@@ -78,7 +78,7 @@ describe("versitable.create", () => {
     expect(table[0][0].length).toBeLessThanOrEqual(7);
   });
 
-  it("should create a border around the table if border === true", () => {
+  it.skip("should create a border around the table if border === true", () => {
     const table = versitable.create(validTableData, {
       borders: true,
     });

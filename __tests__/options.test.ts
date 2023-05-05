@@ -37,10 +37,7 @@ describe("checkTableOptionsAreValid", () => {
     warnMock.mockRestore();
   });
   it("should not execute if optionChecks is set to 'skip' and option arguments are invalid", () => {
-    const checkMock = jest
-      .spyOn(tableValidations, "isValid")
-      .mockImplementation(() => {});
-
+    const checkMock = jest.spyOn(tableValidations, "isValid");
     tableValidations.checkTableOptionsAreValid({
       optionChecks: "skip",
       maxColWidths: -1,
