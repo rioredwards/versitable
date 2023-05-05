@@ -6,16 +6,25 @@ import {
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 
 describe("checkTableIsValid", () => {
-  it("should throw an error if optionChecks is set to 'error' and table argument is invalid", () => {
+  it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
     expect(() =>
-      versitable.create(invalidTableData[0], { optionChecks: "error" })
+      versitable.create(validTableData, {
+        optionChecks: "error",
+        maxColWidths: -1,
+      })
     ).toThrowError();
   });
-  it("should log a warning if optionChecks is set to 'warn' and table argument is invalid", () => {
-    // expect(() =>
-    //   versitable.create(invalidTableData[0], { optionChecks: "warn" })
-    // ).toThrowError();
-    versitable.create(invalidTableData[0], { optionChecks: "warn" });
+  it("should log a warning if optionChecks is set to 'warn' and option arguments are invalid", () => {
+    // check if warning was logged to console
+    const warnMock = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    versitable.create(validTableData, {
+      optionChecks: "warn",
+      maxColWidths: -1,
+    });
+
+    expect(warnMock).toHaveBeenCalled();
+    warnMock.mockRestore();
   });
 });
 
@@ -56,10 +65,6 @@ describe("versitable.create", () => {
   });
 
   it("should limit the rows created based on the maxRows option", () => {
-    // This doesn't work anymore because rows can have height > 1
-    // const table = versitable.create(validTableData, { maxRows: 10 });
-    // expect(table.length).toBeLessThanOrEqual(10);
-
     const table = versitable.create(validTableData, {
       maxRows: 10,
       maxRowHeight: 1,
