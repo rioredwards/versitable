@@ -1,6 +1,7 @@
 import * as tableValidations from "../src/tableValidations";
 import {
   invalidCellPaddings,
+  invalidHeader,
   invalidMaxColWidths,
   invalidMaxColumns,
   invalidMaxRowHeight,
@@ -9,6 +10,7 @@ import {
 } from "./__mocks__/invalidTableData";
 import {
   validCellPaddings,
+  validHeader,
   validMaxColWidths,
   validMaxColumns,
   validMaxRowHeight,
@@ -135,6 +137,21 @@ describe("checkTableOptionsAreValid", () => {
     validTopAndBottomBorder.forEach((topAndBottomBorder: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         topAndBottomBorder,
+      });
+      expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if header option is invalid", () => {
+    invalidHeader.forEach((header: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ header })
+      ).toThrowError();
+    });
+  });
+  it("should return true if header option is valid", () => {
+    validHeader.forEach((header: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        header,
       });
       expect(result).toBeTruthy();
     });

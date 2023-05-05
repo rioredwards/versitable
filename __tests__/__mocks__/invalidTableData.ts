@@ -135,3 +135,16 @@ export const invalidTopAndBottomBorder = [
   "10",
   { foo: "bar" },
 ];
+
+export const invalidHeader = [
+  -1,
+  0,
+  51,
+  [],
+  [-1],
+  [0],
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+];
