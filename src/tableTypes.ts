@@ -1,6 +1,6 @@
 export type Table = any[][];
 
-export type OptionChecks = "error" | "warn" | "skipChecks";
+export type OptionChecks = "error" | "warn" | "skip";
 
 export interface CustomColors {
   column?: number;

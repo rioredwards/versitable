@@ -1,4 +1,5 @@
 import { versitable } from "../src";
+import * as tableValidations from "../src/tableValidations";
 import {
   invalidTableData,
   invalidTableOptions,
@@ -25,6 +26,20 @@ describe("checkTableIsValid", () => {
 
     expect(warnMock).toHaveBeenCalled();
     warnMock.mockRestore();
+  });
+  it("should skip checks if optionChecks is set to 'skip' and option arguments are invalid", () => {
+    // check if warning was logged to console
+    const checkMock = jest
+      .spyOn(tableValidations, "isValid")
+      .mockImplementation(() => {});
+
+    versitable.create(validTableData, {
+      optionChecks: "skip",
+      maxColWidths: -1,
+    });
+
+    expect(checkMock).toHaveBeenCalledTimes(0);
+    checkMock.mockRestore();
   });
 });
 

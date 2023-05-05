@@ -138,11 +138,11 @@ function handleInvalidEntry(
       throw new Error(message);
     case "warn":
       console.warn(message);
-    case "skipChecks":
+    case "skip":
       break;
     default:
       throw new Error(
-        "optionChecks unset. Must be set to 'error', 'warn', or 'skipChecks'"
+        "optionChecks unset. Must be set to 'error', 'warn', or 'skip'"
       );
   }
 }
@@ -295,7 +295,7 @@ function isValidColorsOption(
   return true;
 }
 
-function isValid(
+export function isValid(
   value: any,
   validationFn: ValidationFn,
   errorMsg: string,
@@ -316,7 +316,7 @@ export function checkTableOptionsAreValid(
     delete options.optionChecks;
   }
 
-  if (optionChecks === "skipChecks") return;
+  if (optionChecks === "skip") return;
 
   for (const [option, value] of Object.entries(options)) {
     if (option === "color") {
