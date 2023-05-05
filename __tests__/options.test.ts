@@ -7,6 +7,7 @@ import {
 } from "./__mocks__/invalidTableData";
 import {
   validCellPaddings,
+  validMaxColWidths,
   validMaxColumns,
   validMaxRows,
 } from "./__mocks__/validTableData";
@@ -94,6 +95,14 @@ describe("checkTableOptionsAreValid", () => {
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ maxColWidths })
       ).toThrowError();
+    });
+  });
+  it("should return true if maxColWidths option is valid", () => {
+    validMaxColWidths.forEach((maxColWidths: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxColWidths,
+      });
+      expect(result).toBeTruthy();
     });
   });
 });
