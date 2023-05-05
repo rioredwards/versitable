@@ -5,6 +5,7 @@ import {
   invalidMaxColumns,
   invalidMaxRowHeight,
   invalidMaxRows,
+  invalidTopAndBottomBorder,
 } from "./__mocks__/invalidTableData";
 import {
   validCellPaddings,
@@ -120,6 +121,13 @@ describe("checkTableOptionsAreValid", () => {
         maxRowHeight,
       });
       expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if topAndBottomBorder option is invalid", () => {
+    invalidTopAndBottomBorder.forEach((topAndBottomBorder: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ topAndBottomBorder })
+      ).toThrowError();
     });
   });
 });
