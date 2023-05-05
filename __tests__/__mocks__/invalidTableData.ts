@@ -45,8 +45,31 @@ export const invalidTableOptions = [
     },
   },
   {
+    borders: "hello", // string instead of Borders type
+  },
+  {
+    borders: {}, // empty object instead of Borders type
+  },
+  {
     borders: {
-      horizontalLine: "hello", // string instead of character
+      glyphs: "hello", // string instead of BorderGlyphs
+    },
+  },
+  {
+    borders: {
+      glyphs: {
+        horizontalLine: 1, // number instead of string
+      },
+    },
+  },
+  {
+    borders: {
+      sides: "hello", // string instead of BorderSides
+    },
+  },
+  {
+    borders: {
+      sides: { top: 1 }, // number instead of boolean
     },
   },
 ];

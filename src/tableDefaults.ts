@@ -9,15 +9,17 @@ const MAX_COL_WIDTHS = 20;
 const MAX_ROW_HEIGHT = 3;
 const TOP_AND_BOTTOM_BORDER = true;
 const HEADER = true;
+// Color Options
 const BORDER_COLOR = "grey";
 const ALTERNATE_ROWS = ["#2323232a", "#2c2c2c2a"];
 const CUSTOM_COLORS = undefined;
-const HORIZONTAL_LINE = "─";
-const VERTICAL_LINE = "│";
-const TOP_LEFT_CORNER = "╭";
-const TOP_RIGHT_CORNER = "╮";
-const BOTTOM_LEFT_CORNER = "╰";
-const BOTTOM_RIGHT_CORNER = "╯";
+// Border Options
+export const HORIZONTAL_LINE = "─";
+export const VERTICAL_LINE = "│";
+export const TOP_LEFT_CORNER = "╭";
+export const TOP_RIGHT_CORNER = "╮";
+export const BOTTOM_LEFT_CORNER = "╰";
+export const BOTTOM_RIGHT_CORNER = "╯";
 const TOP_SEPARATOR = "┬";
 const BOTTOM_SEPARATOR = "┴";
 
@@ -35,14 +37,16 @@ export const TABLE_DEFAULTS: TableOptions = {
     alternateRows: ALTERNATE_ROWS,
     customColors: CUSTOM_COLORS,
   },
-  borders: {
-    horizontalLine: HORIZONTAL_LINE,
-    verticalLine: VERTICAL_LINE,
-    topLeftCorner: TOP_LEFT_CORNER,
-    topRightCorner: TOP_RIGHT_CORNER,
-    bottomLeftCorner: BOTTOM_LEFT_CORNER,
-    bottomRightCorner: BOTTOM_RIGHT_CORNER,
-    topSeparator: TOP_SEPARATOR,
-    bottomSeparator: BOTTOM_SEPARATOR,
-  },
+  borders: true,
 };
+
+// borders: {
+//   horizontalLine: HORIZONTAL_LINE,
+//   verticalLine: VERTICAL_LINE,
+//   topLeftCorner: TOP_LEFT_CORNER,
+//   topRightCorner: TOP_RIGHT_CORNER,
+//   bottomLeftCorner: BOTTOM_LEFT_CORNER,
+//   bottomRightCorner: BOTTOM_RIGHT_CORNER,
+//   topSeparator: TOP_SEPARATOR,
+//   bottomSeparator: BOTTOM_SEPARATOR,
+// },

@@ -1,5 +1,13 @@
 import { versitable } from "../src";
 import {
+  BOTTOM_LEFT_CORNER,
+  BOTTOM_RIGHT_CORNER,
+  HORIZONTAL_LINE,
+  TOP_LEFT_CORNER,
+  TOP_RIGHT_CORNER,
+  VERTICAL_LINE,
+} from "../src/tableDefaults";
+import {
   invalidTableData,
   invalidTableOptions,
 } from "./__mocks__/invalidTableData";
@@ -11,7 +19,7 @@ describe("versitable.create", () => {
   });
 
   it("should create a string[][] if passed in a string[][]", () => {
-    const table = versitable.create(validTableData);
+    const table = versitable.create(validTableData, { borders: false });
     expect(table).toBeInstanceOf(Array);
     expect(table[0]).toBeInstanceOf(Array);
     expect(typeof table[0][0]).toBe("string");
@@ -24,7 +32,10 @@ describe("versitable.create", () => {
   });
 
   it("should create a table if passed in valid options", () => {
-    const table = versitable.create(validTableData, validTableOptions);
+    const table = versitable.create(validTableData, {
+      ...validTableOptions,
+      borders: false,
+    });
     expect(table).toBeInstanceOf(Array);
     expect(table[0]).toBeInstanceOf(Array);
     expect(typeof table[0][0]).toBe("string");
@@ -43,6 +54,7 @@ describe("versitable.create", () => {
 
   it("should limit the rows created based on the maxRows option", () => {
     const table = versitable.create(validTableData, {
+      borders: false,
       maxRows: 10,
       maxRowHeight: 1,
     });
@@ -50,15 +62,33 @@ describe("versitable.create", () => {
   });
 
   it("should limit the columns created based on the maxColumns option", () => {
-    const table = versitable.create(validTableData, { maxColumns: 2 });
+    const table = versitable.create(validTableData, {
+      borders: false,
+      maxColumns: 2,
+    });
     expect(table[0].length).toBeLessThanOrEqual(2);
   });
 
   it("should truncate the cells based on the maxColWidths option", () => {
     const table = versitable.create(validTableData, {
+      borders: false,
       maxColWidths: 7,
       cellPadding: 0,
     });
     expect(table[0][0].length).toBeLessThanOrEqual(7);
+  });
+
+  it("should create a border around the table if border === true", () => {
+    const table = versitable.create(validTableData, {
+      borders: true,
+    });
+    expect(table[0][1]).toBe(HORIZONTAL_LINE);
+    expect(table[1][0]).toBe(VERTICAL_LINE);
+    expect(table[0][0]).toBe(TOP_LEFT_CORNER);
+    expect(table[table.length - 1][0]).toBe(BOTTOM_LEFT_CORNER);
+    expect(table[0][table[0].length - 1]).toBe(TOP_RIGHT_CORNER);
+    expect(table[table.length - 1][table[0].length - 1]).toBe(
+      BOTTOM_RIGHT_CORNER
+    );
   });
 });

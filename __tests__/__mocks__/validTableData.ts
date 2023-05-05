@@ -30,14 +30,22 @@ export const validTableOptions: TableOptions = {
     ],
   },
   borders: {
-    horizontalLine: "─",
-    verticalLine: "│",
-    topLeftCorner: "╭",
-    topRightCorner: "╮",
-    bottomLeftCorner: "╰",
-    bottomRightCorner: "╯",
-    topSeparator: "┬",
-    bottomSeparator: "┴",
+    glyphs: {
+      horizontalLine: "*",
+      verticalLine: "$",
+      topLeftCorner: "┌",
+      topRightCorner: "┐",
+      bottomLeftCorner: "└",
+      bottomRightCorner: "┘",
+      topSeparator: "+",
+      bottomSeparator: "+",
+    },
+    sides: {
+      top: true,
+      bottom: false,
+      left: true,
+      right: false,
+    },
   },
 };
 

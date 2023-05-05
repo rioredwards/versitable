@@ -13,10 +13,24 @@ export interface CustomColors {
 export interface Colors {
   borderColor: string;
   alternateRows: string[];
-  customColors: CustomColors[] | undefined;
+  customColors?: CustomColors[];
 }
 
-export interface Borders {
+export interface BorderSides {
+  top: boolean;
+  bottom: boolean;
+  left: boolean;
+  right: boolean;
+}
+
+export interface CustomBorders {
+  sides: BorderSides;
+  glyphs: BorderGlyphs;
+}
+
+export type Borders = CustomBorders | boolean;
+
+export interface BorderGlyphs {
   horizontalLine: string;
   verticalLine: string;
   topLeftCorner: string;

@@ -5,9 +5,11 @@ import {
   CustomColors,
   TableOptions,
   OptionChecks,
+  BorderGlyphs,
+  BorderSides,
 } from "./tableTypes.js";
 
-type ValidationFn = (value: any) => boolean;
+type ValidationFn = (value: any) => boolean | never;
 
 const MAX_MAX_COLUMNS = 100;
 const MAX_MAX_ROWS = 1000;
@@ -17,7 +19,7 @@ const MAX_ROW_HEIGHT = 50;
 
 const defaultOptionValidators: Record<
   string,
-  { validationFn: ValidationFn; errorMsg?: string }
+  { validationFn: ValidationFn; errorMsg: string }
 > = {
   cellPadding: {
     validationFn: isValidCellPadding,
@@ -44,17 +46,12 @@ const defaultOptionValidators: Record<
     errorMsg: "topAndBottomBorder must be a boolean",
   },
   header: { validationFn: isValidHeader, errorMsg: "header must be a boolean" },
-  colors: { validationFn: isValidColorsOption },
-  borders: { validationFn: isValidBordersOption },
 };
 
 const colorOptionValidators: Record<
   string,
-  { validationFn: ValidationFn; errorMsg?: string }
+  { validationFn: ValidationFn; errorMsg: string }
 > = {
-  customColors: {
-    validationFn: isValidCustomColors,
-  },
   borderColor: {
     validationFn: isValidColor,
     errorMsg: "Invalid borderColor",
@@ -91,41 +88,63 @@ const customColorOptionValidators: Record<
   },
 };
 
-const borderOptionValidators: Record<
+const borderGlyphValidators: Record<
   string,
   { validationFn: ValidationFn; errorMsg: string }
 > = {
   horizontalLine: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "horizontalLine must be a single character",
   },
   verticalLine: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "verticalLine must be a single character",
   },
   topLeftCorner: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "topLeftCorner must be a single character",
   },
   topRightCorner: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "topRightCorner must be a single character",
   },
   bottomLeftCorner: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "bottomLeftCorner must be a single character",
   },
   bottomRightCorner: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "bottomRightCorner must be a single character",
   },
   topSeparator: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "topSeparator must be a single character",
   },
   bottomSeparator: {
-    validationFn: isValidBorderElement,
+    validationFn: isValidBorderGlyph,
     errorMsg: "bottomSeparator must be a single character",
+  },
+};
+
+const borderSideValidators: Record<
+  string,
+  { validationFn: ValidationFn; errorMsg: string }
+> = {
+  top: {
+    validationFn: isValidBorderSide,
+    errorMsg: "top border side must be a boolean",
+  },
+  bottom: {
+    validationFn: isValidBorderSide,
+    errorMsg: "bottom border side must be a boolean",
+  },
+  left: {
+    validationFn: isValidBorderSide,
+    errorMsg: "left border side must be a boolean",
+  },
+  right: {
+    validationFn: isValidBorderSide,
+    errorMsg: "right border side must be a boolean",
   },
 };
 
@@ -198,18 +217,82 @@ function isValidHeader(header: boolean) {
   return typeof header === "boolean";
 }
 
-function isValidBorderElement(borderElement: string) {
+function isValidBorderGlyph(borderElement: string) {
   return borderElement.length === 1;
+}
+
+function isValidBorderSide(borderSide: boolean) {
+  return typeof borderSide === "boolean";
+}
+
+function isValidBorderGlyphsOption(
+  borderGlyphsOption: Partial<BorderGlyphs> | undefined,
+  optionChecks: OptionChecks
+) {
+  if (!borderGlyphsOption) return true;
+  if (typeof borderGlyphsOption !== "object") {
+    handleInvalidEntry(
+      "Invalid border glyphs option. Must be an object.",
+      optionChecks
+    );
+  }
+  for (const [option, value] of Object.entries(borderGlyphsOption)) {
+    if (option in borderGlyphValidators) {
+      const { validationFn, errorMsg } = borderGlyphValidators[option];
+      isValid(value, validationFn, errorMsg, optionChecks);
+    } else {
+      handleInvalidEntry(
+        `Invalid border glyph option: ${option}`,
+        optionChecks
+      );
+    }
+  }
+  return true;
+}
+
+function isValidBorderSidesOption(
+  borderSidesOption: Partial<BorderSides> | undefined,
+  optionChecks: OptionChecks
+) {
+  if (!borderSidesOption) return true;
+  if (typeof borderSidesOption !== "object") {
+    handleInvalidEntry(
+      "Invalid border sides option. Must be an object.",
+      optionChecks
+    );
+  }
+  for (const [option, value] of Object.entries(borderSidesOption)) {
+    if (option in borderSideValidators) {
+      const { validationFn, errorMsg } = borderSideValidators[option];
+      isValid(value, validationFn, errorMsg, optionChecks);
+    } else {
+      handleInvalidEntry(`Invalid border side option: ${option}`, optionChecks);
+    }
+  }
+  return true;
 }
 
 function isValidBordersOption(
   bordersOption: Partial<Borders> | undefined,
-  optionChecks: OptionChecks = "error"
+  optionChecks: OptionChecks
 ) {
   if (!bordersOption) return true;
   for (const [option, value] of Object.entries(bordersOption)) {
-    const { validationFn, errorMsg } = borderOptionValidators[option];
-    isValid(value, validationFn, errorMsg, optionChecks);
+    if (option === "glyphs") {
+      // Handle color validations
+      isValidBorderGlyphsOption(
+        value as Partial<BorderGlyphs> | undefined,
+        optionChecks
+      );
+    } else if (option === "sides") {
+      // Handle color validations
+      isValidBorderSidesOption(
+        value as Partial<BorderSides> | undefined,
+        optionChecks
+      );
+    } else {
+      handleInvalidEntry(`Invalid border option: ${option}`, optionChecks);
+    }
   }
   return true;
 }
@@ -237,7 +320,7 @@ function isValidStyle(style: string) {
 
 function isValidCustomColors(
   customColorsOptions: Partial<CustomColors>[] | undefined,
-  optionChecks: OptionChecks = "error"
+  optionChecks: OptionChecks
 ) {
   if (!customColorsOptions) return true;
   if (!Array.isArray(customColorsOptions)) {
@@ -276,7 +359,7 @@ function isValidAlternateRows(alternateRows: string[]) {
 
 function isValidColorsOption(
   colorsOption: Partial<Colors> | undefined,
-  optionChecks: OptionChecks = "error"
+  optionChecks: OptionChecks
 ) {
   if (!colorsOption) return true;
   const { borderColor, alternateRows, customColors } = colorsOption;
@@ -316,15 +399,15 @@ export function isValid(
 export function checkTableOptionsAreValid(
   options: Partial<TableOptions>
 ): true | never | void {
-  const { optionChecks } = options;
+  const { optionChecks } = options as TableOptions;
   if (optionChecks === "skip") return;
 
   for (const [option, value] of Object.entries(options)) {
     if (option === "optionChecks") continue;
-    if (option === "color") {
+    if (option === "colors") {
       // Handle color validations
       isValidColorsOption(value as Partial<Colors> | undefined, optionChecks);
-    } else if (option === "border") {
+    } else if (option === "borders") {
       // Handle border validations
       isValidBordersOption(value as Partial<Borders> | undefined, optionChecks);
     } else {
