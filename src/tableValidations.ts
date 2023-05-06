@@ -251,6 +251,8 @@ function isValidBordersOption(bordersOption: Borders) {
 }
 
 function isValidCustomColors(customColorsOptions: CustomColors[]) {
+  if (!customColorsOptions || typeof customColorsOptions === "boolean")
+    return true;
   if (!Array.isArray(customColorsOptions)) {
     handleInvalidEntry("customColors must be an array of objects");
     return false;

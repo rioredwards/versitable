@@ -21,7 +21,7 @@ function main() {
   });
   // versitable.log(hotkeysFormattedForTable, validTableOptions);
   const updatedOptions: PartialTableOptions = {
-    // ...validTableOptions,
+    ...TABLE_DEFAULTS,
     maxRows: 15,
     maxColumns: 6,
     maxColWidths: [38, 40],
@@ -39,11 +39,11 @@ function main() {
     },
   };
 
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
-  // console.log("\n\n");
-  // versitable.log(hotkeysFormattedForTable, updatedOptions);
+  console.log("\n\n");
+  versitable.log(hotkeysFormattedForTable, updatedOptions);
 }
 
 main();
