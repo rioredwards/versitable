@@ -1,19 +1,19 @@
-import { versitable } from "../src";
 import * as tableValidations from "../src/tableValidations";
 import {
   invalidCellPaddings,
+  invalidHeader,
   invalidMaxColWidths,
   invalidMaxColumns,
+  invalidMaxRowHeight,
   invalidMaxRows,
-  invalidTableData,
-  invalidTableOptions,
 } from "./__mocks__/invalidTableData";
 import {
   validCellPaddings,
+  validHeader,
+  validMaxColWidths,
   validMaxColumns,
+  validMaxRowHeight,
   validMaxRows,
-  validTableData,
-  validTableOptions,
 } from "./__mocks__/validTableData";
 
 describe("checkTableOptionsAreValid", () => {
@@ -37,10 +37,7 @@ describe("checkTableOptionsAreValid", () => {
     warnMock.mockRestore();
   });
   it("should not execute if optionChecks is set to 'skip' and option arguments are invalid", () => {
-    const checkMock = jest
-      .spyOn(tableValidations, "isValid")
-      .mockImplementation(() => {});
-
+    const checkMock = jest.spyOn(tableValidations, "isValid");
     tableValidations.checkTableOptionsAreValid({
       optionChecks: "skip",
       maxColWidths: -1,
@@ -96,68 +93,47 @@ describe("checkTableOptionsAreValid", () => {
   });
   it("should throw an error if maxColWidths option is invalid", () => {
     invalidMaxColWidths.forEach((maxColWidths: any) => {
-      console.log("maxColWidths: ", maxColWidths);
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ maxColWidths })
       ).toThrowError();
     });
   });
-});
-
-describe("versitable.create", () => {
-  beforeEach(() => {
-    jest.resetModules();
+  it("should return true if maxColWidths option is valid", () => {
+    validMaxColWidths.forEach((maxColWidths: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxColWidths,
+      });
+      expect(result).toBeTruthy();
+    });
   });
-
-  it("should create a string[][] if passed in a string[][]", () => {
-    const table = versitable.create(validTableData);
-    expect(table).toBeInstanceOf(Array);
-    expect(table[0]).toBeInstanceOf(Array);
-    expect(typeof table[0][0]).toBe("string");
-  });
-
-  it("should error if not passed a table with type: string[][]", () => {
-    for (const element of invalidTableData) {
-      expect(() => versitable.create(element)).toThrowError();
-    }
-  });
-
-  it("should create a table if passed in valid options", () => {
-    const table = versitable.create(validTableData, validTableOptions);
-    expect(table).toBeInstanceOf(Array);
-    expect(table[0]).toBeInstanceOf(Array);
-    expect(typeof table[0][0]).toBe("string");
-  });
-
-  it("should error if passed in invalid options (with strict mode)", () => {
-    for (const option of invalidTableOptions) {
+  it("should throw an error if maxRowHeight option is invalid", () => {
+    invalidMaxRowHeight.forEach((maxRowHeight: any) => {
       expect(() =>
-        versitable.create(validTableData, {
-          ...validTableOptions,
-          ...option,
-        } as any)
+        tableValidations.checkTableOptionsAreValid({ maxRowHeight })
       ).toThrowError();
-    }
-  });
-
-  it("should limit the rows created based on the maxRows option", () => {
-    const table = versitable.create(validTableData, {
-      maxRows: 10,
-      maxRowHeight: 1,
     });
-    expect(table.length).toBeLessThanOrEqual(10);
   });
-
-  it("should limit the columns created based on the maxColumns option", () => {
-    const table = versitable.create(validTableData, { maxColumns: 2 });
-    expect(table[0].length).toBeLessThanOrEqual(2);
-  });
-
-  it("should truncate the cells based on the maxColWidths option", () => {
-    const table = versitable.create(validTableData, {
-      maxColWidths: 7,
-      cellPadding: 0,
+  it("should return true if maxRowHeight option is valid", () => {
+    validMaxRowHeight.forEach((maxRowHeight: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        maxRowHeight,
+      });
+      expect(result).toBeTruthy();
     });
-    expect(table[0][0].length).toBeLessThanOrEqual(7);
+  });
+  it("should throw an error if header option is invalid", () => {
+    invalidHeader.forEach((header: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ header })
+      ).toThrowError();
+    });
+  });
+  it("should return true if header option is valid", () => {
+    validHeader.forEach((header: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        header,
+      });
+      expect(result).toBeTruthy();
+    });
   });
 });

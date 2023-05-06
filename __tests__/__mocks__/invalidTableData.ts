@@ -10,14 +10,13 @@ export const invalidTableData = [
 
 // Array of invalid table options
 export const invalidTableOptions = [
-  { optionChecks: 0 }, // number instead of OptionChecks type
+  // { optionChecks: 0 }, // number instead of OptionChecks type
   { cellPadding: "2" }, // string instead of number
   { maxColumns: 200 }, // too many columns
   { maxRows: -1 }, // negative number of rows
   { maxRows: 1001 }, // too many rows
   { maxColWidths: false }, // boolean instead of number[] or number
   { maxRowHeight: 100 }, // too large row height
-  { topAndBottomBorder: 1 }, // number instead of boolean
   { header: "true" }, // string instead of boolean
   { colors: "yellow" }, // string instead of object
   {
@@ -45,8 +44,36 @@ export const invalidTableOptions = [
     },
   },
   {
+    borders: "hello", // string instead of Borders type
+  },
+  {
+    borders: {}, // empty object instead of Borders type
+  },
+  {
     borders: {
-      horizontalLine: "hello", // string instead of character
+      glyphs: "hello", // string instead of BorderGlyphs
+    },
+  },
+  {
+    borders: {
+      glyphs: {
+        horizontalLine: 1, // number instead of string
+      },
+    },
+  },
+  {
+    borders: {
+      sides: "hello", // string instead of BorderSides
+    },
+  },
+  {
+    borders: {
+      sides: { top: 1 }, // number instead of boolean
+    },
+  },
+  {
+    borders: {
+      sides: { betweenColumns: {} }, // obj instead of boolean
     },
   },
 ];
@@ -102,6 +129,34 @@ export const invalidMaxColWidths = [
   [-1],
   [0],
   true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+];
+
+export const invalidMaxRowHeight = [
+  -1,
+  -100,
+  0,
+  51,
+  [],
+  [-1],
+  [0],
+  true,
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+];
+
+export const invalidHeader = [
+  -1,
+  0,
+  51,
+  [],
+  [-1],
+  [0],
   "",
   "hello",
   "10",

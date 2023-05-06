@@ -5,21 +5,25 @@ const VALIDATION_MODE = "error";
 const CELL_PADDING = 2;
 const MAX_COLUMNS = 12;
 const MAX_ROWS = 100;
-const MAX_COL_WIDTHS = 20;
-const MAX_ROW_HEIGHT = 3;
-const TOP_AND_BOTTOM_BORDER = true;
+const MAX_COL_WIDTHS = 40;
+const MAX_ROW_HEIGHT = 1;
 const HEADER = true;
+// Color Options
 const BORDER_COLOR = "grey";
 const ALTERNATE_ROWS = ["#2323232a", "#2c2c2c2a"];
 const CUSTOM_COLORS = undefined;
-const HORIZONTAL_LINE = "─";
-const VERTICAL_LINE = "│";
-const TOP_LEFT_CORNER = "╭";
-const TOP_RIGHT_CORNER = "╮";
-const BOTTOM_LEFT_CORNER = "╰";
-const BOTTOM_RIGHT_CORNER = "╯";
-const TOP_SEPARATOR = "┬";
-const BOTTOM_SEPARATOR = "┴";
+// Border Options
+export const HORIZONTAL_LINE = "─";
+export const VERTICAL_LINE = "│";
+export const TOP_LEFT_CORNER = "╭";
+export const TOP_RIGHT_CORNER = "╮";
+export const BOTTOM_LEFT_CORNER = "╰";
+export const BOTTOM_RIGHT_CORNER = "╯";
+export const TOP_SEPARATOR = "┬";
+export const BOTTOM_SEPARATOR = "┴";
+export const MIDDLE_SEPARATOR = "┼";
+export const RIGHT_SEPARATOR = "┤";
+export const LEFT_SEPARATOR = "├";
 
 export const TABLE_DEFAULTS: TableOptions = {
   optionChecks: VALIDATION_MODE,
@@ -28,7 +32,6 @@ export const TABLE_DEFAULTS: TableOptions = {
   maxRows: MAX_ROWS,
   maxColWidths: MAX_COL_WIDTHS,
   maxRowHeight: MAX_ROW_HEIGHT,
-  topAndBottomBorder: TOP_AND_BOTTOM_BORDER,
   header: HEADER,
   colors: {
     borderColor: BORDER_COLOR,
@@ -36,13 +39,26 @@ export const TABLE_DEFAULTS: TableOptions = {
     customColors: CUSTOM_COLORS,
   },
   borders: {
-    horizontalLine: HORIZONTAL_LINE,
-    verticalLine: VERTICAL_LINE,
-    topLeftCorner: TOP_LEFT_CORNER,
-    topRightCorner: TOP_RIGHT_CORNER,
-    bottomLeftCorner: BOTTOM_LEFT_CORNER,
-    bottomRightCorner: BOTTOM_RIGHT_CORNER,
-    topSeparator: TOP_SEPARATOR,
-    bottomSeparator: BOTTOM_SEPARATOR,
+    glyphs: {
+      horizontalLine: HORIZONTAL_LINE,
+      verticalLine: VERTICAL_LINE,
+      topLeftCorner: TOP_LEFT_CORNER,
+      topRightCorner: TOP_RIGHT_CORNER,
+      bottomLeftCorner: BOTTOM_LEFT_CORNER,
+      bottomRightCorner: BOTTOM_RIGHT_CORNER,
+      topSeparator: TOP_SEPARATOR,
+      bottomSeparator: BOTTOM_SEPARATOR,
+      middleSeparator: MIDDLE_SEPARATOR,
+      rightSeparator: RIGHT_SEPARATOR,
+      leftSeparator: LEFT_SEPARATOR,
+    },
+    sides: {
+      top: true,
+      bottom: true,
+      left: true,
+      right: true,
+      betweenColumns: true,
+      betweenRows: false,
+    },
   },
 };
