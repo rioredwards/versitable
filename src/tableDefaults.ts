@@ -3,7 +3,7 @@ import { TableOptions } from "./tableTypes";
 /* Defaults */
 const VALIDATION_MODE = "error";
 const CELL_PADDING = 2;
-const MAX_COLUMNS = 12;
+const MAX_COLUMNS = 6;
 const MAX_ROWS = 100;
 const MAX_COL_WIDTHS = 40;
 const MAX_ROW_HEIGHT = 1;

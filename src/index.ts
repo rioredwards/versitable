@@ -100,6 +100,8 @@ export function newInsertRow(maxColWidths: number[], cellPadding: number) {
   });
 }
 
+let overflowRowIdxs: number[] = [];
+
 export function formatTable(
   table: string[][],
   lengths: number[][],
@@ -158,38 +160,25 @@ function createHorizontalBorder(
   sides: BorderSides
 ) {
   let border: string[] = [];
-  const {
-    topLeftCorner,
-    topRightCorner,
-    bottomLeftCorner,
-    bottomRightCorner,
-    topSeparator,
-    bottomSeparator,
-    leftSeparator,
-    rightSeparator,
-    middleSeparator,
-    horizontalLine,
-  } = glyphs;
-
-  let leftCorner: string;
-  let rightCorner: string;
+  let leftEdge: string;
+  let rightEdge: string;
   let separator: string;
-
+  let horizontalLine = glyphs.horizontalLine;
   switch (type) {
     case "top":
-      leftCorner = topLeftCorner;
-      rightCorner = topRightCorner;
-      separator = topSeparator;
+      leftEdge = glyphs.topLeftCorner;
+      rightEdge = glyphs.topRightCorner;
+      separator = glyphs.topSeparator;
       break;
     case "bottom":
-      leftCorner = bottomLeftCorner;
-      rightCorner = bottomRightCorner;
-      separator = bottomSeparator;
+      leftEdge = glyphs.bottomLeftCorner;
+      rightEdge = glyphs.bottomRightCorner;
+      separator = glyphs.bottomSeparator;
       break;
     case "between":
-      leftCorner = leftSeparator;
-      rightCorner = rightSeparator;
-      separator = middleSeparator;
+      leftEdge = glyphs.leftSeparator;
+      rightEdge = glyphs.rightSeparator;
+      separator = glyphs.middleSeparator;
     default:
       break;
   }
@@ -200,12 +189,12 @@ function createHorizontalBorder(
     // If there are borders between columns add the separator
     if (idx === 0) {
       // Far left column
-      if (sides.left) border.push(leftCorner, borderSegment);
+      if (sides.left) border.push(leftEdge, borderSegment);
       else border.push(borderSegment);
       if (sides.betweenColumns) border.push(separator);
     } else if (idx === colWidths.length - 1) {
       // Far right column
-      if (sides.right) border.push(borderSegment + rightCorner);
+      if (sides.right) border.push(borderSegment, rightEdge);
       else border.push(borderSegment);
     } else {
       // Middle column
@@ -235,8 +224,9 @@ function createVerticalBorder(
       if (!sides.top && idx % 2 === 1) return row;
     }
     if (border === "left") return [verticalLine, ...row];
-    if (border === "right") return [...row, verticalLine];
-    if (border === "between") {
+    else if (border === "right") return [...row, verticalLine];
+    else {
+      // border === "between"
       return row.map((cell, colIdx) => {
         // // If in the first column, skip if left border is set
         if (colIdx === 0 && sides.left) return cell;
@@ -403,12 +393,13 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
     borders,
   });
 
+  // console.log("overflowRowIdxs: ", overflowRowIdxs);
+
   return withBorders;
 }
 
-export function log(table: Table, options?: Partial<TableOptions>) {
-  const createdTable = create(table, options);
-  const joinedTable = createdTable.map((row) => row.join("")).join("\n");
+export function log(table: Table) {
+  const joinedTable = table.map((row) => row.join("")).join("\n");
   console.log(joinedTable);
 }
 

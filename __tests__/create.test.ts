@@ -3,6 +3,7 @@ import {
   BOTTOM_LEFT_CORNER,
   BOTTOM_RIGHT_CORNER,
   HORIZONTAL_LINE,
+  TABLE_DEFAULTS,
   TOP_LEFT_CORNER,
   TOP_RIGHT_CORNER,
   VERTICAL_LINE,
@@ -78,17 +79,19 @@ describe("versitable.create", () => {
     expect(table[0][0].length).toBeLessThanOrEqual(7);
   });
 
-  it("should create a border around the table if border === true", () => {
+  it("should create a border around the table if borders === true", () => {
     const table = versitable.create(validTableData, {
+      ...TABLE_DEFAULTS,
       borders: true,
     });
-    expect(table[0][0]).toBe(TOP_LEFT_CORNER);
-    expect(table[0][table[0].length - 1]).toBe(TOP_RIGHT_CORNER);
-    expect(table[table.length - 1][0]).toBe(BOTTOM_LEFT_CORNER);
-    expect(table[table.length - 1][table[0].length - 1]).toBe(
+    console.log(table[0][table[0].length - 1]);
+    expect(table[0][0][0]).toBe(TOP_LEFT_CORNER);
+    expect(table[0][table[0].length - 1][0]).toBe(TOP_RIGHT_CORNER);
+    expect(table[table.length - 1][0][0]).toBe(BOTTOM_LEFT_CORNER);
+    expect(table[table.length - 1][table[0].length - 1][0]).toBe(
       BOTTOM_RIGHT_CORNER
     );
     expect(table[0][1][0]).toBe(HORIZONTAL_LINE);
-    expect(table[1][0]).toBe(VERTICAL_LINE);
+    expect(table[1][0][0]).toBe(VERTICAL_LINE);
   });
 });

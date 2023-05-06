@@ -24,7 +24,7 @@ function main() {
     ...TABLE_DEFAULTS,
     maxRows: 15,
     maxColumns: 6,
-    maxColWidths: [38, 40],
+    maxColWidths: [8, 10, 10],
     maxRowHeight: 2,
     cellPadding: 5,
     borders: {
@@ -39,11 +39,12 @@ function main() {
     },
   };
 
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
-  // console.log("\n\n");
-  // versitable.log(hotkeysFormattedForTable, updatedOptions);
+  console.log("\n\n");
+  const table = versitable.create(hotkeysFormattedForTable, updatedOptions);
+  versitable.log(table);
 }
 
 main();
@@ -71,7 +72,8 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
         } as BorderGlyphs,
       },
     };
-    versitable.log(hotkeysFormattedForTable, borderOptions);
+    const table = versitable.create(hotkeysFormattedForTable, borderOptions);
+    versitable.log(table);
     console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n");
     await sleep(300); // wait 1 second before printing next table
   }
