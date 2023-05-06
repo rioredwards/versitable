@@ -1,4 +1,10 @@
-import { TableOptions } from "./tableTypes";
+import {
+  BorderGlyphs,
+  BorderSides,
+  Borders,
+  Colors,
+  TableOptions,
+} from "./tableTypes";
 
 /* Defaults */
 const VALIDATION_MODE = "error";
@@ -35,5 +41,22 @@ export const TABLE_DEFAULTS: TableOptions = {
     alternateRows: ALTERNATE_ROWS,
     customColors: CUSTOM_COLORS,
   },
-  borders: true,
+  borders: {
+    glyphs: {
+      horizontalLine: HORIZONTAL_LINE,
+      verticalLine: VERTICAL_LINE,
+      topLeftCorner: TOP_LEFT_CORNER,
+      topRightCorner: TOP_RIGHT_CORNER,
+      bottomLeftCorner: BOTTOM_LEFT_CORNER,
+      bottomRightCorner: BOTTOM_RIGHT_CORNER,
+      topSeparator: TOP_SEPARATOR,
+      bottomSeparator: BOTTOM_SEPARATOR,
+    },
+    sides: {
+      top: true,
+      bottom: true,
+      left: true,
+      right: true,
+    },
+  },
 };

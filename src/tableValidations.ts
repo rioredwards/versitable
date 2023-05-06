@@ -306,7 +306,7 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 }
 
 export function checkTableOptionsAreValid(
-  options: TableOptions
+  options: Partial<TableOptions>
 ): true | never | void {
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;

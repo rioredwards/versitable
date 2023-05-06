@@ -1,8 +1,12 @@
 import {
+  BorderGlyphs,
+  Borders,
+  CustomBorders,
   FormatTableOptions,
   OptionChecks,
   Table,
   TableOptions,
+  BorderSides,
 } from "./tableTypes";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
@@ -142,8 +146,125 @@ export function formatTable(
   return formattedRows;
 }
 
+export interface AddBordersOptions {
+  colWidthsWithPadding: number[];
+  borders: Borders;
+}
+
+interface GenericGlyphs {
+  leftCorner: string;
+  rightCorner: string;
+  separator: string;
+  horizontalLine: string;
+}
+
+function createVertBorder(colWidths: number[], glyphs: GenericGlyphs) {
+  let border: string[] = [];
+  const { leftCorner, rightCorner, separator, horizontalLine } = glyphs;
+
+  colWidths.forEach((colWidth, idx) => {
+    if (idx === 0) {
+      border.push(leftCorner, horizontalLine.repeat(colWidth));
+    } else if (idx === colWidths.length - 1) {
+      border.push(separator, horizontalLine.repeat(colWidth), rightCorner);
+    } else {
+      border.push(separator, horizontalLine.repeat(colWidth));
+    }
+  });
+
+  return border;
+}
+
+export function addBorders(
+  formattedRows: string[][],
+  { colWidthsWithPadding, borders }: AddBordersOptions
+): string[][] {
+  let tableWithBorders: string[][] = formattedRows;
+  let updatedBorders: CustomBorders;
+  if (typeof borders === "boolean") {
+    if (borders === false) return formattedRows;
+    else updatedBorders = TABLE_DEFAULTS.borders as CustomBorders;
+  } else {
+    updatedBorders = {
+      sides: {
+        ...(TABLE_DEFAULTS.borders as CustomBorders).sides,
+        ...borders.sides,
+      } as BorderSides,
+      glyphs: {
+        ...(TABLE_DEFAULTS.borders as CustomBorders).glyphs,
+        ...borders.glyphs,
+      } as BorderGlyphs,
+    };
+  }
+
+  const { sides, glyphs } = updatedBorders;
+
+  // Insert top border
+  if (sides!.top === true) {
+    const {
+      topLeftCorner: leftCorner,
+      topRightCorner: rightCorner,
+      topSeparator: separator,
+      horizontalLine: horizontalLine,
+    } = glyphs!;
+    const topBorder = createVertBorder(colWidthsWithPadding, {
+      leftCorner,
+      rightCorner,
+      separator,
+      horizontalLine,
+    } as GenericGlyphs);
+    tableWithBorders.unshift(topBorder);
+  }
+  // Insert bottom border
+  if (sides!.top === true) {
+    const {
+      bottomLeftCorner: leftCorner,
+      bottomRightCorner: rightCorner,
+      bottomSeparator: separator,
+      horizontalLine: horizontalLine,
+    } = glyphs!;
+    const bottomBorder = createVertBorder(colWidthsWithPadding, {
+      leftCorner,
+      rightCorner,
+      separator,
+      horizontalLine,
+    } as GenericGlyphs);
+    tableWithBorders.push(bottomBorder);
+  }
+
+  return tableWithBorders;
+}
+
+interface searchable {
+  [key: string]: any;
+}
+
+function deepMerge<T>(defaults: T, options: Partial<T>): T {
+  const result: any = {};
+
+  for (const key in defaults) {
+    if (Object.prototype.hasOwnProperty.call(defaults, key)) {
+      if (
+        typeof defaults[key] === "object" &&
+        !Array.isArray(defaults[key]) &&
+        options[key] !== undefined
+      ) {
+        result[key] = deepMerge(
+          defaults[key],
+          options[key] as Partial<T[Extract<keyof T, string>]>
+        );
+      } else {
+        result[key] = options[key] !== undefined ? options[key] : defaults[key];
+      }
+    }
+  }
+
+  return result as T;
+}
+
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
+  const mergedOptions = deepMerge(TABLE_DEFAULTS, options || {});
   const {
     optionChecks,
     maxRows,
@@ -153,7 +274,8 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
     maxRowHeight,
     header,
     colors,
-  } = { ...TABLE_DEFAULTS, ...options } as TableOptions;
+    borders,
+  } = mergedOptions;
 
   checkTableIsValid(table);
   if (options) checkTableOptionsAreValid(options);
@@ -171,7 +293,16 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
     maxRowHeight,
   });
 
-  return formattedCells;
+  const colWidthsWithPadding = actualMaxColWidths.map(
+    (width) => width + cellPadding!
+  );
+
+  const withBorders = addBorders(formattedCells, {
+    colWidthsWithPadding,
+    borders,
+  });
+
+  return withBorders;
 }
 
 export function log(table: Table, options?: Partial<TableOptions>) {

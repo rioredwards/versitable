@@ -11,15 +11,18 @@ function main() {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
   // versitable.log(hotkeysFormattedForTable, validTableOptions);
-  const updatedOptions = {
+  const updatedOptions: TableOptions = {
     ...validTableOptions,
-    maxRows: 10,
-    maxColWidths: 24,
-    maxRowHeight: 1,
+    maxRows: 15,
+    maxColumns: 6,
+    maxColWidths: [38, 40],
+    maxRowHeight: 2,
     cellPadding: 2,
+    borders: true,
   };
 
-  console.log("__________________________________________________");
+  // console.log("__________________________________________________");
+  console.log("\n\n");
   versitable.log(validTableData, updatedOptions);
 }
 
