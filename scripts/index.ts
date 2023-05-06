@@ -1,10 +1,13 @@
-import { TableOptions } from "../src/tableTypes";
+import { CustomBorders, TableOptions } from "../src/tableTypes";
 import { versitable } from "../src/index";
 import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import {
   validTableOptions,
   validTableData,
+  allBorderCombos,
 } from "../__tests__/__mocks__/validTableData";
+
+const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
 function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
@@ -17,7 +20,7 @@ function main() {
     maxColumns: 6,
     maxColWidths: [38, 40],
     maxRowHeight: 2,
-    cellPadding: 2,
+    cellPadding: 5,
     borders: {
       sides: {
         betweenRows: true,
@@ -25,10 +28,12 @@ function main() {
         left: true,
         right: true,
         top: true,
-        bottom: false,
+        bottom: true,
       },
     },
   };
+
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
   console.log("\n\n");
@@ -36,3 +41,19 @@ function main() {
 }
 
 main();
+
+async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
+  for (let i = 0; i < allBorderCombos.length - 1; i++) {
+    const borderCombo = allBorderCombos[i];
+    const borderOptions: any = {
+      ...validTableOptions,
+
+      borders: {
+        sides: { ...borderCombo },
+      },
+    };
+    versitable.log(hotkeysFormattedForTable, borderOptions);
+    console.log("\n\n\n\n\n\n\n\n");
+    await sleep(300); // wait 1 second before printing next table
+  }
+}

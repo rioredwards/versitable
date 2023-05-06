@@ -5,8 +5,8 @@ const VALIDATION_MODE = "error";
 const CELL_PADDING = 2;
 const MAX_COLUMNS = 12;
 const MAX_ROWS = 100;
-const MAX_COL_WIDTHS = 20;
-const MAX_ROW_HEIGHT = 3;
+const MAX_COL_WIDTHS = 40;
+const MAX_ROW_HEIGHT = 1;
 const HEADER = true;
 // Color Options
 const BORDER_COLOR = "grey";

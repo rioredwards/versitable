@@ -154,7 +154,8 @@ export interface AddBordersOptions {
 function createHorizontalBorder(
   colWidths: number[],
   glyphs: BorderGlyphs,
-  type: "top" | "bottom" | "between"
+  type: "top" | "bottom" | "between",
+  sides: BorderSides
 ) {
   let border: string[] = [];
   const {
@@ -194,12 +195,22 @@ function createHorizontalBorder(
   }
 
   colWidths.forEach((colWidth, idx) => {
+    // Border segment is the length of the column
+    let borderSegment = horizontalLine.repeat(colWidth);
+    // If there are borders between columns add the separator
     if (idx === 0) {
-      border.push(leftCorner + horizontalLine.repeat(colWidth));
+      // Far left column
+      if (sides.left) border.push(leftCorner, borderSegment);
+      else border.push(borderSegment);
+      if (sides.betweenColumns) border.push(separator);
     } else if (idx === colWidths.length - 1) {
-      border.push(separator, horizontalLine.repeat(colWidth) + rightCorner);
+      // Far right column
+      if (sides.right) border.push(borderSegment + rightCorner);
+      else border.push(borderSegment);
     } else {
-      border.push(separator, horizontalLine.repeat(colWidth));
+      // Middle column
+      border.push(borderSegment);
+      if (sides.betweenColumns) border.push(separator);
     }
   });
 
@@ -228,11 +239,13 @@ export function addBorders(
 
   // Insert betweenRow borders
   if (sides.betweenRows === true) {
+    // insert one between every row
     for (let i = 1; i < tableWithBorders.length; i += 2) {
       const bottomBorder = createHorizontalBorder(
         colWidthsWithPadding,
         glyphs,
-        "between"
+        "between",
+        sides
       );
       tableWithBorders.splice(i, 0, bottomBorder);
     }
@@ -243,17 +256,19 @@ export function addBorders(
     const topBorder = createHorizontalBorder(
       colWidthsWithPadding,
       glyphs,
-      "top"
+      "top",
+      sides
     );
     tableWithBorders.unshift(topBorder);
   }
 
   // Insert bottom border
-  if (sides.top === true) {
+  if (sides.bottom === true) {
     const bottomBorder = createHorizontalBorder(
       colWidthsWithPadding,
       glyphs,
-      "bottom"
+      "bottom",
+      sides
     );
     tableWithBorders.push(bottomBorder);
   }
@@ -261,8 +276,16 @@ export function addBorders(
   // Insert left border
   if (sides.left === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
-      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides.betweenRows === true && idx % 2 === 0) return row;
+      // skip if top row and top border is set
+      if (idx === 0 && sides.top) return row;
+      // skip if bottom row and bottom border is set
+      if (idx === tableWithBorders.length - 1 && sides.bottom) return row;
+      // if betweenRows is set, skip even rows
+      // but if no top border set, skip odd rows
+      if (sides.betweenRows) {
+        if (sides.top && idx % 2 === 0) return row;
+        if (!sides.top && idx % 2 === 1) return row;
+      }
       return [verticalLine, ...row];
     });
   }
@@ -270,8 +293,16 @@ export function addBorders(
   // Insert right border
   if (sides.right === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
-      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides.betweenRows === true && idx % 2 === 0) return row;
+      // skip if top row and top border is set
+      if (idx === 0 && sides.top) return row;
+      // skip if bottom row and bottom border is set
+      if (idx === tableWithBorders.length - 1 && sides.bottom) return row;
+      // if betweenRows is set, skip even rows
+      // but if no top border set, skip odd rows
+      if (sides.betweenRows) {
+        if (sides.top && idx % 2 === 0) return row;
+        if (!sides.top && idx % 2 === 1) return row;
+      }
       return [...row, verticalLine];
     });
   }
@@ -279,11 +310,23 @@ export function addBorders(
   // Insert betweenColumn borders
   if (sides.betweenColumns === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
-      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides.betweenRows === true && idx % 2 === 0) return row;
+      // skip if top row and top border is set
+      if (idx === 0 && sides.top) return row;
+      // skip if bottom row and bottom border is set
+      if (idx === tableWithBorders.length - 1 && sides.bottom) return row;
+      // if betweenRows is set, skip even rows
+      // but if no top border set, skip odd rows
+      if (sides.betweenRows) {
+        if (sides.top && idx % 2 === 0) return row;
+        if (!sides.top && idx % 2 === 1) return row;
+      }
       return row.map((cell, colIdx) => {
-        if (colIdx === 0 || colIdx === row.length - 1) return cell;
-        if (sides.right === true && colIdx === row.length - 2) return cell;
+        // // If in the first column, skip if left border is set
+        if (colIdx === 0 && sides.left) return cell;
+        // Skip last column either way
+        if (colIdx === row.length - 1) return cell;
+        // Skip last two columns if right border is set
+        if (colIdx === row.length - 2 && sides.right) return cell;
         return `${cell}${verticalLine}`;
       });
     });
