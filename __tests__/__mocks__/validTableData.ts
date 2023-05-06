@@ -1,6 +1,6 @@
-import { TableOptions } from "../../src/tableTypes";
+import { PartialTableOptions, TableOptions } from "../../src/tableTypes";
 
-export const validTableOptions: TableOptions = {
+export const validTableOptions: PartialTableOptions = {
   optionChecks: "error",
   cellPadding: 1,
   maxColumns: 6,

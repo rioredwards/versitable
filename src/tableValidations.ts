@@ -3,10 +3,10 @@ import {
   Borders,
   Colors,
   CustomColors,
-  TableOptions,
   OptionChecks,
   BorderGlyphs,
   BorderSides,
+  PartialTableOptions,
 } from "./tableTypes.js";
 
 type ValidationFn = (value: any) => boolean | never;
@@ -324,7 +324,7 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 }
 
 export function checkTableOptionsAreValid(
-  options: Partial<TableOptions>
+  options: PartialTableOptions
 ): true | never | void {
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;

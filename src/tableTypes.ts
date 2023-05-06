@@ -30,7 +30,7 @@ export interface CustomBorders {
   glyphs: BorderGlyphs;
 }
 
-export type Borders = CustomBorders | boolean;
+export type Borders = DeepPartial<CustomBorders> | boolean;
 
 export interface BorderGlyphs {
   horizontalLine: string;
@@ -58,9 +58,15 @@ export interface TableOptions {
   borders: Borders; // Border characters
 }
 
+export interface PartialTableOptions extends DeepPartial<TableOptions> {}
+
 export interface FormatTableOptions
   extends Pick<TableOptions, "cellPadding" | "maxRowHeight"> {
   actualMaxColWidths: number[];
 }
 
 export type CellPos = "first" | "center" | "last";
+
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};

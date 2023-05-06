@@ -1,4 +1,9 @@
-import { CustomBorders, TableOptions } from "../src/tableTypes";
+import {
+  BorderGlyphs,
+  CustomBorders,
+  PartialTableOptions,
+  TableOptions,
+} from "../src/tableTypes";
 import { versitable } from "../src/index";
 import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import {
@@ -6,6 +11,7 @@ import {
   validTableData,
   allBorderCombos,
 } from "../__tests__/__mocks__/validTableData";
+import { TABLE_DEFAULTS } from "../src/tableDefaults";
 
 const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
@@ -14,8 +20,8 @@ function main() {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
   // versitable.log(hotkeysFormattedForTable, validTableOptions);
-  const updatedOptions: any = {
-    ...validTableOptions,
+  const updatedOptions: PartialTableOptions = {
+    // ...validTableOptions,
     maxRows: 15,
     maxColumns: 6,
     maxColWidths: [38, 40],
@@ -33,11 +39,11 @@ function main() {
     },
   };
 
-  // logAllBorderCombos(hotkeysFormattedForTable);
+  logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
-  console.log("\n\n");
-  versitable.log(hotkeysFormattedForTable, updatedOptions);
+  // console.log("\n\n");
+  // versitable.log(hotkeysFormattedForTable, updatedOptions);
 }
 
 main();
@@ -50,10 +56,23 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
 
       borders: {
         sides: { ...borderCombo },
+        glyphs: {
+          horizontalLine: "━",
+          verticalLine: "┃",
+          topLeftCorner: "┏",
+          topRightCorner: "┓",
+          bottomLeftCorner: "┗",
+          bottomRightCorner: "┛",
+          topSeparator: "┳",
+          bottomSeparator: "┻",
+          middleSeparator: "╋",
+          rightSeparator: "┫",
+          leftSeparator: "┣",
+        } as BorderGlyphs,
       },
     };
     versitable.log(hotkeysFormattedForTable, borderOptions);
-    console.log("\n\n\n\n\n\n\n\n");
+    console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n");
     await sleep(300); // wait 1 second before printing next table
   }
 }
