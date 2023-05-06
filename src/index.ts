@@ -334,10 +334,14 @@ function deepMerge<T>(defaults: T, options: Partial<T>): T {
   const result: any = {};
 
   for (const key in defaults) {
+    // Loop through all properties in defaults object
     if (Object.prototype.hasOwnProperty.call(defaults, key)) {
+      // If the property is an object, but not an array,
+      // And it's also an object in options, merge recursively
       if (
         typeof defaults[key] === "object" &&
-        Array.isArray(defaults[key]) &&
+        typeof options[key] === "object" &&
+        !Array.isArray(defaults[key]) &&
         options[key] !== undefined
       ) {
         result[key] = deepMerge(

@@ -24,11 +24,7 @@
       "request": "launch",
       "name": "Jest: Specific Test",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": [
-        "-t",
-        "should log a warning if optionChecks is set to 'warn' and option arguments are invalid",
-        "--runInBand"
-      ],
+      "args": ["-t", "blah", "--runInBand"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
     },

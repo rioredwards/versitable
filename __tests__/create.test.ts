@@ -108,4 +108,26 @@ describe("versitable.create", () => {
     expect(table[0][1][0]).not.toBe(HORIZONTAL_LINE);
     expect(table[1][0][0]).not.toBe(VERTICAL_LINE);
   });
+
+  it("blah", () => {
+    const overFlowTableData = [
+      ["this string is 63 characters long and will be split into 3 rows"],
+      ["this string is 63 characters long and will be split into 3 rows"],
+      ["this string is 63 characters long and will be split into 3 rows"],
+    ];
+
+    const table = versitable.create(overFlowTableData, {
+      ...TABLE_DEFAULTS,
+      maxColWidths: 25,
+      maxRowHeight: 3,
+      borders: {
+        sides: {
+          betweenRows: true,
+        },
+      },
+    });
+    // versitable.log(table);
+
+    expect(table[0][0][0]).toBe(TOP_LEFT_CORNER);
+  });
 });

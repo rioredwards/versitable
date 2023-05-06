@@ -30,11 +30,6 @@ function main() {
     borders: {
       sides: {
         betweenRows: true,
-        betweenColumns: true,
-        left: true,
-        right: true,
-        top: true,
-        bottom: true,
       },
     },
   };
