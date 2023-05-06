@@ -181,62 +181,85 @@ export function addBorders(
 ): string[][] {
   let tableWithBorders: string[][] = formattedRows;
   let updatedBorders: CustomBorders;
+
   if (typeof borders === "boolean") {
     if (borders === false) return formattedRows;
     else updatedBorders = TABLE_DEFAULTS.borders as CustomBorders;
   } else {
-    updatedBorders = {
-      sides: {
-        ...(TABLE_DEFAULTS.borders as CustomBorders).sides,
-        ...borders.sides,
-      } as BorderSides,
-      glyphs: {
-        ...(TABLE_DEFAULTS.borders as CustomBorders).glyphs,
-        ...borders.glyphs,
-      } as BorderGlyphs,
-    };
+    updatedBorders = deepMerge(
+      TABLE_DEFAULTS.borders,
+      borders
+    ) as CustomBorders;
   }
 
   const { sides, glyphs } = updatedBorders;
 
   // Insert top border
-  if (sides!.top === true) {
+  if (sides.top === true) {
     const {
       topLeftCorner: leftCorner,
       topRightCorner: rightCorner,
       topSeparator: separator,
       horizontalLine: horizontalLine,
-    } = glyphs!;
+    } = glyphs;
     const topBorder = createVertBorder(colWidthsWithPadding, {
       leftCorner,
       rightCorner,
       separator,
       horizontalLine,
-    } as GenericGlyphs);
+    });
     tableWithBorders.unshift(topBorder);
   }
+
   // Insert bottom border
-  if (sides!.top === true) {
+  if (sides.top === true) {
     const {
       bottomLeftCorner: leftCorner,
       bottomRightCorner: rightCorner,
       bottomSeparator: separator,
       horizontalLine: horizontalLine,
-    } = glyphs!;
+    } = glyphs;
     const bottomBorder = createVertBorder(colWidthsWithPadding, {
       leftCorner,
       rightCorner,
       separator,
       horizontalLine,
-    } as GenericGlyphs);
+    });
     tableWithBorders.push(bottomBorder);
   }
 
-  return tableWithBorders;
-}
+  // Insert left border
+  if (sides.left === true) {
+    const { verticalLine } = glyphs;
+    tableWithBorders = tableWithBorders.map((row, idx) => {
+      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
+      return [verticalLine, ...row];
+    });
+  }
 
-interface searchable {
-  [key: string]: any;
+  // Insert right border
+  if (sides.right === true) {
+    const { verticalLine } = glyphs;
+    tableWithBorders = tableWithBorders.map((row, idx) => {
+      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
+      return [...row, verticalLine];
+    });
+  }
+
+  // Insert intersection borders
+  // if (sides.intersection === true) {
+  const { verticalLine } = glyphs;
+  tableWithBorders = tableWithBorders.map((row, idx) => {
+    if (idx === 0 || idx === tableWithBorders.length - 1) return row;
+    return row.map((cell, colIdx) => {
+      if (colIdx === 0 || colIdx === row.length - 1) return cell;
+      if (sides.right === true && colIdx === row.length - 2) return cell;
+      return `${cell}${verticalLine}`;
+    });
+  });
+  // }
+
+  return tableWithBorders;
 }
 
 function deepMerge<T>(defaults: T, options: Partial<T>): T {
@@ -278,7 +301,7 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
   } = mergedOptions;
 
   checkTableIsValid(table);
-  if (options) checkTableOptionsAreValid(options);
+  if (options && optionChecks) checkTableOptionsAreValid(options);
 
   const limitedRows = limitRows(table, maxRows!);
   const actualMaxColumns = Math.min(maxColumns!, table[0].length);

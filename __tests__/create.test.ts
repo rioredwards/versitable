@@ -82,13 +82,13 @@ describe("versitable.create", () => {
     const table = versitable.create(validTableData, {
       borders: true,
     });
-    expect(table[0][1]).toBe(HORIZONTAL_LINE);
-    expect(table[1][0]).toBe(VERTICAL_LINE);
     expect(table[0][0]).toBe(TOP_LEFT_CORNER);
-    expect(table[table.length - 1][0]).toBe(BOTTOM_LEFT_CORNER);
     expect(table[0][table[0].length - 1]).toBe(TOP_RIGHT_CORNER);
+    expect(table[table.length - 1][0]).toBe(BOTTOM_LEFT_CORNER);
     expect(table[table.length - 1][table[0].length - 1]).toBe(
       BOTTOM_RIGHT_CORNER
     );
+    expect(table[0][1][0]).toBe(HORIZONTAL_LINE);
+    expect(table[1][0]).toBe(VERTICAL_LINE);
   });
 });

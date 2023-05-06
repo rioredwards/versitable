@@ -23,7 +23,7 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n");
-  versitable.log(validTableData, updatedOptions);
+  versitable.log(hotkeysFormattedForTable, updatedOptions);
 }
 
 main();
