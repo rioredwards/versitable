@@ -116,25 +116,25 @@ export function formatTable(
       if (cellLength <= maxColWidth) {
         // Cell is not too long, so just pad it + add it
         const additionalPadding = maxColWidth - cellLength;
-        const paddedCell = padCell(cell, additionalPadding + cellPadding!);
+        const paddedCell = padCell(cell, additionalPadding + cellPadding);
         if (insertRows[0] === undefined) {
-          insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+          insertRows.push(newInsertRow(actualMaxColWidths, cellPadding));
         }
         insertRows[0][colIdx] = paddedCell;
       } else {
         // cell is too long, truncate cell and insert remainder into next row
         let sliceIdx = 0;
-        while (sliceIdx < maxRowHeight!) {
-          const charAtSliceIdx = cell[sliceIdx * maxColWidth!];
+        while (sliceIdx < maxRowHeight) {
+          const charAtSliceIdx = cell[sliceIdx * maxColWidth];
           if (charAtSliceIdx === undefined) break;
-          const startSliceIdx = sliceIdx * maxColWidth!;
-          const endSliceIdx = maxColWidth! + sliceIdx * maxColWidth!;
+          const startSliceIdx = sliceIdx * maxColWidth;
+          const endSliceIdx = maxColWidth + sliceIdx * maxColWidth;
           const slice = cell.substring(startSliceIdx, endSliceIdx);
           const additionalPadding = maxColWidth - countCharsWithEmojis(slice);
-          const paddedSlice = padCell(slice, additionalPadding + cellPadding!);
+          const paddedSlice = padCell(slice, additionalPadding + cellPadding);
           // Check if new row is needed
           if (insertRows[sliceIdx] === undefined) {
-            insertRows.push(newInsertRow(actualMaxColWidths, cellPadding!));
+            insertRows.push(newInsertRow(actualMaxColWidths, cellPadding));
           }
           insertRows[sliceIdx][colIdx] = paddedSlice;
           sliceIdx++;
@@ -151,7 +151,7 @@ export interface AddBordersOptions {
   borders: Borders;
 }
 
-function createVertBorder(
+function createHorizontalBorder(
   colWidths: number[],
   glyphs: BorderGlyphs,
   type: "top" | "bottom" | "between"
@@ -167,7 +167,6 @@ function createVertBorder(
     leftSeparator,
     rightSeparator,
     middleSeparator,
-    verticalLine,
     horizontalLine,
   } = glyphs;
 
@@ -225,52 +224,55 @@ export function addBorders(
   }
 
   const { sides, glyphs } = updatedBorders;
-  const { verticalLine } = glyphs!;
+  const { verticalLine } = glyphs;
 
   // Insert betweenRow borders
-  // if (sides.betweenRows === true) {
-  for (let i = 1; i < tableWithBorders.length; i += 2) {
-    const bottomBorder = createVertBorder(
-      colWidthsWithPadding,
-      glyphs!,
-      "between"
-    );
-    tableWithBorders.splice(i, 0, bottomBorder);
+  if (sides.betweenRows === true) {
+    for (let i = 1; i < tableWithBorders.length; i += 2) {
+      const bottomBorder = createHorizontalBorder(
+        colWidthsWithPadding,
+        glyphs,
+        "between"
+      );
+      tableWithBorders.splice(i, 0, bottomBorder);
+    }
   }
 
-  // }
-
   // Insert top border
-  if (sides!.top === true) {
-    const topBorder = createVertBorder(colWidthsWithPadding, glyphs!, "top");
+  if (sides.top === true) {
+    const topBorder = createHorizontalBorder(
+      colWidthsWithPadding,
+      glyphs,
+      "top"
+    );
     tableWithBorders.unshift(topBorder);
   }
 
   // Insert bottom border
-  if (sides!.top === true) {
-    const bottomBorder = createVertBorder(
+  if (sides.top === true) {
+    const bottomBorder = createHorizontalBorder(
       colWidthsWithPadding,
-      glyphs!,
+      glyphs,
       "bottom"
     );
     tableWithBorders.push(bottomBorder);
   }
 
   // Insert left border
-  if (sides!.left === true) {
+  if (sides.left === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
       if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides!.betweenRows === true && idx % 2 === 0) return row;
-      return [verticalLine!, ...row];
+      if (sides.betweenRows === true && idx % 2 === 0) return row;
+      return [verticalLine, ...row];
     });
   }
 
   // Insert right border
-  if (sides!.right === true) {
+  if (sides.right === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
       if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides!.betweenRows === true && idx % 2 === 0) return row;
-      return [...row, verticalLine!];
+      if (sides.betweenRows === true && idx % 2 === 0) return row;
+      return [...row, verticalLine];
     });
   }
 
@@ -278,7 +280,7 @@ export function addBorders(
   if (sides.betweenColumns === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
       if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      if (sides!.betweenRows === true && idx % 2 === 0) return row;
+      if (sides.betweenRows === true && idx % 2 === 0) return row;
       return row.map((cell, colIdx) => {
         if (colIdx === 0 || colIdx === row.length - 1) return cell;
         if (sides.right === true && colIdx === row.length - 2) return cell;
@@ -297,7 +299,7 @@ function deepMerge<T>(defaults: T, options: Partial<T>): T {
     if (Object.prototype.hasOwnProperty.call(defaults, key)) {
       if (
         typeof defaults[key] === "object" &&
-        !Array.isArray(defaults[key]) &&
+        Array.isArray(defaults[key]) &&
         options[key] !== undefined
       ) {
         result[key] = deepMerge(
@@ -331,12 +333,12 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
   checkTableIsValid(table);
   if (options && optionChecks) checkTableOptionsAreValid(options);
 
-  const limitedRows = limitRows(table, maxRows!);
-  const actualMaxColumns = Math.min(maxColumns!, table[0].length);
-  const limitedColumns = limitColumns(limitedRows, actualMaxColumns!);
+  const limitedRows = limitRows(table, maxRows);
+  const actualMaxColumns = Math.min(maxColumns, table[0].length);
+  const limitedColumns = limitColumns(limitedRows, actualMaxColumns);
 
   const cellLengths = getCellLengths(limitedColumns);
-  const actualMaxColWidths = getActualMaxColWidths(cellLengths, maxColWidths!);
+  const actualMaxColWidths = getActualMaxColWidths(cellLengths, maxColWidths);
 
   const formattedCells = formatTable(limitedColumns, cellLengths, {
     cellPadding,
@@ -345,7 +347,7 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
   });
 
   const colWidthsWithPadding = actualMaxColWidths.map(
-    (width) => width + cellPadding!
+    (width) => width + cellPadding
   );
 
   const withBorders = addBorders(formattedCells, {

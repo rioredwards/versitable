@@ -1,10 +1,4 @@
-import {
-  BorderGlyphs,
-  BorderSides,
-  Borders,
-  Colors,
-  TableOptions,
-} from "./tableTypes";
+import { TableOptions } from "./tableTypes";
 
 /* Defaults */
 const VALIDATION_MODE = "error";
