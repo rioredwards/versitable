@@ -151,22 +151,54 @@ export interface AddBordersOptions {
   borders: Borders;
 }
 
-interface GenericGlyphs {
-  leftCorner: string;
-  rightCorner: string;
-  separator: string;
-  horizontalLine: string;
-}
-
-function createVertBorder(colWidths: number[], glyphs: GenericGlyphs) {
+function createVertBorder(
+  colWidths: number[],
+  glyphs: BorderGlyphs,
+  type: "top" | "bottom" | "between"
+) {
   let border: string[] = [];
-  const { leftCorner, rightCorner, separator, horizontalLine } = glyphs;
+  const {
+    topLeftCorner,
+    topRightCorner,
+    bottomLeftCorner,
+    bottomRightCorner,
+    topSeparator,
+    bottomSeparator,
+    leftSeparator,
+    rightSeparator,
+    middleSeparator,
+    verticalLine,
+    horizontalLine,
+  } = glyphs;
+
+  let leftCorner: string;
+  let rightCorner: string;
+  let separator: string;
+
+  switch (type) {
+    case "top":
+      leftCorner = topLeftCorner;
+      rightCorner = topRightCorner;
+      separator = topSeparator;
+      break;
+    case "bottom":
+      leftCorner = bottomLeftCorner;
+      rightCorner = bottomRightCorner;
+      separator = bottomSeparator;
+      break;
+    case "between":
+      leftCorner = leftSeparator;
+      rightCorner = rightSeparator;
+      separator = middleSeparator;
+    default:
+      break;
+  }
 
   colWidths.forEach((colWidth, idx) => {
     if (idx === 0) {
-      border.push(leftCorner, horizontalLine.repeat(colWidth));
+      border.push(leftCorner + horizontalLine.repeat(colWidth));
     } else if (idx === colWidths.length - 1) {
-      border.push(separator, horizontalLine.repeat(colWidth), rightCorner);
+      border.push(separator, horizontalLine.repeat(colWidth) + rightCorner);
     } else {
       border.push(separator, horizontalLine.repeat(colWidth));
     }
@@ -193,71 +225,67 @@ export function addBorders(
   }
 
   const { sides, glyphs } = updatedBorders;
+  const { verticalLine } = glyphs!;
+
+  // Insert betweenRow borders
+  // if (sides.betweenRows === true) {
+  for (let i = 1; i < tableWithBorders.length; i += 2) {
+    const bottomBorder = createVertBorder(
+      colWidthsWithPadding,
+      glyphs!,
+      "between"
+    );
+    tableWithBorders.splice(i, 0, bottomBorder);
+  }
+
+  // }
 
   // Insert top border
-  if (sides.top === true) {
-    const {
-      topLeftCorner: leftCorner,
-      topRightCorner: rightCorner,
-      topSeparator: separator,
-      horizontalLine: horizontalLine,
-    } = glyphs;
-    const topBorder = createVertBorder(colWidthsWithPadding, {
-      leftCorner,
-      rightCorner,
-      separator,
-      horizontalLine,
-    });
+  if (sides!.top === true) {
+    const topBorder = createVertBorder(colWidthsWithPadding, glyphs!, "top");
     tableWithBorders.unshift(topBorder);
   }
 
   // Insert bottom border
-  if (sides.top === true) {
-    const {
-      bottomLeftCorner: leftCorner,
-      bottomRightCorner: rightCorner,
-      bottomSeparator: separator,
-      horizontalLine: horizontalLine,
-    } = glyphs;
-    const bottomBorder = createVertBorder(colWidthsWithPadding, {
-      leftCorner,
-      rightCorner,
-      separator,
-      horizontalLine,
-    });
+  if (sides!.top === true) {
+    const bottomBorder = createVertBorder(
+      colWidthsWithPadding,
+      glyphs!,
+      "bottom"
+    );
     tableWithBorders.push(bottomBorder);
   }
 
   // Insert left border
-  if (sides.left === true) {
-    const { verticalLine } = glyphs;
+  if (sides!.left === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
       if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      return [verticalLine, ...row];
+      if (sides!.betweenRows === true && idx % 2 === 0) return row;
+      return [verticalLine!, ...row];
     });
   }
 
   // Insert right border
-  if (sides.right === true) {
-    const { verticalLine } = glyphs;
+  if (sides!.right === true) {
     tableWithBorders = tableWithBorders.map((row, idx) => {
       if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-      return [...row, verticalLine];
+      if (sides!.betweenRows === true && idx % 2 === 0) return row;
+      return [...row, verticalLine!];
     });
   }
 
-  // Insert intersection borders
-  // if (sides.intersection === true) {
-  const { verticalLine } = glyphs;
-  tableWithBorders = tableWithBorders.map((row, idx) => {
-    if (idx === 0 || idx === tableWithBorders.length - 1) return row;
-    return row.map((cell, colIdx) => {
-      if (colIdx === 0 || colIdx === row.length - 1) return cell;
-      if (sides.right === true && colIdx === row.length - 2) return cell;
-      return `${cell}${verticalLine}`;
+  // Insert betweenColumn borders
+  if (sides.betweenColumns === true) {
+    tableWithBorders = tableWithBorders.map((row, idx) => {
+      if (idx === 0 || idx === tableWithBorders.length - 1) return row;
+      if (sides!.betweenRows === true && idx % 2 === 0) return row;
+      return row.map((cell, colIdx) => {
+        if (colIdx === 0 || colIdx === row.length - 1) return cell;
+        if (sides.right === true && colIdx === row.length - 2) return cell;
+        return `${cell}${verticalLine}`;
+      });
     });
-  });
-  // }
+  }
 
   return tableWithBorders;
 }

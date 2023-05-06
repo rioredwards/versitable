@@ -21,6 +21,8 @@ export interface BorderSides {
   bottom: boolean;
   left: boolean;
   right: boolean;
+  betweenColumns: boolean;
+  betweenRows: boolean;
 }
 
 export interface CustomBorders {
@@ -38,7 +40,10 @@ export interface BorderGlyphs {
   bottomLeftCorner: string;
   bottomRightCorner: string;
   topSeparator: string;
+  leftSeparator: string;
+  rightSeparator: string;
   bottomSeparator: string;
+  middleSeparator: string;
 }
 
 export interface TableOptions {

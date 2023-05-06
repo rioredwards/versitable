@@ -27,6 +27,9 @@ export const BOTTOM_LEFT_CORNER = "╰";
 export const BOTTOM_RIGHT_CORNER = "╯";
 export const TOP_SEPARATOR = "┬";
 export const BOTTOM_SEPARATOR = "┴";
+export const MIDDLE_SEPARATOR = "┼";
+export const RIGHT_SEPARATOR = "┤";
+export const LEFT_SEPARATOR = "├";
 
 export const TABLE_DEFAULTS: TableOptions = {
   optionChecks: VALIDATION_MODE,
@@ -51,12 +54,17 @@ export const TABLE_DEFAULTS: TableOptions = {
       bottomRightCorner: BOTTOM_RIGHT_CORNER,
       topSeparator: TOP_SEPARATOR,
       bottomSeparator: BOTTOM_SEPARATOR,
+      middleSeparator: MIDDLE_SEPARATOR,
+      rightSeparator: RIGHT_SEPARATOR,
+      leftSeparator: LEFT_SEPARATOR,
     },
     sides: {
       top: true,
       bottom: true,
       left: true,
       right: true,
+      betweenColumns: true,
+      betweenRows: false,
     },
   },
 };

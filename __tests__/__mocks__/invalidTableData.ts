@@ -71,6 +71,11 @@ export const invalidTableOptions = [
       sides: { top: 1 }, // number instead of boolean
     },
   },
+  {
+    borders: {
+      sides: { betweenColumns: {} }, // obj instead of boolean
+    },
+  },
 ];
 
 export const invalidCellPaddings = [

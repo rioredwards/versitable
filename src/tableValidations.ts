@@ -188,15 +188,33 @@ function isValidMaxColWidths(maxColWidths: number[] | number) {
   return true;
 }
 
+const validBorderSides = [
+  "top",
+  "right",
+  "bottom",
+  "left",
+  "betweenColumns",
+  "betweenRows",
+];
+
 function isValidBorderSidesOption(borderSidesOption: BorderSides) {
   if (typeof borderSidesOption !== "object") {
     handleInvalidEntry("Invalid border sides option. Must be an object.");
     return false;
   }
-  for (const [_, side] of Object.entries(borderSidesOption)) {
-    if (typeof side !== "boolean") {
+  for (const [name, value] of Object.entries(borderSidesOption)) {
+    if (typeof value !== "boolean") {
       handleInvalidEntry("Invalid border side option. Must be a boolean.");
       return false;
+    } else {
+      if (!validBorderSides.includes(name)) {
+        handleInvalidEntry(
+          `Invalid border side option. Must be one of ${validBorderSides.join(
+            ", "
+          )}`
+        );
+        return false;
+      }
     }
   }
   return true;
