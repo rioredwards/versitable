@@ -84,7 +84,6 @@ describe("versitable.create", () => {
       ...TABLE_DEFAULTS,
       borders: true,
     });
-    console.log(table[0][table[0].length - 1]);
     expect(table[0][0][0]).toBe(TOP_LEFT_CORNER);
     expect(table[0][table[0].length - 1][0]).toBe(TOP_RIGHT_CORNER);
     expect(table[table.length - 1][0][0]).toBe(BOTTOM_LEFT_CORNER);
@@ -93,5 +92,20 @@ describe("versitable.create", () => {
     );
     expect(table[0][1][0]).toBe(HORIZONTAL_LINE);
     expect(table[1][0][0]).toBe(VERTICAL_LINE);
+  });
+
+  it("should not create a border around the table if borders === false", () => {
+    const table = versitable.create(validTableData, {
+      ...TABLE_DEFAULTS,
+      borders: false,
+    });
+    expect(table[0][0][0]).not.toBe(TOP_LEFT_CORNER);
+    expect(table[0][table[0].length - 1][0]).not.toBe(TOP_RIGHT_CORNER);
+    expect(table[table.length - 1][0][0]).not.toBe(BOTTOM_LEFT_CORNER);
+    expect(table[table.length - 1][table[0].length - 1][0]).not.toBe(
+      BOTTOM_RIGHT_CORNER
+    );
+    expect(table[0][1][0]).not.toBe(HORIZONTAL_LINE);
+    expect(table[1][0][0]).not.toBe(VERTICAL_LINE);
   });
 });
