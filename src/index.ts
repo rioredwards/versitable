@@ -3,7 +3,6 @@ import {
   Borders,
   CustomBorders,
   FormatTableOptions,
-  OptionChecks,
   Table,
   TableOptions,
   BorderSides,
@@ -100,7 +99,7 @@ export function newInsertRow(maxColWidths: number[], cellPadding: number) {
   });
 }
 
-let overflowRowIdxs: number[] = [];
+export let overflowRowIdxs: number[] = [];
 
 export function formatTable(
   table: string[][],
@@ -143,6 +142,15 @@ export function formatTable(
         }
       }
     });
+    // If insertRows > 1, add the overflow rows indices to the overflowRowIdxs array
+    if (insertRows.length > 1) {
+      // The overflow rows are any rows after the first index of the insertRows array
+      // These represent the rows that were split from the original row
+      const overflowRowIdxsToAdd = insertRows
+        .map((_, idx) => idx + formattedRows.length)
+        .slice(1);
+      overflowRowIdxs = overflowRowIdxs.concat(overflowRowIdxsToAdd);
+    }
     formattedRows = formattedRows.concat(insertRows);
   });
   return formattedRows;
@@ -276,7 +284,7 @@ export function addBorders(
   }
 
   // Insert top border
-  if (sides.top === true) {
+  if (sides.top) {
     const topBorder = createHorizontalBorder(
       colWidthsWithPadding,
       glyphs,
@@ -287,7 +295,7 @@ export function addBorders(
   }
 
   // Insert bottom border
-  if (sides.bottom === true) {
+  if (sides.bottom) {
     const bottomBorder = createHorizontalBorder(
       colWidthsWithPadding,
       glyphs,
@@ -298,7 +306,7 @@ export function addBorders(
   }
 
   // Insert left border
-  if (sides.left === true) {
+  if (sides.left) {
     tableWithBorders = createVerticalBorder(
       tableWithBorders,
       "left",
@@ -308,7 +316,7 @@ export function addBorders(
   }
 
   // Insert right border
-  if (sides.right === true) {
+  if (sides.right) {
     tableWithBorders = createVerticalBorder(
       tableWithBorders,
       "right",
@@ -317,8 +325,8 @@ export function addBorders(
     );
   }
 
-  if (sides.betweenColumns === true) {
-    // Insert betweenColumn borders
+  // Insert betweenColumn borders
+  if (sides.betweenColumns) {
     tableWithBorders = createVerticalBorder(
       tableWithBorders,
       "between",
@@ -359,6 +367,7 @@ function deepMerge<T>(defaults: T, options: Partial<T>): T {
 
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
+  if (overflowRowIdxs.length > 0) overflowRowIdxs = [];
   const mergedOptions = deepMerge(TABLE_DEFAULTS, options || {});
   const {
     optionChecks,

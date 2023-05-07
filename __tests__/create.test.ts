@@ -1,4 +1,4 @@
-import { versitable } from "../src";
+import { overflowRowIdxs, versitable } from "../src";
 import {
   BOTTOM_LEFT_CORNER,
   BOTTOM_RIGHT_CORNER,
@@ -109,7 +109,7 @@ describe("versitable.create", () => {
     expect(table[1][0][0]).not.toBe(VERTICAL_LINE);
   });
 
-  it("blah", () => {
+  it.only("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
     const overFlowTableData = [
       ["this string is 63 characters long and will be split into 3 rows"],
       ["this string is 63 characters long and will be split into 3 rows"],
@@ -127,6 +127,8 @@ describe("versitable.create", () => {
       },
     });
     // versitable.log(table);
+
+    expect(overflowRowIdxs).toEqual([1, 2, 4, 5, 7, 8]);
 
     expect(table[0][0][0]).toBe(TOP_LEFT_CORNER);
   });
