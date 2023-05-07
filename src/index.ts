@@ -271,15 +271,22 @@ export function addBorders(
 
   // Insert betweenRow borders
   if (sides.betweenRows === true) {
-    // insert one between every row
-    for (let i = 1; i < tableWithBorders.length; i += 2) {
-      const bottomBorder = createHorizontalBorder(
+    let insertIdxs = [];
+    for (let i = 1; i < tableWithBorders.length; i += 1) {
+      if (overflowRowIdxs.length > 0) {
+        if (!overflowRowIdxs.includes(i)) insertIdxs.push(i);
+      } else {
+        insertIdxs.push(i);
+      }
+    }
+    for (let i = insertIdxs.length - 1; i >= 0; i--) {
+      const betweenBorder = createHorizontalBorder(
         colWidthsWithPadding,
         glyphs,
         "between",
         sides
       );
-      tableWithBorders.splice(i, 0, bottomBorder);
+      tableWithBorders.splice(insertIdxs[i], 0, betweenBorder);
     }
   }
 

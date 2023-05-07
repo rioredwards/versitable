@@ -19,7 +19,7 @@ function main() {
     maxRows: 15,
     maxColumns: 6,
     maxColWidths: [8, 10, 10],
-    maxRowHeight: 2,
+    maxRowHeight: 1,
     cellPadding: 5,
     borders: {
       sides: {
@@ -28,12 +28,12 @@ function main() {
     },
   };
 
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
   console.log("\n\n");
-  // const table = versitable.create(hotkeysFormattedForTable, updatedOptions);
-  // versitable.log(table);
+  const table = versitable.create(hotkeysFormattedForTable, updatedOptions);
+  versitable.log(table);
 }
 
 main();

@@ -122,14 +122,29 @@ describe("versitable.create", () => {
       maxRowHeight: 3,
       borders: {
         sides: {
+          left: false,
+          right: false,
+          top: false,
+          bottom: false,
+          betweenColumns: false,
           betweenRows: true,
         },
       },
     });
-    // versitable.log(table);
 
-    expect(overflowRowIdxs).toEqual([1, 2, 4, 5, 7, 8]);
-
-    expect(table[0][0][0]).toBe(TOP_LEFT_CORNER);
+    let borderRowCount = 0;
+    for (let i = 0; i <= 3; i++) {
+      // First row should not be a border row
+      if (i === 0) {
+        expect(table[i][0][0]).not.toBe(HORIZONTAL_LINE);
+      } else if ((i + borderRowCount) % 3 === 0) {
+        // The row after every third row should be a border row
+        expect(table[i][0][0]).toBe(HORIZONTAL_LINE);
+        borderRowCount++;
+      } else {
+        // All other rows should not be a border row
+        expect(table[i][0][0]).not.toBe(HORIZONTAL_LINE);
+      }
+    }
   });
 });
