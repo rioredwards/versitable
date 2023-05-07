@@ -13,6 +13,7 @@ import {
   checkTableOptionsAreValid,
 } from "./tableValidations";
 import { countCharsWithEmojis } from "./emojis";
+import { deepMerge } from "./utils";
 
 export function getCellLengths(table: string[][]) {
   const cellLengths: number[][] = table.map((row) => {
@@ -80,12 +81,6 @@ export function limitColumns(table: string[][], max: number) {
     result.push(row.slice(0, max));
   }
   return result;
-}
-
-export function splitCell(cell: string, maxColWidth: number) {
-  const firstSlice = cell.slice(0, maxColWidth);
-  const secondSlice = cell.slice(maxColWidth);
-  return [firstSlice, secondSlice];
 }
 
 export function padCell(cell: string, cellPadding: number) {
@@ -345,42 +340,6 @@ export function addBorders(
   return tableWithBorders;
 }
 
-function deepMerge<T>(defaults: T, options: Partial<T>): T {
-  const result: any = {};
-
-  for (const key in defaults) {
-    // Loop through all properties in defaults object
-    if (Object.prototype.hasOwnProperty.call(defaults, key)) {
-      // If the property is an object, but not an array,
-      // And it's also an object in options, merge recursively
-      if (
-        typeof defaults[key] === "object" &&
-        typeof options[key] === "object" &&
-        !Array.isArray(defaults[key]) &&
-        options[key] !== undefined
-      ) {
-        result[key] = deepMerge(
-          defaults[key],
-          options[key] as Partial<T[Extract<keyof T, string>]>
-        );
-      } else {
-        result[key] = options[key] !== undefined ? options[key] : defaults[key];
-      }
-    }
-  }
-
-  return result as T;
-}
-
-interface TableDimensions {
-  totalRows: number;
-  totalColumns: number;
-  colWidths: number[];
-  rowHeights: number[];
-}
-
-function getInitTableDimensions(table: string[][]) {}
-
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
   if (overflowRowIdxs.length > 0) overflowRowIdxs = [];
@@ -399,8 +358,6 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
 
   checkTableIsValid(table);
   if (options && optionChecks) checkTableOptionsAreValid(options);
-
-  let tableDimensions = getInitTableDimensions(table);
 
   const limitedRows = limitRows(table, maxRows);
   const actualMaxColumns = Math.min(maxColumns, table[0].length);

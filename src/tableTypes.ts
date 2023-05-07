@@ -1,4 +1,39 @@
-export type Table = any[][];
+export interface VersitableType {
+  formattedTable: string[][];
+  options: TableOptions;
+  cellLengths: number[][];
+  colWidths: number[];
+  rowHeights: number[];
+  borderRowIdxs: number[];
+  borderColumnsIdxs: number[];
+
+  constructor(cells: string[][], options: TableOptions): void;
+
+  // User-facing functions
+  log(): void;
+
+  // Mutations to formattedTable
+  limitRows(): void;
+  limitCols(): void;
+  splitCells(): void;
+  padCells(): void;
+  addBorders(): void;
+
+  // Calculations for table properties
+  calcCellLengths(): void;
+  calcColWidths(): void;
+
+  // Helper functions
+  calcAdjustedMaxColWidths(): number[];
+  arrFromMaxColWidths(): number[];
+  longestStrLenInCol(): number[];
+  padCell(cell: string, cellPadding: number): string;
+  newInsertRow(): string[];
+  createHorizontalBorder(type: "top" | "bottom" | "between"): string[];
+  createVerticalBorder(border: "left" | "right" | "between"): string[];
+}
+
+export type Table = string[][];
 
 export type OptionChecks = "error" | "warn" | "skip";
 
