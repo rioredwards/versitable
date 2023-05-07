@@ -372,6 +372,15 @@ function deepMerge<T>(defaults: T, options: Partial<T>): T {
   return result as T;
 }
 
+interface TableDimensions {
+  totalRows: number;
+  totalColumns: number;
+  colWidths: number[];
+  rowHeights: number[];
+}
+
+function getInitTableDimensions(table: string[][]) {}
+
 // Creates a valid table from a 2D array of cells
 export function create(table: string[][], options?: Partial<TableOptions>) {
   if (overflowRowIdxs.length > 0) overflowRowIdxs = [];
@@ -390,6 +399,8 @@ export function create(table: string[][], options?: Partial<TableOptions>) {
 
   checkTableIsValid(table);
   if (options && optionChecks) checkTableOptionsAreValid(options);
+
+  let tableDimensions = getInitTableDimensions(table);
 
   const limitedRows = limitRows(table, maxRows);
   const actualMaxColumns = Math.min(maxColumns, table[0].length);

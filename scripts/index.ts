@@ -18,12 +18,17 @@ function main() {
     ...TABLE_DEFAULTS,
     maxRows: 15,
     maxColumns: 6,
-    maxColWidths: [8, 10, 10],
-    maxRowHeight: 1,
+    maxColWidths: [3, 10, 10],
+    maxRowHeight: 2,
     cellPadding: 5,
     borders: {
       sides: {
         betweenRows: true,
+        betweenColumns: false,
+        top: false,
+        bottom: false,
+        left: false,
+        right: false,
       },
     },
   };
