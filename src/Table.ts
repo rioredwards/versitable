@@ -40,7 +40,7 @@ export class Versitable implements VersitableType {
   _options: TableOptions;
   _cellLengths: number[][];
   _colWidths: number[];
-  _overFlowRowIdxs?: number[]; // Calculated in splitCells()
+  _overFlowRowIdxs: number[] = []; // Calculated in splitCells()
   _borderRowIdxs: number[] = [];
   _borderColumnsIdxs: number[] = [];
 
@@ -178,26 +178,61 @@ export class Versitable implements VersitableType {
 
     // Insert betweenRow borders
     if (sides.betweenRows === true) {
-      // let insertIdxs = [];
-      // for (let i = 1; i < this._table.length; i += 1) {
-      //   insertIdxs.push(i);
-      // }
-      // for (let i = insertIdxs.length - 1; i >= 0; i--) {
-      //   const betweenBorder = this.createHorizontalBorder("betweenRows");
-      //   this._table.splice(insertIdxs[i], 0, betweenBorder);
-      // }
+      let insertIdxs = [];
+      for (let i = 1; i < this._table.length; i += 1) {
+        if (this._overFlowRowIdxs.length > 0) {
+          if (!this._overFlowRowIdxs.includes(i)) insertIdxs.push(i);
+        } else {
+          insertIdxs.push(i);
+        }
+      }
+      // Iterate backwards through insertIdxs so that the indices don't change during insertion
+      for (let i = insertIdxs.length - 1; i >= 0; i--) {
+        const betweenBorder = this.createHorizontalBorder("betweenRows");
+        this._table.splice(insertIdxs[i], 0, betweenBorder);
+      }
+      // update this._borderRowIdxs
+      // this._table is being mutated and this._borderRowIdxs needs the indices after the insertions
+      const insertedBorderIdxs = insertIdxs.map((value, idx) => value + idx);
+      this._borderRowIdxs.push(...insertedBorderIdxs);
+      // update this._overFlowRowIdxs
+      // This requires mapping through the array and adding the number of borders inserted before that index (borderRowIdx) to each value
+      // this._borderRowIdxs has the indices of each border row, so when the sum of overflowRowIdxs + borderRowIdx is greater than the value of the borderRowIdxs[borderRowIdx] (the next border row index)
+      // then the overflowRowIdxs value needs to be incremented by the number of borders inserted before that index: AKA the borderRowIdx variable
+      // and the borderRowIdx variable needs to be incremented by 1 to get the index of the next border row
+      let borderRowIdx = 0;
+      if (this._overFlowRowIdxs !== undefined) {
+        this._overFlowRowIdxs = this._overFlowRowIdxs.map((value) => {
+          while (
+            borderRowIdx < this._borderRowIdxs.length &&
+            value + borderRowIdx >= this._borderRowIdxs[borderRowIdx]
+          ) {
+            borderRowIdx++;
+          }
+          return value + borderRowIdx;
+        });
+      }
     }
 
     // Insert top border
     if (sides.top) {
       const topBorder = this.createHorizontalBorder("top");
       this._table.unshift(topBorder);
+      // Update this._borderRowIdxs by adding 1 to each idx and adding 0 to the beginning
+      this._borderRowIdxs = this._borderRowIdxs.map((value) => value + 1);
+      this._borderRowIdxs.unshift(0);
+      // Update this._overFlowRowIdxs by adding 1 to each idx
+      if (this._overFlowRowIdxs !== undefined) {
+        this._overFlowRowIdxs = this._overFlowRowIdxs.map((value) => value + 1);
+      }
     }
 
     // Insert bottom border
     if (sides.bottom) {
       const bottomBorder = this.createHorizontalBorder("bottom");
       this._table.push(bottomBorder);
+      // update this._borderRowIdxs
+      this._borderRowIdxs.push(this._table.length - 1);
     }
 
     // Insert left border
@@ -206,7 +241,9 @@ export class Versitable implements VersitableType {
       const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
       for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
-        this._table[i] = this.createVerticalBorder(row, "left");
+        if (!this._borderRowIdxs.includes(i)) {
+          this._table[i] = this.createVerticalBorder(row, "left");
+        }
       }
     }
 
@@ -216,7 +253,9 @@ export class Versitable implements VersitableType {
       const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
       for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
-        this._table[i] = this.createVerticalBorder(row, "right");
+        if (!this._borderRowIdxs.includes(i)) {
+          this._table[i] = this.createVerticalBorder(row, "right");
+        }
       }
     }
 
@@ -226,7 +265,9 @@ export class Versitable implements VersitableType {
       const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
       for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
-        this._table[i] = this.createVerticalBorder(row, "betweenColumns");
+        if (!this._borderRowIdxs.includes(i)) {
+          this._table[i] = this.createVerticalBorder(row, "betweenColumns");
+        }
       }
     }
   }

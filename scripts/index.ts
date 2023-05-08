@@ -4,6 +4,7 @@ import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import {
   validTableOptions,
   allBorderCombos,
+  validTableData,
 } from "../__tests__/__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { Versitable } from "../src/Table";
@@ -26,7 +27,7 @@ function main() {
       sides: {
         betweenRows: true,
         betweenColumns: true,
-        top: true,
+        top: false,
         bottom: true,
         left: true,
         right: true,
@@ -34,15 +35,15 @@ function main() {
     },
   };
 
-  // logAllBorderCombos(hotkeysFormattedForTable);
+  logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.log("__________________________________________________");
-  console.log("\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
-  );
-  myVersitable.print();
+  // console.log("\n\n");
+  // const myVersitable = Versitable.make(
+  //   hotkeysFormattedForTable,
+  //   updatedOptions
+  // );
+  // myVersitable.print();
 }
 
 main();
@@ -50,9 +51,11 @@ main();
 async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
   for (let i = 0; i < allBorderCombos.length - 1; i++) {
     const borderCombo = allBorderCombos[i];
-    const borderOptions: any = {
+    const borderOptions: PartialTableOptions = {
       ...TABLE_DEFAULTS,
       maxRows: 15,
+      maxColWidths: [10, 10, 10],
+      maxRowHeight: 2,
       borders: {
         sides: { ...borderCombo },
         glyphs: {
@@ -70,10 +73,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
         } as BorderGlyphs,
       },
     };
-    const myVersitable = Versitable.make(
-      hotkeysFormattedForTable,
-      borderOptions
-    );
+    const myVersitable = Versitable.make(validTableData, borderOptions);
     myVersitable.print();
     console.log("\n\n\n");
     await sleep(300); // wait 1 second before printing next table
