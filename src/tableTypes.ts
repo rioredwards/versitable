@@ -3,7 +3,7 @@ export interface VersitableType {
   _options: TableOptions;
   _cellLengths: number[][];
   _colWidths: number[];
-  _rowHeights: number[];
+  _overFlowRowIdxs?: number[];
   _borderRowIdxs: number[];
   _borderColumnsIdxs: number[];
 
@@ -22,9 +22,9 @@ export interface VersitableType {
 
   // Helper methods
   populateArrFromMaxColWidths(): number[];
+  populateBordersOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
   createNewInsertRow(): string[];
-  populateBordersOptWithDefaults(): CustomBorders;
   getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
   getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
   createHorizontalBorder(type: HorizontalBorderType): string[];

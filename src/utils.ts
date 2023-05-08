@@ -25,6 +25,16 @@ export function deepMerge<T>(obj1: T, obj2: Partial<T>): T {
   return result as T;
 }
 
+export function insert2DArray(
+  targetArray: any[],
+  arrayToInsert: any[],
+  index: number
+) {
+  for (let i = 0; i < arrayToInsert.length; i++) {
+    targetArray.splice(index + i, 0, arrayToInsert[i]);
+  }
+}
+
 export function splitStr(str: string, idx: number) {
   return [str.slice(0, idx), str.slice(idx)];
 }

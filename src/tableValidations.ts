@@ -327,7 +327,7 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 
 export function checkTableOptionsAreValid(
   options: PartialTableOptions | undefined
-): void {
+): void | true {
   if (!options) return;
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;
@@ -346,6 +346,7 @@ export function checkTableOptionsAreValid(
       isValid(value, validationFn, errorMsg!);
     }
   }
+  return true;
 }
 
 /* Helper functions for ensuring data integrity */

@@ -14,7 +14,7 @@ import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
-import { deepMerge } from "./utils";
+import { deepMerge, insert2DArray } from "./utils";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -40,7 +40,7 @@ export class Versitable implements VersitableType {
   _options: TableOptions;
   _cellLengths: number[][];
   _colWidths: number[];
-  _rowHeights!: number[]; // Calculated in splitCells()
+  _overFlowRowIdxs?: number[]; // Calculated in splitCells()
   _borderRowIdxs: number[] = [];
   _borderColumnsIdxs: number[] = [];
 
@@ -52,6 +52,7 @@ export class Versitable implements VersitableType {
     this.validateOptions(inputOptions);
 
     this._options = deepMerge(TABLE_DEFAULTS, inputOptions || {});
+    this.populateBordersOptWithDefaults();
     this._table = inputTable;
     this.limitRows();
     this.limitCols();
@@ -86,8 +87,12 @@ export class Versitable implements VersitableType {
   }
 
   splitCells(): void {
+    let newTable: string[][] = [];
+    let newCellLengths: number[][] = [];
+
     this._table.forEach((row, rowIdx) => {
       let insertRows: string[][] = [];
+      let insertRowsCellLengths: number[][] = [];
 
       row.forEach((cell, colIdx) => {
         const cellLength = this._cellLengths[rowIdx][colIdx];
@@ -97,35 +102,54 @@ export class Versitable implements VersitableType {
           // Cell is not too long, so just add it
           if (insertRows[0] === undefined) {
             insertRows.push(this.createNewInsertRow());
+            insertRowsCellLengths.push([...this._colWidths]);
           }
+
           insertRows[0][colIdx] = cell;
+          insertRowsCellLengths[0][colIdx] = cellLength;
         } else {
-          // cell is too long, truncate cell and insert remainder into next row
-          let sliceIdx = 0;
+          // cell is too long, truncate cell and conditionally insert remainder into next row
+          let sliceIdx = 0; // used with maxColWidth to calculate idx to slice string & used as rowIdx of slice in insertRows
           while (sliceIdx < this._options.maxRowHeight) {
             const charAtSliceIdx = cell[sliceIdx * maxColWidth];
             if (charAtSliceIdx === undefined) break;
             const startSliceIdx = sliceIdx * maxColWidth;
             const endSliceIdx = maxColWidth + sliceIdx * maxColWidth;
             const slice = cell.substring(startSliceIdx, endSliceIdx);
-            // Check if new row is needed
+
+            // Check if new insertRow is needed
             if (insertRows[sliceIdx] === undefined) {
               insertRows.push(this.createNewInsertRow());
+              insertRowsCellLengths.push([...this._colWidths]);
             }
+
+            // Update insertRows and cellLengths arrays with new cell
+            const newCellLength = countCharsWithEmojis(slice);
             insertRows[sliceIdx][colIdx] = slice;
+            insertRowsCellLengths[sliceIdx][colIdx] = newCellLength;
             sliceIdx++;
           }
         }
       });
-      // If insertRows.length > 1, add the overflow rows indices to the overflowRowIdxs array
+      // If insertRows.length > 1, add the insert row's indices to the overflowRowIdxs array
+      // and update cellLengths array with cellLengths from overflowRowsCellLengths
       if (insertRows.length > 1) {
         // The overflow rows are any rows after the first index of the insertRows array
         // These represent the rows that were split from the original row
-        const newRowIdxs = insertRows.map((_, idx) => idx + this._table.length);
-        this._rowHeights.push(...newRowIdxs);
-      } else this._rowHeights.push(this._table.length);
-      this._table.push(...insertRows);
+        // These indices should be skipped when adding borders between rows
+        if (this._overFlowRowIdxs === undefined) {
+          this._overFlowRowIdxs = [];
+        }
+        const newRowIdxs = insertRows
+          .map((_, idx) => idx + newTable.length)
+          .slice(1);
+        this._overFlowRowIdxs.push(...newRowIdxs);
+      }
+      newCellLengths.push(...insertRowsCellLengths);
+      newTable.push(...insertRows);
     });
+    this._cellLengths = newCellLengths;
+    this._table = newTable;
   }
 
   padCells(): void {
@@ -136,8 +160,9 @@ export class Versitable implements VersitableType {
         const cellPadding =
           maxColWidth - cellLength + this._options.cellPadding;
         if (cellPadding > 0) {
-          const padding = " ".repeat(cellPadding + cellPadding);
+          const padding = " ".repeat(cellPadding);
           this._table[rowIdx][colIdx] = cell + padding;
+          this._cellLengths[rowIdx][colIdx] += cellPadding;
         }
       });
     });
@@ -148,18 +173,19 @@ export class Versitable implements VersitableType {
   }
 
   addBorders(): void {
-    const { sides } = this.populateBordersOptWithDefaults();
+    if (this._options.borders === false) return;
+    const { sides } = this._options.borders as CustomBorders;
 
     // Insert betweenRow borders
     if (sides.betweenRows === true) {
-      let insertIdxs = [];
-      for (let i = 1; i < this._table.length; i += 1) {
-        insertIdxs.push(i);
-      }
-      for (let i = insertIdxs.length - 1; i >= 0; i--) {
-        const betweenBorder = this.createHorizontalBorder("betweenRows");
-        this._table.splice(insertIdxs[i], 0, betweenBorder);
-      }
+      // let insertIdxs = [];
+      // for (let i = 1; i < this._table.length; i += 1) {
+      //   insertIdxs.push(i);
+      // }
+      // for (let i = insertIdxs.length - 1; i >= 0; i--) {
+      //   const betweenBorder = this.createHorizontalBorder("betweenRows");
+      //   this._table.splice(insertIdxs[i], 0, betweenBorder);
+      // }
     }
 
     // Insert top border
@@ -176,7 +202,7 @@ export class Versitable implements VersitableType {
 
     // Insert left border
     if (sides.left) {
-      for (let i = 0; i < this._table.length; i += 1) {
+      for (let i = 1; i < this._table.length - 1; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "left");
       }
@@ -184,7 +210,7 @@ export class Versitable implements VersitableType {
 
     // Insert right border
     if (sides.right) {
-      for (let i = 0; i < this._table.length; i += 1) {
+      for (let i = 1; i < this._table.length - 1; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "right");
       }
@@ -192,7 +218,7 @@ export class Versitable implements VersitableType {
 
     // Insert betweenColumn borders
     if (sides.betweenColumns) {
-      for (let i = 0; i < this._table.length; i += 1) {
+      for (let i = 1; i < this._table.length - 1; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "betweenColumns");
       }
@@ -233,6 +259,19 @@ export class Versitable implements VersitableType {
     }
   }
 
+  populateBordersOptWithDefaults(): void {
+    if (typeof this._options.borders === "boolean") {
+      if (this._options.borders === true) {
+        this._options.borders = TABLE_DEFAULTS.borders as CustomBorders;
+      } else return;
+    } else {
+      this._options.borders = deepMerge(
+        TABLE_DEFAULTS.borders,
+        this._options.borders
+      ) as CustomBorders;
+    }
+  }
+
   findLongestStrLenInCol(): number[] {
     const lengths = this._cellLengths;
     return lengths[0].map((_, colIdx) => {
@@ -246,20 +285,6 @@ export class Versitable implements VersitableType {
     return this._colWidths.map((colWidth) => {
       return " ".repeat(colWidth);
     });
-  }
-
-  populateBordersOptWithDefaults(): CustomBorders {
-    if (
-      typeof this._options.borders === "boolean" &&
-      this._options.borders === true
-    ) {
-      return TABLE_DEFAULTS.borders as CustomBorders;
-    } else {
-      return deepMerge(
-        TABLE_DEFAULTS.borders,
-        this._options.borders
-      ) as CustomBorders;
-    }
   }
 
   getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
