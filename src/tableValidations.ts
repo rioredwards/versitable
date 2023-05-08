@@ -3,10 +3,10 @@ import {
   Borders,
   Colors,
   CustomColors,
-  TableOptions,
   OptionChecks,
   BorderGlyphs,
   BorderSides,
+  PartialTableOptions,
 } from "./tableTypes.js";
 
 type ValidationFn = (value: any) => boolean | never;
@@ -251,6 +251,8 @@ function isValidBordersOption(bordersOption: Borders) {
 }
 
 function isValidCustomColors(customColorsOptions: CustomColors[]) {
+  if (!customColorsOptions || typeof customColorsOptions === "boolean")
+    return true;
   if (!Array.isArray(customColorsOptions)) {
     handleInvalidEntry("customColors must be an array of objects");
     return false;
@@ -324,8 +326,9 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 }
 
 export function checkTableOptionsAreValid(
-  options: Partial<TableOptions>
-): true | never | void {
+  options: PartialTableOptions | undefined
+): void | true {
+  if (!options) return;
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;
 
@@ -359,7 +362,7 @@ function subArraysAreSameLength(table: any[][]) {
   return true;
 }
 
-export function checkTableIsValid(table: string[][]): true | never {
+export function checkTableIsValid(table: string[][]): void {
   optionChecks = getValidOptionChecksVal();
   if (!table) handleInvalidEntry("A table must be provided");
   if (!Array.isArray(table)) handleInvalidEntry("Table must be an array");
@@ -369,5 +372,4 @@ export function checkTableIsValid(table: string[][]): true | never {
     handleInvalidEntry("Table must have at least one cell");
   if (!subArraysAreSameLength(table))
     handleInvalidEntry("All rows must have same number of columns");
-  return true;
 }

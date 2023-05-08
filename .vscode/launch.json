@@ -26,7 +26,7 @@
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": [
         "-t",
-        "should log a warning if optionChecks is set to 'warn' and option arguments are invalid",
+        "should create a border around the table if borders === true",
         "--runInBand"
       ],
       "console": "integratedTerminal",

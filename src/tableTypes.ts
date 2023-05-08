@@ -1,4 +1,45 @@
-export type Table = any[][];
+export interface VersitableType {
+  _table: string[][];
+  _options: TableOptions;
+  _cellLengths: number[][];
+  _colWidths: number[];
+  _overFlowRowIdxs?: number[];
+  _borderRowIdxs: number[];
+  _borderColumnsIdxs: number[];
+
+  constructor: Function;
+
+  // Mutations to formattedTable
+  limitRows(): void;
+  limitCols(): void;
+  splitCells(): void;
+  padCells(): void;
+  addBorders(): void;
+
+  // Calculations for table properties
+  calcCellLengths(): number[][];
+  calcColWidths(): number[];
+
+  // Helper methods
+  populateArrFromMaxColWidths(): number[];
+  populateBordersOptWithDefaults(): void;
+  findLongestStrLenInCol(): number[];
+  createNewInsertRow(): string[];
+  getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
+  getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
+  createHorizontalBorder(type: HorizontalBorderType): string[];
+  createVerticalBorder(row: string[], border: VerticalBorderType): string[];
+
+  // Validation methods
+  validateTable(table: string[][]): void;
+  validateOptions(options: PartialTableOptions): void;
+}
+
+export type Table = string[][];
+
+export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
+
+export type VerticalBorderType = "left" | "right" | "betweenColumns";
 
 export type OptionChecks = "error" | "warn" | "skip";
 
@@ -30,7 +71,17 @@ export interface CustomBorders {
   glyphs: BorderGlyphs;
 }
 
-export type Borders = CustomBorders | boolean;
+export type Borders = DeepPartial<CustomBorders> | boolean;
+
+export type HorizontalGlyphs = {
+  leftEdge: string;
+  rightEdge: string;
+  separator: string;
+};
+
+export type VerticalGlyphs = {
+  verticalLine: string;
+};
 
 export interface BorderGlyphs {
   horizontalLine: string;
@@ -58,9 +109,13 @@ export interface TableOptions {
   borders: Borders; // Border characters
 }
 
-export interface FormatTableOptions
-  extends Pick<TableOptions, "cellPadding" | "maxRowHeight"> {
-  actualMaxColWidths: number[];
+export interface PartialTableOptions extends DeepPartial<TableOptions> {}
+
+export interface AddBordersOptions {
+  colWidthsWithPadding: number[];
+  borders: Borders;
 }
 
-export type CellPos = "first" | "center" | "last";
+type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
