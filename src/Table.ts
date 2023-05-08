@@ -202,7 +202,9 @@ export class Versitable implements VersitableType {
 
     // Insert left border
     if (sides.left) {
-      for (let i = 1; i < this._table.length - 1; i += 1) {
+      const startIdx = sides.top ? 1 : 0;
+      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
+      for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "left");
       }
@@ -210,7 +212,9 @@ export class Versitable implements VersitableType {
 
     // Insert right border
     if (sides.right) {
-      for (let i = 1; i < this._table.length - 1; i += 1) {
+      const startIdx = sides.top ? 1 : 0;
+      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
+      for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "right");
       }
@@ -218,7 +222,9 @@ export class Versitable implements VersitableType {
 
     // Insert betweenColumn borders
     if (sides.betweenColumns) {
-      for (let i = 1; i < this._table.length - 1; i += 1) {
+      const startIdx = sides.top ? 1 : 0;
+      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
+      for (let i = startIdx; i < endIdx; i += 1) {
         const row = this._table[i];
         this._table[i] = this.createVerticalBorder(row, "betweenColumns");
       }
@@ -356,7 +362,7 @@ export class Versitable implements VersitableType {
     if (type === "left") return [verticalLine, ...row];
     else if (type === "right") return [...row, verticalLine];
     else {
-      // border === "between"
+      // border === "betweenColumns"
       return row.map((cell, colIdx) => {
         // // If in the first column, skip if left border is set
         if (colIdx === 0 && sides.left) return cell;

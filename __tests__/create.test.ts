@@ -79,7 +79,7 @@ describe("Versitable.make", () => {
     expect(myVersitable[0][0].length).toBeLessThanOrEqual(7);
   });
 
-  it.only("should create a border around the table if borders === true", () => {
+  it("should create a border around the table if borders === true", () => {
     const myVersitable = Versitable.make(validTableData, {
       ...TABLE_DEFAULTS,
       borders: true,
@@ -120,7 +120,7 @@ describe("Versitable.make", () => {
     expect(myVersitable[1][0][0]).not.toBe(VERTICAL_LINE);
   });
 
-  it("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
+  it.only("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
     const overFlowTableData = [
       ["this string is 63 characters long and will be split into 3 rows"],
       ["this string is 63 characters long and will be split into 3 rows"],
