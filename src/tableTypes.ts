@@ -1,16 +1,13 @@
 export interface VersitableType {
-  formattedTable: string[][];
-  options: TableOptions;
-  cellLengths: number[][];
-  colWidths: number[];
-  rowHeights: number[];
-  borderRowIdxs: number[];
-  borderColumnsIdxs: number[];
+  _table: string[][];
+  _options: TableOptions;
+  _cellLengths: number[][];
+  _colWidths: number[];
+  _rowHeights: number[];
+  _borderRowIdxs: number[];
+  _borderColumnsIdxs: number[];
 
-  constructor(cells: string[][], options: TableOptions): void;
-
-  // User-facing functions
-  log(): void;
+  constructor: Function;
 
   // Mutations to formattedTable
   limitRows(): void;
@@ -20,20 +17,29 @@ export interface VersitableType {
   addBorders(): void;
 
   // Calculations for table properties
-  calcCellLengths(): void;
-  calcColWidths(): void;
+  calcCellLengths(): number[][];
+  calcColWidths(): number[];
 
-  // Helper functions
-  calcAdjustedMaxColWidths(): number[];
-  arrFromMaxColWidths(): number[];
-  longestStrLenInCol(): number[];
-  padCell(cell: string, cellPadding: number): string;
-  newInsertRow(): string[];
-  createHorizontalBorder(type: "top" | "bottom" | "between"): string[];
-  createVerticalBorder(border: "left" | "right" | "between"): string[];
+  // Helper methods
+  populateArrFromMaxColWidths(): number[];
+  findLongestStrLenInCol(): number[];
+  createNewInsertRow(): string[];
+  populateBordersOptWithDefaults(): CustomBorders;
+  getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
+  getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
+  createHorizontalBorder(type: HorizontalBorderType): string[];
+  createVerticalBorder(row: string[], border: VerticalBorderType): string[];
+
+  // Validation methods
+  validateTable(table: string[][]): void;
+  validateOptions(options: PartialTableOptions): void;
 }
 
 export type Table = string[][];
+
+export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
+
+export type VerticalBorderType = "left" | "right" | "betweenColumns";
 
 export type OptionChecks = "error" | "warn" | "skip";
 
@@ -67,6 +73,16 @@ export interface CustomBorders {
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
+export type HorizontalGlyphs = {
+  leftEdge: string;
+  rightEdge: string;
+  separator: string;
+};
+
+export type VerticalGlyphs = {
+  verticalLine: string;
+};
+
 export interface BorderGlyphs {
   horizontalLine: string;
   verticalLine: string;
@@ -95,12 +111,10 @@ export interface TableOptions {
 
 export interface PartialTableOptions extends DeepPartial<TableOptions> {}
 
-export interface FormatTableOptions
-  extends Pick<TableOptions, "cellPadding" | "maxRowHeight"> {
-  actualMaxColWidths: number[];
+export interface AddBordersOptions {
+  colWidthsWithPadding: number[];
+  borders: Borders;
 }
-
-export type CellPos = "first" | "center" | "last";
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];

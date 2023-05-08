@@ -2,7 +2,6 @@ import {
   BorderGlyphs,
   Borders,
   CustomBorders,
-  FormatTableOptions,
   Table,
   TableOptions,
   BorderSides,
@@ -99,7 +98,7 @@ export let overflowRowIdxs: number[] = [];
 export function formatTable(
   table: string[][],
   lengths: number[][],
-  { cellPadding, actualMaxColWidths, maxRowHeight }: FormatTableOptions
+  { cellPadding, actualMaxColWidths, maxRowHeight }: any
 ) {
   let formattedRows: string[][] = [];
   table.forEach((row, rowIdx) => {

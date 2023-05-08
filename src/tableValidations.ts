@@ -326,8 +326,9 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 }
 
 export function checkTableOptionsAreValid(
-  options: PartialTableOptions
-): true | never | void {
+  options: PartialTableOptions | undefined
+): void {
+  if (!options) return;
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;
 
@@ -345,7 +346,6 @@ export function checkTableOptionsAreValid(
       isValid(value, validationFn, errorMsg!);
     }
   }
-  return true;
 }
 
 /* Helper functions for ensuring data integrity */
@@ -361,7 +361,7 @@ function subArraysAreSameLength(table: any[][]) {
   return true;
 }
 
-export function checkTableIsValid(table: string[][]): true | never {
+export function checkTableIsValid(table: string[][]): void {
   optionChecks = getValidOptionChecksVal();
   if (!table) handleInvalidEntry("A table must be provided");
   if (!Array.isArray(table)) handleInvalidEntry("Table must be an array");
@@ -371,5 +371,4 @@ export function checkTableIsValid(table: string[][]): true | never {
     handleInvalidEntry("Table must have at least one cell");
   if (!subArraysAreSameLength(table))
     handleInvalidEntry("All rows must have same number of columns");
-  return true;
 }
