@@ -1,8 +1,6 @@
 import { BorderGlyphs, PartialTableOptions } from "../src/tableTypes";
-import { versitable } from "../src/index";
 import { hotkeys } from "../__tests__/__mocks__/hotkeys";
 import {
-  validTableOptions,
   allBorderCombos,
   validTableData,
 } from "../__tests__/__mocks__/validTableData";
@@ -15,7 +13,6 @@ function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
-  // versitable.log(hotkeysFormattedForTable, validTableOptions);
   const updatedOptions: PartialTableOptions = {
     ...TABLE_DEFAULTS,
     maxRows: 15,
@@ -27,7 +24,7 @@ function main() {
       sides: {
         betweenRows: true,
         betweenColumns: true,
-        top: false,
+        top: true,
         bottom: true,
         left: true,
         right: true,
@@ -35,15 +32,21 @@ function main() {
     },
   };
 
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
+
+  // console.table(
+  //   validTableData
+  //     .splice(0, 10)
+  //     .map((row) => row.splice(0, 4).map((cell) => cell.slice(0, 10)))
+  // );
 
   // console.log("__________________________________________________");
-  // console.log("\n\n");
-  // const myVersitable = Versitable.make(
-  //   hotkeysFormattedForTable,
-  //   updatedOptions
-  // );
-  // myVersitable.print();
+  console.log("\n\n");
+  const myVersitable = Versitable.make(
+    hotkeysFormattedForTable,
+    updatedOptions
+  );
+  myVersitable.print();
 }
 
 main();
@@ -53,9 +56,9 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
     const borderCombo = allBorderCombos[i];
     const borderOptions: PartialTableOptions = {
       ...TABLE_DEFAULTS,
-      maxRows: 15,
-      maxColWidths: [10, 10, 10],
-      maxRowHeight: 2,
+      maxRows: 8,
+      maxColWidths: [6, 10, 6],
+      maxRowHeight: 4,
       borders: {
         sides: { ...borderCombo },
         glyphs: {
@@ -75,7 +78,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);
     myVersitable.print();
-    console.log("\n\n\n");
+    console.log("\n\n\n\n\n\n\n\n\n");
     await sleep(300); // wait 1 second before printing next table
   }
 }
