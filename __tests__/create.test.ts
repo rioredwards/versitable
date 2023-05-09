@@ -118,7 +118,7 @@ describe("Versitable.make", () => {
     expect(myVersitable[1][0][0]).not.toBe(VERTICAL_LINE);
   });
 
-  it("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
+  it.only("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
     const overFlowTableData = [
       ["this string is 63 characters long and will be split into 3 rows"],
       ["this string is 63 characters long and will be split into 3 rows"],
@@ -140,6 +140,8 @@ describe("Versitable.make", () => {
         },
       },
     });
+
+    myVersitable.print();
 
     let borderRowCount = 0;
     for (let i = 0; i <= 3; i++) {

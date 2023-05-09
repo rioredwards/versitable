@@ -45,7 +45,7 @@ export class Versitable implements VersitableType {
   _colWidths: number[];
   _overFlowRowIdxs: SignificantIndicesType = new SignificantIndices();
   _borderRowIdxs: SignificantIndicesType = new SignificantIndices();
-  _borderColumnsIdxs: number[] = [];
+  _borderColumnsIdxs: SignificantIndicesType = new SignificantIndices();
 
   private constructor(
     inputTable: string[][],
@@ -67,6 +67,7 @@ export class Versitable implements VersitableType {
   }
 
   // User-facing methods
+  // Make a new table with Versitable.make(inputTable, inputOptions)
   static make(inputTable: string[][], inputOptions?: PartialTableOptions) {
     const newTable = new Versitable(inputTable, inputOptions);
     return new VersitableArray(newTable._table);
@@ -134,10 +135,8 @@ export class Versitable implements VersitableType {
         // The overflow rows are any rows after the first index of the insertRows array
         // These represent the rows that were split from the original row
         // These indices should be skipped when adding borders between rows
-        const newRowIdxs = insertRows
-          .map((_, idx) => idx + newTable.length)
-          .slice(1);
-        this._overFlowRowIdxs.addIndices(newRowIdxs);
+        const newRowIdxs = insertRows.map((_, idx) => idx + newTable.length);
+        this._overFlowRowIdxs.addIndices(newRowIdxs.slice(1));
       }
       newCellLengths.push(...insertRowsCellLengths);
       newTable.push(...insertRows);

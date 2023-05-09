@@ -42,8 +42,7 @@ export class SignificantIndices implements SignificantIndicesType {
 
   addIndices(idx: number[]) {
     // (Assume idx is sorted)
-    // When adding multiple indices, each insertion will shift following indices by 1, so add idx to element
-    idx.forEach((element, idx) => this.addIndex(element + idx));
+    idx.forEach((element) => this.addIndex(element));
   }
 
   shiftIndices(idx: number, shift: number) {
