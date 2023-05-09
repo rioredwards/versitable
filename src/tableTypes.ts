@@ -4,7 +4,7 @@ export interface VersitableType {
   _cellLengths: number[][];
   _colWidths: number[];
   _overFlowRowIdxs?: number[];
-  _borderRowIdxs: number[];
+  _borderRowIdxs: SignificantIndicesType;
   _borderColumnsIdxs: number[];
 
   constructor: Function;
@@ -121,3 +121,13 @@ export interface AddBordersOptions {
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+export interface SignificantIndicesType {
+  _indices: number[];
+
+  constructor: Function;
+  length: number;
+  indices: number[];
+  addIndex: (idx: number) => void;
+  addIndices: (idx: number[]) => void;
+}
