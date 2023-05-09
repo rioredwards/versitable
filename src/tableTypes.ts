@@ -57,26 +57,30 @@ export interface TableOptions {
   maxColWidths: number[] | number; // Max column widths (doesn't include padding)
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
   header: boolean; // Whether to include a header row (this defaults to the first row of the table)
-  colors?: Colors; // Colors for borders, alternate rows and custom colors
-  borders: Borders; // Border characters
+  colors: Colors; // Colors for borders, alternate rows and targetCells colors
+  borders: Borders; // Border sides and glyphs
 }
 
 export interface PartialTableOptions extends DeepPartial<TableOptions> {}
 
 export type OptionChecks = "error" | "warn" | "skip";
 
+export type Colors = DeepPartial<CustomColors> | boolean;
+
+export type Borders = DeepPartial<CustomBorders> | boolean;
+
 export interface CustomColors {
+  borderColor: string;
+  alternateRows: string[];
+  targetCells: TargetCellsColors[];
+}
+
+export interface TargetCellsColors {
   column: number;
   row: number;
   style: string;
   fgColor: string;
   bgColor: string;
-}
-
-export interface Colors {
-  borderColor: string;
-  alternateRows: string[];
-  customColors?: CustomColors[];
 }
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
@@ -96,8 +100,6 @@ export interface CustomBorders {
   sides: BorderSides;
   glyphs: BorderGlyphs;
 }
-
-export type Borders = DeepPartial<CustomBorders> | boolean;
 
 export type HorizontalGlyphs = {
   leftEdge: string;

@@ -32,7 +32,7 @@ function main() {
     },
   };
 
-  // logAllBorderCombos(hotkeysFormattedForTable);
+  logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.table(
   //   validTableData
@@ -46,7 +46,7 @@ function main() {
     hotkeysFormattedForTable,
     updatedOptions
   );
-  myVersitable.print();
+  // myVersitable.print();
 }
 
 main();
@@ -58,7 +58,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
       ...TABLE_DEFAULTS,
       maxRows: 8,
       maxColWidths: [6, 10, 6],
-      maxRowHeight: 4,
+      maxRowHeight: 2,
       borders: {
         sides: { ...borderCombo },
         glyphs: {
@@ -78,7 +78,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);
     myVersitable.print();
-    console.log("\n\n\n\n\n\n\n\n\n");
+    console.log("\n\n\n\n\n\n");
     await sleep(300); // wait 1 second before printing next table
   }
 }

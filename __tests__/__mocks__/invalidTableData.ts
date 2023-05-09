@@ -162,3 +162,18 @@ export const invalidHeader = [
   "10",
   { foo: "bar" },
 ];
+
+export const invalidBordersOption = [
+  -1,
+  0,
+  51,
+  [],
+  [-1],
+  [0],
+  "",
+  "hello",
+  "10",
+  { foo: "bar" },
+  [{ foo: "bar" }],
+  [{ sides: { top: true } }],
+];

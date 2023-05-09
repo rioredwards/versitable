@@ -11,7 +11,7 @@ const HEADER = true;
 // Color Options
 const BORDER_COLOR = "grey";
 const ALTERNATE_ROWS = ["#2323232a", "#2c2c2c2a"];
-const CUSTOM_COLORS = undefined;
+const TARGET_CELLS_COLORS = undefined;
 // Border Options
 export const HORIZONTAL_LINE = "─";
 export const VERTICAL_LINE = "│";
@@ -36,7 +36,7 @@ export const TABLE_DEFAULTS: TableOptions = {
   colors: {
     borderColor: BORDER_COLOR,
     alternateRows: ALTERNATE_ROWS,
-    customColors: CUSTOM_COLORS,
+    targetCells: TARGET_CELLS_COLORS,
   },
   borders: {
     glyphs: {

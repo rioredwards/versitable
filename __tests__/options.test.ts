@@ -1,5 +1,6 @@
 import * as tableValidations from "../src/tableValidations";
 import {
+  invalidBordersOption,
   invalidCellPaddings,
   invalidHeader,
   invalidMaxColWidths,
@@ -8,6 +9,7 @@ import {
   invalidMaxRows,
 } from "./__mocks__/invalidTableData";
 import {
+  validBordersOption,
   validCellPaddings,
   validHeader,
   validMaxColWidths,
@@ -16,7 +18,7 @@ import {
   validMaxRows,
 } from "./__mocks__/validTableData";
 
-describe.skip("checkTableOptionsAreValid", () => {
+describe("checkTableOptionsAreValid", () => {
   it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
     expect(() =>
       tableValidations.checkTableOptionsAreValid({
@@ -132,6 +134,21 @@ describe.skip("checkTableOptionsAreValid", () => {
     validHeader.forEach((header: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         header,
+      });
+      expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if borders option is invalid", () => {
+    invalidBordersOption.forEach((borders: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ borders })
+      ).toThrowError();
+    });
+  });
+  it("should return true if borders option is valid", () => {
+    validBordersOption.forEach((borders: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        borders,
       });
       expect(result).toBeTruthy();
     });
