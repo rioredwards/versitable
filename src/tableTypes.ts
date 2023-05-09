@@ -3,7 +3,7 @@ export interface VersitableType {
   _options: TableOptions;
   _cellLengths: number[][];
   _colWidths: number[];
-  _overFlowRowIdxs?: number[];
+  _overFlowRowIdxs: SignificantIndicesType;
   _borderRowIdxs: SignificantIndicesType;
   _borderColumnsIdxs: number[];
 
@@ -130,4 +130,5 @@ export interface SignificantIndicesType {
   indices: number[];
   addIndex: (idx: number) => void;
   addIndices: (idx: number[]) => void;
+  shiftIndices(idx: number, shift: number): void;
 }

@@ -43,7 +43,7 @@ export class Versitable implements VersitableType {
   _options: TableOptions;
   _cellLengths: number[][];
   _colWidths: number[];
-  _overFlowRowIdxs: number[] = []; // Calculated in splitCells()
+  _overFlowRowIdxs: SignificantIndicesType = new SignificantIndices();
   _borderRowIdxs: SignificantIndicesType = new SignificantIndices();
   _borderColumnsIdxs: number[] = [];
 
@@ -140,13 +140,10 @@ export class Versitable implements VersitableType {
         // The overflow rows are any rows after the first index of the insertRows array
         // These represent the rows that were split from the original row
         // These indices should be skipped when adding borders between rows
-        if (this._overFlowRowIdxs === undefined) {
-          this._overFlowRowIdxs = [];
-        }
         const newRowIdxs = insertRows
           .map((_, idx) => idx + newTable.length)
           .slice(1);
-        this._overFlowRowIdxs.push(...newRowIdxs);
+        this._overFlowRowIdxs.addIndices(newRowIdxs);
       }
       newCellLengths.push(...insertRowsCellLengths);
       newTable.push(...insertRows);
@@ -181,7 +178,7 @@ export class Versitable implements VersitableType {
       let insertIdxs = [];
       for (let i = 1; i < this._table.length; i += 1) {
         if (this._overFlowRowIdxs.length > 0) {
-          if (!this._overFlowRowIdxs.includes(i)) insertIdxs.push(i);
+          if (!this._overFlowRowIdxs.indices.includes(i)) insertIdxs.push(i);
         } else {
           insertIdxs.push(i);
         }
@@ -190,25 +187,8 @@ export class Versitable implements VersitableType {
       for (let i = insertIdxs.length - 1; i >= 0; i--) {
         const betweenBorder = this.createHorizontalBorder("betweenRows");
         this._table.splice(insertIdxs[i], 0, betweenBorder);
-      }
-
-      this._borderRowIdxs.addIndices(insertIdxs);
-      // update this._overFlowRowIdxs
-      // This requires mapping through the array and adding the number of borders inserted before that index (borderRowIdx) to each value
-      // this._borderRowIdxs has the indices of each border row, so when the sum of overflowRowIdxs + borderRowIdx is greater than the value of the borderRowIdxs[borderRowIdx] (the next border row index)
-      // then the overflowRowIdxs value needs to be incremented by the number of borders inserted before that index: AKA the borderRowIdx variable
-      // and the borderRowIdx variable needs to be incremented by 1 to get the index of the next border row
-      let borderRowIdx = 0;
-      if (this._overFlowRowIdxs !== undefined) {
-        this._overFlowRowIdxs = this._overFlowRowIdxs.map((value) => {
-          while (
-            borderRowIdx < this._borderRowIdxs.length &&
-            value + borderRowIdx >= this._borderRowIdxs.indices[borderRowIdx]
-          ) {
-            borderRowIdx++;
-          }
-          return value + borderRowIdx;
-        });
+        this._borderRowIdxs.addIndex(insertIdxs[i]);
+        this._overFlowRowIdxs.shiftIndices(insertIdxs[i], 1);
       }
     }
 
@@ -218,8 +198,8 @@ export class Versitable implements VersitableType {
       this._table.unshift(topBorder);
       this._borderRowIdxs.addIndex(0);
       // Update this._overFlowRowIdxs by adding 1 to each idx
-      if (this._overFlowRowIdxs !== undefined) {
-        this._overFlowRowIdxs = this._overFlowRowIdxs.map((value) => value + 1);
+      if (this._overFlowRowIdxs.length > 0) {
+        this._overFlowRowIdxs.shiftIndices(0, 1);
       }
     }
 
