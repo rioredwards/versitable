@@ -109,18 +109,16 @@ export class Versitable implements VersitableType {
           // cell is too long, truncate cell and conditionally insert remainder into next row
           let sliceIdx = 0; // used with maxColWidth to calculate idx to slice string & used as rowIdx of slice in insertRows
           while (sliceIdx < this._options.maxRowHeight) {
-            const charAtSliceIdx = cell[sliceIdx * maxColWidth];
-            if (charAtSliceIdx === undefined) break; // Reached end of cell on last slice
-
-            const startSliceIdx = sliceIdx * maxColWidth;
-            const endSliceIdx = maxColWidth + sliceIdx * maxColWidth;
-            const slice = cell.substring(startSliceIdx, endSliceIdx);
-
+            if (cell[sliceIdx * maxColWidth] === undefined) break; // Reached end of cell on last slice
             // Check if new insertRow is needed
             if (insertRows[sliceIdx] === undefined) {
               insertRows.push(this.createNewInsertRow());
               insertRowsCellLengths.push([...this._colWidths]);
             }
+
+            const startSliceIdx = sliceIdx * maxColWidth;
+            const endSliceIdx = maxColWidth + sliceIdx * maxColWidth;
+            const slice = cell.substring(startSliceIdx, endSliceIdx);
 
             // Update insertRows and cellLengths arrays with new cell
             const newCellLength = countCharsWithEmojis(slice);
