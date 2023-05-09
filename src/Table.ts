@@ -1,6 +1,7 @@
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
+  BorderSides,
   CustomBorders,
   HorizontalBorderType,
   HorizontalGlyphs,
@@ -14,7 +15,7 @@ import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
-import { deepMerge, insert2DArray } from "./utils";
+import { deepMerge, insert2DArray, insertIntoSortedArray } from "./utils";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -172,12 +173,19 @@ export class Versitable implements VersitableType {
     });
   }
 
-  addBorders(): void {
-    if (this._options.borders === false) return;
-    const { sides } = this._options.borders as CustomBorders;
+  updateBorderRowsAfterInsertion(insertIdxs: number[]): void {
+    // InsertedBorderIdxs are the indices of the original table in which rows were inserted
+    // To calculate the insertBorderIdxs, each index of the insertIdx array needs to be incremented
+    // by the number of indices before it, which represent the number of borders inserted before that index
+    const insertedBorderIdxs = insertIdxs.map((value, idx) => value + idx);
+    insertedBorderIdxs.forEach((insertedBorderIdx) => {
+      insertIntoSortedArray(this._borderRowIdxs, insertedBorderIdx);
+    });
+  }
 
+  insertHorizontalBorder(type: HorizontalBorderType) {
     // Insert betweenRow borders
-    if (sides.betweenRows === true) {
+    if (type === "betweenRows") {
       let insertIdxs = [];
       for (let i = 1; i < this._table.length; i += 1) {
         if (this._overFlowRowIdxs.length > 0) {
@@ -186,15 +194,12 @@ export class Versitable implements VersitableType {
           insertIdxs.push(i);
         }
       }
-      // Iterate backwards through insertIdxs so that the indices don't change during insertion
+      // Iterate backwards through insertIdxs so that the indices don't change during insertion + slightly faster
       for (let i = insertIdxs.length - 1; i >= 0; i--) {
         const betweenBorder = this.createHorizontalBorder("betweenRows");
         this._table.splice(insertIdxs[i], 0, betweenBorder);
       }
-      // update this._borderRowIdxs
-      // this._table is being mutated and this._borderRowIdxs needs the indices after the insertions
-      const insertedBorderIdxs = insertIdxs.map((value, idx) => value + idx);
-      this._borderRowIdxs.push(...insertedBorderIdxs);
+      this.updateBorderRowsAfterInsertion(insertIdxs);
       // update this._overFlowRowIdxs
       // This requires mapping through the array and adding the number of borders inserted before that index (borderRowIdx) to each value
       // this._borderRowIdxs has the indices of each border row, so when the sum of overflowRowIdxs + borderRowIdx is greater than the value of the borderRowIdxs[borderRowIdx] (the next border row index)
@@ -215,7 +220,7 @@ export class Versitable implements VersitableType {
     }
 
     // Insert top border
-    if (sides.top) {
+    if (type === "top") {
       const topBorder = this.createHorizontalBorder("top");
       this._table.unshift(topBorder);
       // Update this._borderRowIdxs by adding 1 to each idx and adding 0 to the beginning
@@ -228,48 +233,39 @@ export class Versitable implements VersitableType {
     }
 
     // Insert bottom border
-    if (sides.bottom) {
+    if (type === "bottom") {
       const bottomBorder = this.createHorizontalBorder("bottom");
       this._table.push(bottomBorder);
       // update this._borderRowIdxs
       this._borderRowIdxs.push(this._table.length - 1);
     }
+  }
 
-    // Insert left border
-    if (sides.left) {
-      const startIdx = sides.top ? 1 : 0;
-      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
-      for (let i = startIdx; i < endIdx; i += 1) {
-        const row = this._table[i];
-        if (!this._borderRowIdxs.includes(i)) {
-          this._table[i] = this.createVerticalBorder(row, "left");
-        }
+  insertVerticalBorder(type: VerticalBorderType) {
+    const { sides } = this._options.borders as CustomBorders;
+
+    const startIdx = sides.top ? 1 : 0;
+    const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
+    for (let i = startIdx; i < endIdx; i += 1) {
+      const row = this._table[i];
+      if (!this._borderRowIdxs.includes(i)) {
+        this._table[i] = this.createVerticalBorder(row, type);
       }
     }
+  }
 
-    // Insert right border
-    if (sides.right) {
-      const startIdx = sides.top ? 1 : 0;
-      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
-      for (let i = startIdx; i < endIdx; i += 1) {
-        const row = this._table[i];
-        if (!this._borderRowIdxs.includes(i)) {
-          this._table[i] = this.createVerticalBorder(row, "right");
-        }
-      }
-    }
+  addBorders(): void {
+    if (this._options.borders === false) return;
+    const sides = (this._options.borders as CustomBorders).sides;
 
-    // Insert betweenColumn borders
-    if (sides.betweenColumns) {
-      const startIdx = sides.top ? 1 : 0;
-      const endIdx = sides.bottom ? this._table.length - 1 : this._table.length;
-      for (let i = startIdx; i < endIdx; i += 1) {
-        const row = this._table[i];
-        if (!this._borderRowIdxs.includes(i)) {
-          this._table[i] = this.createVerticalBorder(row, "betweenColumns");
-        }
-      }
-    }
+    // Insert horizontal borders
+    if (sides.betweenRows) this.insertHorizontalBorder("betweenRows");
+    if (sides.top) this.insertHorizontalBorder("top");
+    if (sides.bottom) this.insertHorizontalBorder("bottom");
+    // Insert vertical borders
+    if (sides.left) this.insertVerticalBorder("left");
+    if (sides.right) this.insertVerticalBorder("right");
+    if (sides.betweenColumns) this.insertVerticalBorder("betweenColumns");
   }
 
   // Calculations for table properties

@@ -21,6 +21,8 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
+  insertHorizontalBorder(type: HorizontalBorderType): void;
+  insertVerticalBorder(type: VerticalBorderType): void;
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
@@ -37,10 +39,6 @@ export interface VersitableType {
 
 export type Table = string[][];
 
-export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
-
-export type VerticalBorderType = "left" | "right" | "betweenColumns";
-
 export type OptionChecks = "error" | "warn" | "skip";
 
 export interface CustomColors {
@@ -56,6 +54,10 @@ export interface Colors {
   alternateRows: string[];
   customColors?: CustomColors[];
 }
+
+export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
+
+export type VerticalBorderType = "left" | "right" | "betweenColumns";
 
 export interface BorderSides {
   top: boolean;

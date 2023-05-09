@@ -35,6 +35,19 @@ export function insert2DArray(
   }
 }
 
+export function insertIntoSortedArray(
+  sortedArray: number[],
+  insertVal: number
+) {
+  const index = sortedArray.findIndex((element) => element >= insertVal);
+  if (index === -1) {
+    // If findIndex() returns -1, it means that the insertVal is greater than all existing elements
+    sortedArray.push(insertVal);
+  } else {
+    sortedArray.splice(index, 0, insertVal);
+  }
+}
+
 export function splitStr(str: string, idx: number) {
   return [str.slice(0, idx), str.slice(idx)];
 }
