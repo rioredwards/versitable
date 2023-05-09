@@ -17,7 +17,7 @@ import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
-import { deepMerge, insert2DArray, insertIntoSortedArray } from "./utils";
+import { deepMerge } from "./utils";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -94,8 +94,8 @@ export class Versitable implements VersitableType {
     let newCellLengths: number[][] = [];
 
     this._table.forEach((row, rowIdx) => {
-      let insertRows: string[][] = [];
-      let insertRowsCellLengths: number[][] = [];
+      let insertRows: string[][] = [this.createNewInsertRow()];
+      let insertRowsCellLengths: number[][] = [[...this._colWidths]];
 
       row.forEach((cell, colIdx) => {
         const cellLength = this._cellLengths[rowIdx][colIdx];
@@ -103,11 +103,6 @@ export class Versitable implements VersitableType {
 
         if (cellLength <= maxColWidth) {
           // Cell is not too long, so just add it
-          if (insertRows[0] === undefined) {
-            insertRows.push(this.createNewInsertRow());
-            insertRowsCellLengths.push([...this._colWidths]);
-          }
-
           insertRows[0][colIdx] = cell;
           insertRowsCellLengths[0][colIdx] = cellLength;
         } else {
@@ -115,7 +110,8 @@ export class Versitable implements VersitableType {
           let sliceIdx = 0; // used with maxColWidth to calculate idx to slice string & used as rowIdx of slice in insertRows
           while (sliceIdx < this._options.maxRowHeight) {
             const charAtSliceIdx = cell[sliceIdx * maxColWidth];
-            if (charAtSliceIdx === undefined) break;
+            if (charAtSliceIdx === undefined) break; // Reached end of cell on last slice
+
             const startSliceIdx = sliceIdx * maxColWidth;
             const endSliceIdx = maxColWidth + sliceIdx * maxColWidth;
             const slice = cell.substring(startSliceIdx, endSliceIdx);
@@ -172,43 +168,40 @@ export class Versitable implements VersitableType {
     });
   }
 
-  insertHorizontalBorder(type: HorizontalBorderType) {
-    // Insert betweenRow borders
-    if (type === "betweenRows") {
-      let insertIdxs = [];
-      for (let i = 1; i < this._table.length; i += 1) {
-        if (this._overFlowRowIdxs.length > 0) {
-          if (!this._overFlowRowIdxs.indices.includes(i)) insertIdxs.push(i);
-        } else {
-          insertIdxs.push(i);
+  findHorizontalBorderInsertIdxs(type: HorizontalBorderType) {
+    let insertIdxs: number[] = [];
+    switch (type) {
+      case "betweenRows":
+        for (let i = 1; i < this._table.length; i += 1) {
+          if (this._overFlowRowIdxs.length > 0) {
+            if (!this._overFlowRowIdxs.indices.includes(i)) insertIdxs.push(i);
+          } else {
+            insertIdxs.push(i);
+          }
         }
-      }
-      // Iterate backwards through insertIdxs so that the indices don't change during insertion + slightly faster
-      for (let i = insertIdxs.length - 1; i >= 0; i--) {
-        const betweenBorder = this.createHorizontalBorder("betweenRows");
-        this._table.splice(insertIdxs[i], 0, betweenBorder);
-        this._borderRowIdxs.addIndex(insertIdxs[i]);
+        break;
+      case "top":
+        insertIdxs.push(0);
+        break;
+      case "bottom":
+        insertIdxs.push(this._table.length);
+        break;
+      default:
+        throw new Error("Invalid horizontal border type");
+    }
+    return insertIdxs;
+  }
+
+  insertHorizontalBorder(type: HorizontalBorderType) {
+    const border = this.createHorizontalBorder(type);
+    const insertIdxs = this.findHorizontalBorderInsertIdxs(type);
+
+    for (let i = insertIdxs.length - 1; i >= 0; i--) {
+      this._table.splice(insertIdxs[i], 0, border);
+      this._borderRowIdxs.addIndex(insertIdxs[i]);
+      if (this._overFlowRowIdxs.length > 0) {
         this._overFlowRowIdxs.shiftIndices(insertIdxs[i], 1);
       }
-    }
-
-    // Insert top border
-    if (type === "top") {
-      const topBorder = this.createHorizontalBorder("top");
-      this._table.unshift(topBorder);
-      this._borderRowIdxs.addIndex(0);
-      // Update this._overFlowRowIdxs by adding 1 to each idx
-      if (this._overFlowRowIdxs.length > 0) {
-        this._overFlowRowIdxs.shiftIndices(0, 1);
-      }
-    }
-
-    // Insert bottom border
-    if (type === "bottom") {
-      const bottomBorder = this.createHorizontalBorder("bottom");
-      this._table.push(bottomBorder);
-      // update this._borderRowIdxs
-      this._borderRowIdxs.addIndex(this._table.length - 1);
     }
   }
 

@@ -21,6 +21,7 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
+  findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
   insertHorizontalBorder(type: HorizontalBorderType): void;
   insertVerticalBorder(type: VerticalBorderType): void;
   populateArrFromMaxColWidths(): number[];
@@ -37,7 +38,16 @@ export interface VersitableType {
   validateOptions(options: PartialTableOptions): void;
 }
 
-export type Table = string[][];
+export interface SignificantIndicesType {
+  _indices: number[];
+
+  constructor: Function;
+  length: number;
+  indices: number[];
+  addIndex: (idx: number) => void;
+  addIndices: (idx: number[]) => void;
+  shiftIndices(idx: number, shift: number): void;
+}
 
 export type OptionChecks = "error" | "warn" | "skip";
 
@@ -121,14 +131,3 @@ export interface AddBordersOptions {
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
-
-export interface SignificantIndicesType {
-  _indices: number[];
-
-  constructor: Function;
-  length: number;
-  indices: number[];
-  addIndex: (idx: number) => void;
-  addIndices: (idx: number[]) => void;
-  shiftIndices(idx: number, shift: number): void;
-}
