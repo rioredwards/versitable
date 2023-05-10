@@ -1,18 +1,25 @@
 import { Versitable, VersitableArray } from "../src/Table";
 import {
-  BOTTOM_LEFT_CORNER,
-  BOTTOM_RIGHT_CORNER,
-  HORIZONTAL_LINE,
-  TABLE_DEFAULTS,
-  TOP_LEFT_CORNER,
-  TOP_RIGHT_CORNER,
-  VERTICAL_LINE,
-} from "../src/tableDefaults";
-import {
   invalidTableData,
   invalidTableOptions,
 } from "./__mocks__/invalidTableData";
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
+import { TABLE_DEFAULTS } from "../src/tableDefaults";
+import { CustomBorders } from "../src/tableTypes";
+
+const {
+  horizontalLine,
+  verticalLine,
+  topLeftCorner,
+  topRightCorner,
+  bottomLeftCorner,
+  bottomRightCorner,
+  topSeparator,
+  bottomSeparator,
+  middleSeparator,
+  rightSeparator,
+  leftSeparator,
+} = (TABLE_DEFAULTS.borders as CustomBorders).glyphs;
 
 describe("Versitable.make", () => {
   beforeEach(() => {
@@ -85,18 +92,14 @@ describe("Versitable.make", () => {
       borders: true,
     });
 
-    expect(myVersitable[0][0][0]).toBe(TOP_LEFT_CORNER);
-    expect(myVersitable[0][myVersitable[0].length - 1][0]).toBe(
-      TOP_RIGHT_CORNER
-    );
-    expect(myVersitable[myVersitable.length - 1][0][0]).toBe(
-      BOTTOM_LEFT_CORNER
-    );
+    expect(myVersitable[0][0][0]).toBe(topLeftCorner);
+    expect(myVersitable[0][myVersitable[0].length - 1][0]).toBe(topRightCorner);
+    expect(myVersitable[myVersitable.length - 1][0][0]).toBe(bottomLeftCorner);
     expect(
       myVersitable[myVersitable.length - 1][myVersitable[0].length - 1][0]
-    ).toBe(BOTTOM_RIGHT_CORNER);
-    expect(myVersitable[0][1][0]).toBe(HORIZONTAL_LINE);
-    expect(myVersitable[1][0][0]).toBe(VERTICAL_LINE);
+    ).toBe(bottomRightCorner);
+    expect(myVersitable[0][1][0]).toBe(horizontalLine);
+    expect(myVersitable[1][0][0]).toBe(verticalLine);
   });
 
   it("should not create a border around the table if borders === false", () => {
@@ -104,18 +107,18 @@ describe("Versitable.make", () => {
       ...TABLE_DEFAULTS,
       borders: false,
     });
-    expect(myVersitable[0][0][0]).not.toBe(TOP_LEFT_CORNER);
+    expect(myVersitable[0][0][0]).not.toBe(topLeftCorner);
     expect(myVersitable[0][myVersitable[0].length - 1][0]).not.toBe(
-      TOP_RIGHT_CORNER
+      topRightCorner
     );
     expect(myVersitable[myVersitable.length - 1][0][0]).not.toBe(
-      BOTTOM_LEFT_CORNER
+      bottomLeftCorner
     );
     expect(
       myVersitable[myVersitable.length - 1][myVersitable[0].length - 1][0]
-    ).not.toBe(BOTTOM_RIGHT_CORNER);
-    expect(myVersitable[0][1][0]).not.toBe(HORIZONTAL_LINE);
-    expect(myVersitable[1][0][0]).not.toBe(VERTICAL_LINE);
+    ).not.toBe(bottomRightCorner);
+    expect(myVersitable[0][1][0]).not.toBe(horizontalLine);
+    expect(myVersitable[1][0][0]).not.toBe(verticalLine);
   });
 
   it("should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows", () => {
@@ -145,14 +148,14 @@ describe("Versitable.make", () => {
     for (let i = 0; i <= 3; i++) {
       // First row should not be a border row
       if (i === 0) {
-        expect(myVersitable[i][0][0]).not.toBe(HORIZONTAL_LINE);
+        expect(myVersitable[i][0][0]).not.toBe(horizontalLine);
       } else if ((i + borderRowCount) % 3 === 0) {
         // The row after every third row should be a border row
-        expect(myVersitable[i][0][0]).toBe(HORIZONTAL_LINE);
+        expect(myVersitable[i][0][0]).toBe(horizontalLine);
         borderRowCount++;
       } else {
         // All other rows should not be a border row
-        expect(myVersitable[i][0][0]).not.toBe(HORIZONTAL_LINE);
+        expect(myVersitable[i][0][0]).not.toBe(horizontalLine);
       }
     }
   });

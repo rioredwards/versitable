@@ -13,17 +13,17 @@ const BORDER_COLOR = "grey";
 const ALTERNATE_ROWS = ["#2323232a", "#2c2c2c2a"];
 const TARGET_CELLS_COLORS = undefined;
 // Border Options
-export const HORIZONTAL_LINE = "─";
-export const VERTICAL_LINE = "│";
-export const TOP_LEFT_CORNER = "╭";
-export const TOP_RIGHT_CORNER = "╮";
-export const BOTTOM_LEFT_CORNER = "╰";
-export const BOTTOM_RIGHT_CORNER = "╯";
-export const TOP_SEPARATOR = "┬";
-export const BOTTOM_SEPARATOR = "┴";
-export const MIDDLE_SEPARATOR = "┼";
-export const RIGHT_SEPARATOR = "┤";
-export const LEFT_SEPARATOR = "├";
+const HORIZONTAL_LINE = "─";
+const VERTICAL_LINE = "│";
+const TOP_LEFT_CORNER = "╭";
+const TOP_RIGHT_CORNER = "╮";
+const BOTTOM_LEFT_CORNER = "╰";
+const BOTTOM_RIGHT_CORNER = "╯";
+const TOP_SEPARATOR = "┬";
+const BOTTOM_SEPARATOR = "┴";
+const MIDDLE_SEPARATOR = "┼";
+const RIGHT_SEPARATOR = "┤";
+const LEFT_SEPARATOR = "├";
 
 export const TABLE_DEFAULTS: TableOptions = {
   optionChecks: VALIDATION_MODE,
