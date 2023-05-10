@@ -2,11 +2,11 @@ import chalkPipe = require("chalk-pipe");
 import {
   Borders,
   Colors,
-  CustomColors,
   OptionChecks,
   BorderGlyphs,
   BorderSides,
   PartialTableOptions,
+  TargetCellsColors,
 } from "./tableTypes.js";
 
 type ValidationFn = (value: any) => boolean | never;
@@ -67,13 +67,12 @@ const colorOptionValidators: Record<
     errorMsg: "Invalid borderColor",
   },
   alternateRows: {
-    validationFn: (rows: string[]) =>
-      isValidArray(rows, (color: string) => isValidChalkValue(color, "color")),
+    validationFn: (rows: string[]) => isValidAlternateRowsOption(rows),
     errorMsg: "Invalid alternateRows",
   },
 };
 
-const customColorOptionValidators: Record<
+const targetCellsColorsValidators: Record<
   string,
   { validationFn: ValidationFn; errorMsg: string }
 > = {
@@ -136,6 +135,7 @@ function isNumInRange(num: number, min: number, max: number) {
 }
 
 function isValidBorderGlyph(glyph: string) {
+  if (glyph === undefined) return true;
   if (typeof glyph !== "string" || glyph.length !== 1) {
     handleInvalidEntry(
       `Invalid border glyph: ${glyph}. Must be a single character string.`
@@ -146,6 +146,7 @@ function isValidBorderGlyph(glyph: string) {
 }
 
 function isValidChalkValue(value: string, type: "color" | "style") {
+  if (value === undefined) return true;
   if (typeof value !== "string") {
     handleInvalidEntry(`Invalid ${type}: ${value}. Must be a string.`);
     return false;
@@ -162,6 +163,7 @@ function isValidChalkValue(value: string, type: "color" | "style") {
 }
 
 function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
+  if (glyphs === undefined) return true;
   if (typeof glyphs !== "object") {
     handleInvalidEntry("Invalid border glyphs option. Must be an object.");
     return false;
@@ -175,6 +177,7 @@ function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
 }
 
 function isValidMaxColWidths(maxColWidths: number[] | number) {
+  if (maxColWidths === undefined) return true;
   if (Array.isArray(maxColWidths)) {
     if (maxColWidths.length <= 0) return false;
     if (
@@ -198,6 +201,7 @@ const validBorderSides = [
 ];
 
 function isValidBorderSidesOption(borderSidesOption: BorderSides) {
+  if (borderSidesOption === undefined) return true;
   if (typeof borderSidesOption !== "object") {
     handleInvalidEntry("Invalid border sides option. Must be an object.");
     return false;
@@ -221,6 +225,7 @@ function isValidBorderSidesOption(borderSidesOption: BorderSides) {
 }
 
 function isValidBordersOption(bordersOption: Borders) {
+  if (bordersOption === undefined) return true;
   if (typeof bordersOption === "boolean") return true;
   if (typeof bordersOption !== "object") {
     handleInvalidEntry("Invalid border option. Must be an object.");
@@ -250,40 +255,72 @@ function isValidBordersOption(bordersOption: Borders) {
   return true;
 }
 
-function isValidCustomColors(customColorsOptions: CustomColors[]) {
-  if (!customColorsOptions || typeof customColorsOptions === "boolean")
-    return true;
-  if (!Array.isArray(customColorsOptions)) {
-    handleInvalidEntry("customColors must be an array of objects");
+function isValidTargetCells(targetCellsColorsOptions: TargetCellsColors[]) {
+  if (targetCellsColorsOptions === undefined) return true;
+  if (!Array.isArray(targetCellsColorsOptions)) {
+    handleInvalidEntry("targetCells must be an array of objects");
     return false;
   }
-  customColorsOptions.forEach((customColorsOption) => {
-    for (const [option, value] of Object.entries(customColorsOption)) {
-      const { validationFn, errorMsg } = customColorOptionValidators[option];
+  if (targetCellsColorsOptions.length === 0) return false;
+  targetCellsColorsOptions.forEach((targetCellsColorsOption) => {
+    if (typeof targetCellsColorsOption !== "object") {
+      handleInvalidEntry("targetCells must be an array of objects");
+      return false;
+    }
+    const { column, row } = targetCellsColorsOption;
+    if (column === undefined && row === undefined) {
+      handleInvalidEntry(
+        "targetCells must contain at least one of column or row"
+      );
+      return false;
+    }
+    for (const [option, value] of Object.entries(targetCellsColorsOption)) {
+      const { validationFn, errorMsg } = targetCellsColorsValidators[option];
       isValid(value, validationFn, errorMsg);
     }
   });
   return true;
 }
 
+function isValidAlternateRowsOption(alternateRowsOption: string[]) {
+  if (alternateRowsOption === undefined) return true;
+  if (!Array.isArray(alternateRowsOption)) return false;
+  if (alternateRowsOption.length === 0) return false;
+  if (
+    !isValidArray(alternateRowsOption, (rowColor) => {
+      return isValidChalkValue(rowColor, "color");
+    })
+  ) {
+    return false;
+  }
+  return true;
+}
+
 function isValidColorsOption(colorsOption: Colors) {
+  if (colorsOption === undefined) return true;
+  if (typeof colorsOption === "boolean") return true;
   if (typeof colorsOption !== "object") {
-    handleInvalidEntry("colors must be an object");
+    handleInvalidEntry("colors must be an object or a boolean");
     return false;
   }
   if (
     !("borderColor" in colorsOption) &&
     !("alternateRows" in colorsOption) &&
-    !("customColors" in colorsOption)
+    !("targetCells" in colorsOption)
   ) {
     handleInvalidEntry(
-      "colors must contain at least one of borderColor, alternateRows, or customColors"
+      "colors must contain at least one of borderColor, alternateRows, or targetCells"
     );
     return false;
   }
   for (const [option, value] of Object.entries(colorsOption)) {
-    if (option === "customColors") {
-      isValidCustomColors(value as CustomColors[]);
+    if (option === "targetCells") {
+      if (!isValidTargetCells(value as TargetCellsColors[])) {
+        handleInvalidEntry(
+          "targetCells must be an array of objects with column and/or row properties"
+        );
+        return false;
+      }
     } else {
       const { validationFn, errorMsg } = colorOptionValidators[option];
       isValid(value, validationFn, errorMsg!);

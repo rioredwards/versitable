@@ -34,7 +34,3 @@ export function insert2DArray(
     targetArray.splice(index + i, 0, arrayToInsert[i]);
   }
 }
-
-export function splitStr(str: string, idx: number) {
-  return [str.slice(0, idx), str.slice(idx)];
-}

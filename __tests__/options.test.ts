@@ -1,6 +1,8 @@
 import * as tableValidations from "../src/tableValidations";
 import {
+  invalidBordersOption,
   invalidCellPaddings,
+  invalidColorsOption,
   invalidHeader,
   invalidMaxColWidths,
   invalidMaxColumns,
@@ -8,7 +10,9 @@ import {
   invalidMaxRows,
 } from "./__mocks__/invalidTableData";
 import {
+  validBordersOption,
   validCellPaddings,
+  validColorsOption,
   validHeader,
   validMaxColWidths,
   validMaxColumns,
@@ -132,6 +136,36 @@ describe("checkTableOptionsAreValid", () => {
     validHeader.forEach((header: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         header,
+      });
+      expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if borders option is invalid", () => {
+    invalidBordersOption.forEach((borders: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ borders })
+      ).toThrowError();
+    });
+  });
+  it("should return true if borders option is valid", () => {
+    validBordersOption.forEach((borders: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        borders,
+      });
+      expect(result).toBeTruthy();
+    });
+  });
+  it("should throw an error if colors option is invalid", () => {
+    invalidColorsOption.forEach((colors: any) => {
+      expect(() =>
+        tableValidations.checkTableOptionsAreValid({ colors })
+      ).toThrowError();
+    });
+  });
+  it("should return true if colors option is valid", () => {
+    validColorsOption.forEach((colors: any) => {
+      const result = tableValidations.checkTableOptionsAreValid({
+        colors,
       });
       expect(result).toBeTruthy();
     });

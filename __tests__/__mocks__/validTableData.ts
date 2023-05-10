@@ -1,4 +1,11 @@
-import { PartialTableOptions, TableOptions } from "../../src/tableTypes";
+import {
+  Borders,
+  Colors,
+  CustomColors,
+  PartialTableOptions,
+  TableOptions,
+  TargetCellsColors,
+} from "../../src/tableTypes";
 
 export const validTableOptions: PartialTableOptions = {
   optionChecks: "error",
@@ -11,7 +18,7 @@ export const validTableOptions: PartialTableOptions = {
   colors: {
     borderColor: "yellow",
     alternateRows: ["red", "blue"],
-    customColors: [
+    targetCells: [
       {
         column: 0,
         row: 0,
@@ -67,6 +74,68 @@ export const validMaxColWidths = [
 ];
 export const validMaxRowHeight = [1, 7, 25, 50];
 export const validHeader = [true, false];
+
+export const validBordersOption: Borders[] = [
+  {
+    glyphs: {
+      horizontalLine: "*",
+      verticalLine: "$",
+      topLeftCorner: "┌",
+      topRightCorner: "┐",
+      bottomLeftCorner: "└",
+      bottomRightCorner: "┘",
+      topSeparator: "┬",
+      leftSeparator: "├",
+      rightSeparator: "┤",
+      bottomSeparator: "┴",
+      middleSeparator: "┼",
+    },
+    sides: {
+      top: true,
+      bottom: false,
+      left: true,
+      right: false,
+      betweenColumns: true,
+      betweenRows: false,
+    },
+  },
+  {
+    glyphs: {
+      middleSeparator: "┼",
+    },
+    sides: {
+      bottom: false,
+    },
+  },
+  {
+    glyphs: {
+      leftSeparator: "O",
+    },
+  },
+  {
+    sides: {
+      top: true,
+    },
+  },
+];
+
+export const validColorsOption: Colors[] = [
+  true,
+  false,
+  {
+    borderColor: "yellow",
+    alternateRows: ["red", "blue"],
+    targetCells: [
+      {
+        column: 0,
+        row: 0,
+        fgColor: "orange",
+        style: "bold",
+        bgColor: "magenta",
+      },
+    ],
+  },
+];
 
 export const validTableData = [
   [
