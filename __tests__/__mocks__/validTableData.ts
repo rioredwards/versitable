@@ -1,5 +1,7 @@
 import {
   Borders,
+  Colors,
+  CustomColors,
   PartialTableOptions,
   TableOptions,
   TargetCellsColors,
@@ -114,6 +116,24 @@ export const validBordersOption: Borders[] = [
     sides: {
       top: true,
     },
+  },
+];
+
+export const validColorsOption: Colors[] = [
+  true,
+  false,
+  {
+    borderColor: "yellow",
+    alternateRows: ["red", "blue"],
+    targetCells: [
+      {
+        column: 0,
+        row: 0,
+        fgColor: "orange",
+        style: "bold",
+        bgColor: "magenta",
+      },
+    ],
   },
 ];
 

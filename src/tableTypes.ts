@@ -65,7 +65,7 @@ export interface PartialTableOptions extends DeepPartial<TableOptions> {}
 
 export type OptionChecks = "error" | "warn" | "skip";
 
-export type Colors = DeepPartial<CustomColors> | boolean;
+export type Colors = Partial<CustomColors> | boolean;
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
@@ -75,13 +75,15 @@ export interface CustomColors {
   targetCells: TargetCellsColors[];
 }
 
-export interface TargetCellsColors {
-  column: number;
-  row: number;
+interface TargetCellsColorsBase {
   style: string;
   fgColor: string;
   bgColor: string;
 }
+
+// must have either row or column specified, but not necessarily both
+export type TargetCellsColors = TargetCellsColorsBase &
+  ({ column: number; row?: number } | { column?: number; row: number });
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
 
