@@ -12,6 +12,7 @@ export interface VersitableType {
   splitCells(): void;
   padCells(): void;
   addBorders(): void;
+  addColors(): void;
 
   // Calculations for table properties
   calcColWidths(): number[];
@@ -22,6 +23,7 @@ export interface VersitableType {
   insertVerticalBorder(type: VerticalBorderType): void;
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
+  populateColorsOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
   createNewInsertRow(type: CellTypes): CellType[];
   getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
