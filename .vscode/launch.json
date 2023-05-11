@@ -26,7 +26,7 @@
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": [
         "-t",
-        "should create a border around the table if borders === true",
+        "should not print borders between overflow rows (when betweenRows === true && maxRowHeight > 1 && cell content overflows",
         "--runInBand"
       ],
       "console": "integratedTerminal",

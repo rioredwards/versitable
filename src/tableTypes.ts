@@ -1,23 +1,19 @@
 export interface VersitableType {
-  _table: string[][];
+  _table: CellType[][];
   _options: TableOptions;
-  _cellLengths: number[][];
   _colWidths: number[];
-  _overFlowRowIdxs: SignificantIndicesType;
-  _borderRowIdxs: SignificantIndicesType;
-  _borderColumnsIdxs: SignificantIndicesType;
 
   constructor: Function;
 
   // Mutations to formattedTable
-  limitRows(): void;
-  limitCols(): void;
+  limitInputRows(inputTable: string[][]): string[][];
+  limitInputCols(inputTable: string[][]): string[][];
+  stringsToCells(table: string[][]): CellType[][];
   splitCells(): void;
   padCells(): void;
   addBorders(): void;
 
   // Calculations for table properties
-  calcCellLengths(): number[][];
   calcColWidths(): number[];
 
   // Helper methods
@@ -27,33 +23,24 @@ export interface VersitableType {
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
-  createNewInsertRow(): string[];
+  createNewInsertRow(type: CellTypes): CellType[];
   getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
   getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
-  createHorizontalBorder(type: HorizontalBorderType): string[];
-  createVerticalBorder(row: string[], border: VerticalBorderType): string[];
+  createHorizontalBorder(type: HorizontalBorderType): CellType[];
+  createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[];
 
   // Validation methods
   validateTable(table: string[][]): void;
   validateOptions(options: PartialTableOptions): void;
 }
 
-export interface SignificantIndicesType {
-  _indices: number[];
-
-  constructor: Function;
-  length: number;
-  indices: number[];
-  addIndex: (idx: number) => void;
-  addIndices: (idx: number[]) => void;
-  shiftIndices(idx: number, shift: number): void;
-}
-
-export interface Cell {
+export interface CellType {
+  type: CellTypes;
   content: string;
-  type: "primary" | "overflow" | "border";
-  color?: string;
+  length: number;
 }
+
+export type CellTypes = "primary" | "overflow" | "border";
 
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
