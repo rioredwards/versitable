@@ -1,3 +1,4 @@
+import chalkPipe = require("chalk-pipe");
 import { Cell } from "./Cell";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
@@ -5,6 +6,7 @@ import {
   CellType,
   CellTypes,
   CustomBorders,
+  CustomColors,
   HorizontalBorderType,
   HorizontalGlyphs,
   PartialTableOptions,
@@ -18,6 +20,7 @@ import {
   checkTableOptionsAreValid,
 } from "./tableValidations";
 import { deepMerge } from "./utils";
+import chalk = require("chalk");
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -52,6 +55,7 @@ export class Versitable implements VersitableType {
 
     this._options = deepMerge(TABLE_DEFAULTS, inputOptions || {});
     this.populateBordersOptWithDefaults();
+    this.populateColorsOptWithDefaults();
     const limitInputRowsTable = this.limitInputRows(inputTable);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
     this._table = this.stringsToCells(limitInputColsTable);
@@ -59,6 +63,30 @@ export class Versitable implements VersitableType {
     this.splitCells();
     this.padCells();
     this.addBorders();
+    this.addColors();
+  }
+
+  addColors() {
+    console.log("this._options.colors: ", this._options.colors);
+    if (!this._options.colors) return;
+
+    const { targetCells, alternateRows, borderColor } = this._options
+      .colors as CustomColors;
+
+    if (alternateRows) {
+      // Iterate over rows, cycling through alternateRows colors
+      let alternateRowIdx = 0;
+      this._table.forEach((row, i) => {
+        alternateRowIdx = i % alternateRows.length;
+        const colorName = alternateRows[alternateRowIdx];
+        const isHex = colorName.startsWith("#");
+        const color = isHex ? chalk.hex(colorName) : chalkPipe(colorName);
+        row.forEach((cell) => {
+          cell.content = color(cell.content);
+        });
+      });
+    }
+    // console.log("this._table: ", this._table);
   }
 
   // User-facing methods
@@ -70,18 +98,6 @@ export class Versitable implements VersitableType {
   }
 
   // Mutations to table
-  stringsToCells(table: string[][]): CellType[][] {
-    return table.map((row) =>
-      row.map((cell) => {
-        return new Cell("primary", cell, countCharsWithEmojis(cell));
-      })
-    );
-  }
-
-  static cellsToStrings(cellTable: CellType[][]): string[][] {
-    return cellTable.map((row) => row.map((cell) => cell.content));
-  }
-
   limitInputRows(inputTable: string[][]): string[][] {
     if (inputTable.length > this._options.maxRows) {
       return inputTable.slice(0, this._options.maxRows);
@@ -237,6 +253,18 @@ export class Versitable implements VersitableType {
   }
 
   // Helper functions
+  stringsToCells(table: string[][]): CellType[][] {
+    return table.map((row) =>
+      row.map((cell) => {
+        return new Cell("primary", cell, countCharsWithEmojis(cell));
+      })
+    );
+  }
+
+  static cellsToStrings(cellTable: CellType[][]): string[][] {
+    return cellTable.map((row) => row.map((cell) => cell.content));
+  }
+
   populateArrFromMaxColWidths(): number[] {
     const numCols = this._table[0].length;
     const userMaxColWidths = this._options.maxColWidths;
@@ -264,6 +292,19 @@ export class Versitable implements VersitableType {
         TABLE_DEFAULTS.borders,
         this._options.borders
       ) as CustomBorders;
+    }
+  }
+
+  populateColorsOptWithDefaults(): void {
+    if (typeof this._options.colors === "boolean") {
+      if (this._options.colors === true) {
+        this._options.colors = TABLE_DEFAULTS.colors as CustomColors;
+      } else return;
+    } else {
+      this._options.colors = deepMerge(
+        TABLE_DEFAULTS.colors,
+        this._options.colors
+      ) as CustomColors;
     }
   }
 
