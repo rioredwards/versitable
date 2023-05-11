@@ -32,7 +32,7 @@ function main() {
     },
   };
 
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.table(
   //   validTableData
@@ -46,7 +46,7 @@ function main() {
     hotkeysFormattedForTable,
     updatedOptions
   );
-  // myVersitable.print();
+  myVersitable.print();
 }
 
 main();
