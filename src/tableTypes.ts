@@ -49,6 +49,12 @@ export interface SignificantIndicesType {
   shiftIndices(idx: number, shift: number): void;
 }
 
+export interface Cell {
+  content: string;
+  type: "primary" | "overflow" | "border";
+  color?: string;
+}
+
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
   cellPadding: number; // Padding between cell content and cell border (minimum if cells vary in length) (end of cell only)

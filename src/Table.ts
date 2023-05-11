@@ -1,3 +1,4 @@
+import chalkPipe = require("chalk-pipe");
 import { SignificantIndices } from "./SignificantIndices";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
