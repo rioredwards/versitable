@@ -33,7 +33,6 @@
     "url": "https://github.com/rioredwards/versitable/issues"
   },
   "dependencies": {
-    "chalk": "^4.0.0",
     "chalk-pipe": "^4.0.0"
   },
   "devDependencies": {
