@@ -87,11 +87,11 @@ export class Versitable implements VersitableType {
         }
 
         row.forEach((cell) => {
-          const styledString = this.getValidChalkString(
-            cell.content,
-            alternateRows[alternateRowIdx]
-          );
           if (cell.type !== "border") {
+            const styledString = this.createValidChalkString(
+              cell.content,
+              alternateRows[alternateRowIdx]
+            );
             cell.content = styledString;
           }
         });
@@ -101,7 +101,7 @@ export class Versitable implements VersitableType {
       this._table.forEach((row) => {
         row.forEach((cell) => {
           if (cell.type === "border") {
-            const styledString = this.getValidChalkString(
+            const styledString = this.createValidChalkString(
               cell.content,
               borderColor
             );
@@ -112,7 +112,7 @@ export class Versitable implements VersitableType {
     }
   }
 
-  getValidChalkString(cellString: string, cellStyle: CellStyle): string {
+  createValidChalkString(cellString: string, cellStyle: CellStyle): string {
     let { fgColor, bgColor, style } = cellStyle;
     let formattedFgColor = "";
     let formattedBgColor = "";
@@ -128,7 +128,8 @@ export class Versitable implements VersitableType {
       } else {
         formattedFgColor = `keyword('${fgColor}')` || "";
       }
-    } else if (bgColor !== undefined) {
+    }
+    if (bgColor !== undefined) {
       const isHex = bgColor.startsWith("#") || "";
       if (isHex) {
         // Remove alpha channel from hex color if it exists
@@ -138,11 +139,15 @@ export class Versitable implements VersitableType {
         formattedBgColor = `bgKeyword('${bgColor}')` || "";
       }
       if (formattedFgColor) formattedBgColor = `.${formattedBgColor}`;
-    } else {
+    }
+    if (style !== undefined) {
       formattedStyle = `${style}` || "";
       if (formattedFgColor || formattedStyle)
-        formattedBgColor = `.${formattedBgColor}`;
+        formattedStyle = `.${formattedStyle}`;
     }
+    // console.log(
+    //   `{${formattedFgColor}${formattedBgColor}${formattedStyle} ${cellString}}`
+    // );
     return chalk`{${formattedFgColor}${formattedBgColor}${formattedStyle} ${cellString}}`;
   }
 
