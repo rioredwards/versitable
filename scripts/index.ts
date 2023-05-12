@@ -6,6 +6,7 @@ import {
 } from "../__tests__/__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { Versitable } from "../src/Table";
+import { Colors } from "../src/Colors";
 
 const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
@@ -48,11 +49,20 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
+  // const myVersitable = Versitable.make(
+  //   hotkeysFormattedForTable,
+  //   updatedOptions
+  // );
+  // myVersitable.print();
+  const color1 = "rgb(255, 225, 0)";
+  const color2 = "#ff3c3c";
+  const averageColor = Colors.calcAvgColor(color1, color2);
+  console.log("color1: ", Colors.createStyledString(color1, color1));
+  console.log("color2: ", Colors.createStyledString(color2, color2));
+  console.log(
+    "averageColor: ",
+    Colors.createStyledString(averageColor, averageColor)
   );
-  myVersitable.print();
 }
 
 main();

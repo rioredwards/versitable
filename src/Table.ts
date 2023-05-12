@@ -156,8 +156,6 @@ export class Versitable implements VersitableType {
     if (fgColor !== undefined) {
       const isHex = fgColor.startsWith("#");
       if (isHex) {
-        // Remove alpha channel from hex color if it exists
-        if (fgColor.length === 9) fgColor = fgColor.slice(0, -2);
         formattedFgColor = `hex('${fgColor}')` || "";
       } else {
         formattedFgColor = `keyword('${fgColor}')` || "";
