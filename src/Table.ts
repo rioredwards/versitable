@@ -24,6 +24,7 @@ import {
 import { deepMerge } from "./utils";
 import { Cell } from "./Cell";
 import { chalkFgColors } from "./tableTypes";
+import { ColorHelper } from "./ColorHelper";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -95,10 +96,31 @@ export class Versitable implements VersitableType {
             rowIdx
           );
           if (cellNeedsColor) {
-            const styledString = this.createValidChalkString(
-              cell.content,
-              alternateRows[alternateRowIdx]
-            );
+            // If cell is a betweenRow border cell, calculate avg color from adjacent rows
+            let color = alternateRows[alternateRowIdx];
+            if (
+              cell.type === "border" &&
+              // colIdx > 0 &&
+              // colIdx < this._table[rowIdx].length - 1 &&
+              // rowIdx > 0 &&
+              // rowIdx < this._table.length - 1 &&
+              alternateRows.length > 1 &&
+              alternateRows[alternateRowIdx].bgColor &&
+              alternateRows[(i - 1) % alternateRows.length].bgColor
+            ) {
+              // Cell is a betweenRows border
+              const aboveCellBgColor = alternateRows[alternateRowIdx].bgColor;
+              const belowCellBgColor =
+                alternateRows[(i - 1) % alternateRows.length].bgColor;
+              const avgColor = ColorHelper.calcAvgColor(
+                aboveCellBgColor!,
+                belowCellBgColor!
+              );
+              console.log("avgColor: ", avgColor);
+              color = { ...color, bgColor: avgColor };
+            }
+
+            const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
           }
         });
@@ -146,41 +168,10 @@ export class Versitable implements VersitableType {
     }
   }
 
-  createValidChalkString(cellString: string, cellStyle: CellStyle): string {
-    let { fgColor, bgColor, style } = cellStyle;
-    let formattedFgColor = "";
-    let formattedBgColor = "";
-    let formattedStyle = "";
-
-    // Create a formatted chalk string from the values in the color object
-    if (fgColor !== undefined) {
-      const isHex = fgColor.startsWith("#");
-      if (isHex) {
-        formattedFgColor = `hex('${fgColor}')` || "";
-      } else {
-        formattedFgColor = `keyword('${fgColor}')` || "";
-      }
-    }
-    if (bgColor !== undefined) {
-      const isHex = bgColor.startsWith("#") || "";
-      if (isHex) {
-        // Remove alpha channel from hex color if it exists
-        if (bgColor.length === 9) bgColor = bgColor.slice(0, -2);
-        formattedBgColor = `bgHex('${bgColor}')` || "";
-      } else {
-        formattedBgColor = `bgKeyword('${bgColor}')` || "";
-      }
-      if (formattedFgColor) formattedBgColor = `.${formattedBgColor}`;
-    }
-    if (style !== undefined) {
-      formattedStyle = `${style}` || "";
-      if (formattedFgColor || formattedStyle)
-        formattedStyle = `.${formattedStyle}`;
-    }
-    // console.log(
-    //   `{${formattedFgColor}${formattedBgColor}${formattedStyle} ${cellString}}`
-    // );
-    return chalk`{${formattedFgColor}${formattedBgColor}${formattedStyle} ${cellString}}`;
+  createStyledCell(cellString: string, cellStyle: CellStyle): string {
+    // ColorHelper.validateColor(cellStyle.color); // TODO
+    const { fgColor, bgColor, style } = cellStyle;
+    return ColorHelper.createStyledString(cellString, fgColor, bgColor, style);
   }
 
   // User-facing methods
