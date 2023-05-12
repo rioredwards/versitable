@@ -21,7 +21,7 @@ function main() {
     cellPadding: 2,
     borders: {
       sides: {
-        betweenRows: true,
+        betweenRows: false,
         betweenColumns: true,
         top: true,
         bottom: true,

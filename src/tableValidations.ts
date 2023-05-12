@@ -1,4 +1,4 @@
-import chalkPipe = require("chalk-pipe");
+import chalk = require("chalk/index.js");
 import {
   Borders,
   Colors,
@@ -167,7 +167,7 @@ function isValidChalkValue(value: string, type: "color" | "style") {
     return false;
   }
   try {
-    chalkPipe(value)("test");
+    // chalk.keyword(value)("test");
   } catch (err) {
     handleInvalidEntry(
       `Invalid ${type}: ${value}. Must be a valid chalk ${type}.`
