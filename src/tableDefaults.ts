@@ -9,10 +9,14 @@ const MAX_COL_WIDTHS = 40;
 const MAX_ROW_HEIGHT = 1;
 const HEADER = true;
 // Color Options
-const BORDER_COLOR = { fgColor: "#22ba1f" };
+const BORDER_COLOR = {
+  fgColor: "#22ba1f",
+  bgColor: undefined,
+  style: undefined,
+};
 const ALTERNATE_ROWS = [
-  { fgColor: "#e0e0e0", bgColor: "#222222" },
-  { fgColor: "#e0e0e0", bgColor: "#3c3c3c" },
+  { fgColor: "#e0e0e0", bgColor: "#222222", style: undefined },
+  { fgColor: "#e0e0e0", bgColor: "#3c3c3c", style: undefined },
 ];
 const TARGET_CELLS_COLORS = undefined;
 // Border Options

@@ -30,6 +30,13 @@ function main() {
         right: true,
       },
     },
+    colors: {
+      borderColor: { fgColor: "#a7a7a7" },
+      alternateRows: [
+        { fgColor: "#e0e0e0", bgColor: "#374a60" },
+        { fgColor: "#e0e0e0", bgColor: "#22354b" },
+      ],
+    },
   };
 
   // logAllBorderCombos(hotkeysFormattedForTable);
