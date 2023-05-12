@@ -1,6 +1,5 @@
 import chalkPipe = require("chalk-pipe");
 import chalk = require("chalk");
-import { Chalk, ColorSupport } from "chalk";
 import { Cell } from "./Cell";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
@@ -16,13 +15,13 @@ import {
   VersitableType,
   VerticalBorderType,
   VerticalGlyphs,
-  chalkType,
 } from "./tableTypes";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
 import { deepMerge } from "./utils";
+import { Borders } from "./tableTypes";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -90,6 +89,17 @@ export class Versitable implements VersitableType {
         const chalkColor = this.getValidChalkColor(colorName);
         row.forEach((cell) => {
           if (cell.type !== "border") {
+            cell.content = chalkColor(cell.content);
+          }
+        });
+      });
+    }
+    if (borderColor) {
+      const colorName = (this._options.colors as CustomColors).borderColor;
+      this._table.forEach((row) => {
+        const chalkColor = this.getValidChalkColor(colorName);
+        row.forEach((cell) => {
+          if (cell.type === "border") {
             cell.content = chalkColor(cell.content);
           }
         });
