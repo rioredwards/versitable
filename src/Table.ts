@@ -15,6 +15,7 @@ import {
   VerticalBorderType,
   VerticalGlyphs,
   CellStyle,
+  CustomColorsTarget,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -78,16 +79,22 @@ export class Versitable implements VersitableType {
       // Iterate over rows, cycling through alternateRows colors
       let alternateRowIdx = 0;
       let i = 0;
-      this._table.forEach((row) => {
+      this._table.forEach((row, rowIdx) => {
         const rowIsPrimary =
           row.find((cell) => cell.type === "primary") !== undefined;
         if (rowIsPrimary) {
-          alternateRowIdx = i % alternateRows.length;
           i++;
+          alternateRowIdx = i % alternateRows.length;
         }
 
-        row.forEach((cell) => {
-          if (cell.type !== "border") {
+        row.forEach((cell, colIdx) => {
+          const cellNeedsColor = this.checkCellNeedsColor(
+            "alternateRows",
+            cell,
+            colIdx,
+            rowIdx
+          );
+          if (cellNeedsColor) {
             const styledString = this.createValidChalkString(
               cell.content,
               alternateRows[alternateRowIdx]
@@ -97,18 +104,45 @@ export class Versitable implements VersitableType {
         });
       });
     }
-    if (borderColor) {
-      this._table.forEach((row) => {
-        row.forEach((cell) => {
-          if (cell.type === "border") {
-            const styledString = this.createValidChalkString(
-              cell.content,
-              borderColor
-            );
-            cell.content = styledString;
-          }
-        });
-      });
+    // if (borderColor) {
+    //   this._table.forEach((row) => {
+    //     row.forEach((cell) => {
+    //       if (cell.type === "border") {
+    //         const styledString = this.createValidChalkString(
+    //           cell.content,
+    //           borderColor
+    //         );
+    //         cell.content = styledString;
+    //       }
+    //     });
+    //   });
+    // }
+  }
+
+  checkCellNeedsColor(
+    target: CustomColorsTarget,
+    cell: Cell,
+    colIdx: number,
+    rowIdx: number
+  ) {
+    if (target === "alternateRows") {
+      if (cell.type === "primary" || cell.type === "overflow") return true;
+      else if (
+        colIdx > 0 &&
+        colIdx < this._table[rowIdx].length - 1 &&
+        this._table[rowIdx][colIdx - 1].type !== "border"
+      ) {
+        // Cell is a betweenColumns border
+        return true;
+      } else if (
+        colIdx > 0 &&
+        colIdx < this._table[rowIdx].length - 1 &&
+        rowIdx > 0 &&
+        rowIdx < this._table.length - 1
+      ) {
+        return true;
+        // Cell is a betweenRows border
+      } else return false;
     }
   }
 
@@ -268,10 +302,10 @@ export class Versitable implements VersitableType {
   }
 
   insertHorizontalBorder(type: HorizontalBorderType) {
-    const border = this.createHorizontalBorder(type);
     const insertIdxs = this.findHorizontalBorderInsertIdxs(type);
 
     for (let i = insertIdxs.length - 1; i >= 0; i--) {
+      const border = this.createHorizontalBorder(type);
       this._table.splice(insertIdxs[i], 0, border);
     }
   }
@@ -482,7 +516,12 @@ export class Versitable implements VersitableType {
           return newRow.push(cell);
         }
         // Otherwise push the cell to the new row with a vertical line
-        return newRow.push(cell, verticalLineCell);
+        const newVerticalLineCell: CellType = new Cell(
+          "border",
+          verticalLine,
+          1
+        );
+        return newRow.push(cell, newVerticalLineCell);
       });
       return newRow;
     }

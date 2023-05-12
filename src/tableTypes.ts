@@ -66,6 +66,11 @@ export type Colors = Partial<CustomColors> | boolean;
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
+export type CustomColorsTarget =
+  | "alternateRows"
+  | "borderColor"
+  | "targetCells";
+
 export interface CustomColors {
   borderColor: PartialCellStyle;
   alternateRows: PartialCellStyle[];

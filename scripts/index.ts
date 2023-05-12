@@ -14,10 +14,9 @@ function main() {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
   const updatedOptions: PartialTableOptions = {
-    ...TABLE_DEFAULTS,
     maxRows: 15,
     maxColumns: 6,
-    maxColWidths: [10, 10, 10],
+    maxColWidths: [30, 30, 30],
     maxRowHeight: 2,
     cellPadding: 2,
     borders: {
