@@ -6,7 +6,7 @@ import {
 } from "../__tests__/__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { Versitable } from "../src/Table";
-import { Colors } from "../src/Colors";
+import { ColorHelper } from "../src/ColorHelper";
 
 const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
@@ -17,12 +17,12 @@ function main() {
   const updatedOptions: PartialTableOptions = {
     maxRows: 15,
     maxColumns: 6,
-    maxColWidths: [30, 30, 30],
+    maxColWidths: [30, 30, 10],
     maxRowHeight: 2,
     cellPadding: 2,
     borders: {
       sides: {
-        betweenRows: false,
+        betweenRows: true,
         betweenColumns: true,
         top: true,
         bottom: true,
@@ -49,20 +49,20 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n");
-  // const myVersitable = Versitable.make(
-  //   hotkeysFormattedForTable,
-  //   updatedOptions
-  // );
-  // myVersitable.print();
-  const color1 = "rgb(255, 225, 0)";
-  const color2 = "#ff3c3c";
-  const averageColor = Colors.calcAvgColor(color1, color2);
-  console.log("color1: ", Colors.createStyledString(color1, color1));
-  console.log("color2: ", Colors.createStyledString(color2, color2));
-  console.log(
-    "averageColor: ",
-    Colors.createStyledString(averageColor, averageColor)
+  const myVersitable = Versitable.make(
+    hotkeysFormattedForTable,
+    updatedOptions
   );
+  myVersitable.print();
+  // const color1 = "rgb(255, 225, 0)";
+  // const color2 = "#ff3c3c";
+  // const averageColor = ColorHelper.calcAvgColor(color1, color2);
+  // console.log("color1: ", ColorHelper.createStyledString(color1, color1));
+  // console.log("color2: ", ColorHelper.createStyledString(color2, color2));
+  // console.log(
+  //   "averageColor: ",
+  //   ColorHelper.createStyledString(averageColor, averageColor)
+  // );
 }
 
 main();

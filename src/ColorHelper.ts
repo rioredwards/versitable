@@ -2,7 +2,7 @@ import chalk = require("chalk");
 import { Chalk } from "chalk";
 
 // This class provides a variety of methods for parsing and manipulating color strings
-export class Colors {
+export class ColorHelper {
   static convertToRGBComponents(color: string): number[] {
     let rgbComponents: number[];
 

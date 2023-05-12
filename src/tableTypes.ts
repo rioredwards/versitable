@@ -19,7 +19,7 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
-  createValidChalkString(cellString: string, cellStyle: CellStyle): string;
+  createStyledCell(cellString: string, cellStyle: CellStyle): string;
   findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
   insertHorizontalBorder(type: HorizontalBorderType): void;
   insertVerticalBorder(type: VerticalBorderType): void;
