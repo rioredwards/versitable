@@ -197,6 +197,9 @@ export const invalidColorsOption = [
   { alternateRows: 4 },
   { alternateRows: [] },
   { alternateRows: [1] },
+  {
+    alternateRows: [{ fgColor: [], bgColor: 6, style: { bold: "bold" } }],
+  },
   { targetCells: {} },
   { targetCells: 4 },
   { targetCells: ["red"] },

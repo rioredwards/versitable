@@ -1,3 +1,4 @@
+import { Chalk } from "chalk";
 export interface VersitableType {
   _table: CellType[][];
   _options: TableOptions;
@@ -18,6 +19,7 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
+  getValidChalkString(cellString: string, cellStyle: CellStyle): string;
   findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
   insertHorizontalBorder(type: HorizontalBorderType): void;
   insertVerticalBorder(type: VerticalBorderType): void;
@@ -65,19 +67,26 @@ export type Colors = Partial<CustomColors> | boolean;
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
 export interface CustomColors {
-  borderColor: string;
-  alternateRows: string[];
+  borderColor: PartialCellStyle;
+  alternateRows: PartialCellStyle[];
   targetCells: TargetCellsColors[];
 }
 
-interface TargetCellsColorsBase {
-  style: string;
-  fgColor: string;
-  bgColor: string;
+export interface CellStyle {
+  style?: string;
+  fgColor?: string;
+  bgColor?: string;
 }
 
+// must have either fgColor or bgColor specified, but not necessarily both
+export type PartialCellStyle = CellStyle &
+  (
+    | { fgColor: string; bgColor?: string }
+    | { fgColor?: string; bgColor: string }
+  );
+
 // must have either row or column specified, but not necessarily both
-export type TargetCellsColors = TargetCellsColorsBase &
+export type TargetCellsColors = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
@@ -125,3 +134,57 @@ export interface BorderGlyphs {
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+export const chalkFgColors = [
+  "black",
+  "red",
+  "green",
+  "yellow",
+  "blue",
+  "magenta",
+  "cyan",
+  "white",
+  "gray",
+  "grey",
+  "blackBright",
+  "redBright",
+  "greenBright",
+  "yellowBright",
+  "blueBright",
+  "magentaBright",
+  "cyanBright",
+  "whiteBright",
+];
+
+export const chalkBgColors = [
+  "bgBlack",
+  "bgRed",
+  "bgGreen",
+  "bgYellow",
+  "bgBlue",
+  "bgMagenta",
+  "bgCyan",
+  "bgWhite",
+  "bgGray",
+  "bgGrey",
+  "bgBlackBright",
+  "bgRedBright",
+  "bgGreenBright",
+  "bgYellowBright",
+  "bgBlueBright",
+  "bgMagentaBright",
+  "bgCyanBright",
+  "bgWhiteBright",
+];
+
+export const chalkModifiers = [
+  "reset",
+  "bold",
+  "dim",
+  "italic",
+  "underline",
+  "inverse",
+  "hidden",
+  "strikethrough",
+  "visible",
+];

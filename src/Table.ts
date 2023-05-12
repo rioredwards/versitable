@@ -1,6 +1,5 @@
-import chalkPipe = require("chalk-pipe");
 import chalk = require("chalk");
-import { Cell } from "./Cell";
+import { Chalk } from "chalk";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
@@ -15,13 +14,15 @@ import {
   VersitableType,
   VerticalBorderType,
   VerticalGlyphs,
+  CellStyle,
 } from "./tableTypes";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
 import { deepMerge } from "./utils";
-import { Borders } from "./tableTypes";
+import { Cell } from "./Cell";
+import { chalkFgColors } from "./tableTypes";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -68,7 +69,6 @@ export class Versitable implements VersitableType {
   }
 
   addColors() {
-    console.log("this._options.colors: ", this._options.colors);
     if (!this._options.colors) return;
 
     const { targetCells, alternateRows, borderColor } = this._options
@@ -85,35 +85,65 @@ export class Versitable implements VersitableType {
           alternateRowIdx = i % alternateRows.length;
           i++;
         }
-        let colorName = alternateRows[alternateRowIdx];
-        const chalkColor = this.getValidChalkColor(colorName);
+
         row.forEach((cell) => {
+          const styledString = this.getValidChalkString(
+            cell.content,
+            alternateRows[alternateRowIdx]
+          );
           if (cell.type !== "border") {
-            cell.content = chalkColor(cell.content);
+            cell.content = styledString;
           }
         });
       });
     }
     if (borderColor) {
-      const colorName = (this._options.colors as CustomColors).borderColor;
       this._table.forEach((row) => {
-        const chalkColor = this.getValidChalkColor(colorName);
         row.forEach((cell) => {
           if (cell.type === "border") {
-            cell.content = chalkColor(cell.content);
+            const styledString = this.getValidChalkString(
+              cell.content,
+              borderColor
+            );
+            cell.content = styledString;
           }
         });
       });
     }
   }
 
-  getValidChalkColor(colorName: string) {
-    const isHex = colorName.startsWith("#");
-    // Remove alpha channel from hex color if it exists
-    if (isHex && colorName.length === 9) {
-      colorName = colorName.slice(0, -2);
+  getValidChalkString(cellString: string, cellStyle: CellStyle): string {
+    let { fgColor, bgColor, style } = cellStyle;
+    let formattedFgColor = "";
+    let formattedBgColor = "";
+    let formattedStyle = "";
+
+    // Create a formatted chalk string from the values in the color object
+    if (fgColor !== undefined) {
+      const isHex = fgColor.startsWith("#");
+      if (isHex) {
+        // Remove alpha channel from hex color if it exists
+        if (fgColor.length === 9) fgColor = fgColor.slice(0, -2);
+        formattedFgColor = `hex('${fgColor}')` || "";
+      } else {
+        formattedFgColor = `keyword('${fgColor}')` || "";
+      }
+    } else if (bgColor !== undefined) {
+      const isHex = bgColor.startsWith("#") || "";
+      if (isHex) {
+        // Remove alpha channel from hex color if it exists
+        if (bgColor.length === 9) bgColor = bgColor.slice(0, -2);
+        formattedBgColor = `bgHex('${bgColor}')` || "";
+      } else {
+        formattedBgColor = `bgKeyword('${bgColor}')` || "";
+      }
+      if (formattedFgColor) formattedBgColor = `.${formattedBgColor}`;
+    } else {
+      formattedStyle = `${style}` || "";
+      if (formattedFgColor || formattedStyle)
+        formattedBgColor = `.${formattedBgColor}`;
     }
-    return isHex ? chalk.hex(colorName) : chalkPipe(colorName);
+    return chalk`{${formattedFgColor}${formattedBgColor}${formattedStyle} ${cellString}}`;
   }
 
   // User-facing methods
