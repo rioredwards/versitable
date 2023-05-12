@@ -9,8 +9,11 @@ const MAX_COL_WIDTHS = 40;
 const MAX_ROW_HEIGHT = 1;
 const HEADER = true;
 // Color Options
-const BORDER_COLOR = "#ce5e08";
-const ALTERNATE_ROWS = ["#b18026", "red", "#3b59aa"];
+const BORDER_COLOR = { fgColor: "#22ba1f" };
+const ALTERNATE_ROWS = [
+  { fgColor: "#e0e0e0", bgColor: "#222222" },
+  { fgColor: "#e0e0e0", bgColor: "#3c3c3c" },
+];
 const TARGET_CELLS_COLORS = undefined;
 // Border Options
 const HORIZONTAL_LINE = "─";

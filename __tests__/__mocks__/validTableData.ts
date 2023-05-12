@@ -1,11 +1,4 @@
-import {
-  Borders,
-  Colors,
-  CustomColors,
-  PartialTableOptions,
-  TableOptions,
-  TargetCellsColors,
-} from "../../src/tableTypes";
+import { Borders, Colors, PartialTableOptions } from "../../src/tableTypes";
 
 export const validTableOptions: PartialTableOptions = {
   optionChecks: "error",
@@ -16,8 +9,11 @@ export const validTableOptions: PartialTableOptions = {
   maxRowHeight: 2,
   header: true,
   colors: {
-    borderColor: "yellow",
-    alternateRows: ["red", "blue"],
+    borderColor: { fgColor: "#9148d5" },
+    alternateRows: [
+      { fgColor: "red", bgColor: "blue", style: "bold" },
+      { fgColor: "#48d0d5", bgColor: "#8342b1", style: "italics" },
+    ],
     targetCells: [
       {
         column: 0,
@@ -123,8 +119,11 @@ export const validColorsOption: Colors[] = [
   true,
   false,
   {
-    borderColor: "yellow",
-    alternateRows: ["red", "blue"],
+    borderColor: { fgColor: "#9148d5" },
+    alternateRows: [
+      { fgColor: "red", bgColor: "blue", style: "bold" },
+      { fgColor: "#48d0d5", bgColor: "#8342b1", style: "italics" },
+    ],
     targetCells: [
       {
         column: 0,
