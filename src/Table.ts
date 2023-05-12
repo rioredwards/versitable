@@ -1,4 +1,6 @@
 import chalkPipe = require("chalk-pipe");
+import chalk = require("chalk");
+import { Chalk, ColorSupport } from "chalk";
 import { Cell } from "./Cell";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
@@ -14,13 +16,13 @@ import {
   VersitableType,
   VerticalBorderType,
   VerticalGlyphs,
+  chalkType,
 } from "./tableTypes";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
 import { deepMerge } from "./utils";
-import chalk = require("chalk");
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -76,17 +78,32 @@ export class Versitable implements VersitableType {
     if (alternateRows) {
       // Iterate over rows, cycling through alternateRows colors
       let alternateRowIdx = 0;
-      this._table.forEach((row, i) => {
-        alternateRowIdx = i % alternateRows.length;
-        const colorName = alternateRows[alternateRowIdx];
-        const isHex = colorName.startsWith("#");
-        const color = isHex ? chalk.hex(colorName) : chalkPipe(colorName);
+      let i = 0;
+      this._table.forEach((row) => {
+        const rowIsPrimary =
+          row.find((cell) => cell.type === "primary") !== undefined;
+        if (rowIsPrimary) {
+          alternateRowIdx = i % alternateRows.length;
+          i++;
+        }
+        let colorName = alternateRows[alternateRowIdx];
+        const chalkColor = this.getValidChalkColor(colorName);
         row.forEach((cell) => {
-          cell.content = color(cell.content);
+          if (cell.type !== "border") {
+            cell.content = chalkColor(cell.content);
+          }
         });
       });
     }
-    // console.log("this._table: ", this._table);
+  }
+
+  getValidChalkColor(colorName: string) {
+    const isHex = colorName.startsWith("#");
+    // Remove alpha channel from hex color if it exists
+    if (isHex && colorName.length === 9) {
+      colorName = colorName.slice(0, -2);
+    }
+    return isHex ? chalk.hex(colorName) : chalkPipe(colorName);
   }
 
   // User-facing methods

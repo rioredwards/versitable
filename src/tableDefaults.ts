@@ -10,7 +10,7 @@ const MAX_ROW_HEIGHT = 1;
 const HEADER = true;
 // Color Options
 const BORDER_COLOR = "grey";
-const ALTERNATE_ROWS = ["#b18026", "#3baa73"];
+const ALTERNATE_ROWS = ["#b18026", "red", "#3b59aa"];
 const TARGET_CELLS_COLORS = undefined;
 // Border Options
 const HORIZONTAL_LINE = "─";

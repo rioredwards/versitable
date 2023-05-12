@@ -1,3 +1,5 @@
+import { Chalk, ColorSupport } from "chalk";
+
 export interface VersitableType {
   _table: CellType[][];
   _options: TableOptions;
@@ -79,6 +81,8 @@ interface TargetCellsColorsBase {
 // must have either row or column specified, but not necessarily both
 export type TargetCellsColors = TargetCellsColorsBase &
   ({ column: number; row?: number } | { column?: number; row: number });
+
+export type chalkType = Chalk | (Chalk & { supportsColor: ColorSupport });
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
 
