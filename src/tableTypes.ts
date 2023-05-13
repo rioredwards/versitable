@@ -132,9 +132,9 @@ export type HorizontalGlyphs = {
 
 export type VerticalGlyphs = {
   verticalLine: string;
-  topEdge?: string;
-  bottomEdge?: string;
-  separator?: string;
+  topEdge: string;
+  bottomEdge: string;
+  separator: string;
 };
 
 export interface BorderGlyphs {
