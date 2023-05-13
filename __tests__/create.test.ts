@@ -14,11 +14,6 @@ const {
   topRightCorner,
   bottomLeftCorner,
   bottomRightCorner,
-  topSeparator,
-  bottomSeparator,
-  middleSeparator,
-  rightSeparator,
-  leftSeparator,
 } = (TABLE_DEFAULTS.borders as CustomBorders).glyphs;
 
 describe("Versitable.make", () => {
