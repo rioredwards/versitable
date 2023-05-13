@@ -1,5 +1,3 @@
-import chalk = require("chalk");
-import { Chalk } from "chalk";
 import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
@@ -16,6 +14,7 @@ import {
   VerticalGlyphs,
   CellStyle,
   CustomColorsTarget,
+  cellTypesArr,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -75,17 +74,16 @@ export class Versitable implements VersitableType {
 
     const { targetCells, alternateRows, borderColor } = this._options
       .colors as CustomColors;
+    let savedAvgColor: any;
 
     if (alternateRows) {
       // Iterate over rows, cycling through alternateRows colors
+      const needToAlternateRows = alternateRows.length > 1;
       let alternateRowIdx = 0;
-      let i = 0;
       this._table.forEach((row, rowIdx) => {
-        const rowIsPrimary =
-          row.find((cell) => cell.type === "primary") !== undefined;
-        if (rowIsPrimary) {
-          i++;
-          alternateRowIdx = i % alternateRows.length;
+        const rowType = this.getRowType(rowIdx);
+        if (needToAlternateRows && rowType === "primary") {
+          alternateRowIdx++;
         }
 
         row.forEach((cell, colIdx) => {
@@ -95,50 +93,95 @@ export class Versitable implements VersitableType {
             colIdx,
             rowIdx
           );
-          if (cellNeedsColor) {
-            // If cell is a betweenRow border cell, calculate avg color from adjacent rows
-            let color = alternateRows[alternateRowIdx];
-            if (
-              cell.type === "border" &&
-              // colIdx > 0 &&
-              // colIdx < this._table[rowIdx].length - 1 &&
-              // rowIdx > 0 &&
-              // rowIdx < this._table.length - 1 &&
-              alternateRows.length > 1 &&
-              alternateRows[alternateRowIdx].bgColor &&
-              alternateRows[(i - 1) % alternateRows.length].bgColor
-            ) {
-              // Cell is a betweenRows border
-              const aboveCellBgColor = alternateRows[alternateRowIdx].bgColor;
+          if (!cellNeedsColor) return;
+
+          let color = alternateRows[alternateRowIdx % alternateRows.length];
+          // If cell is a betweenRow border cell, calculate avg color from adjacent rows
+          if (this.needToGetAvgColor(rowType, rowIdx)) {
+            if (savedAvgColor) {
+              color = { ...color, bgColor: savedAvgColor };
+            } else {
+              // Cell is a betweenCols border
+              const aboveCellBgColor = color.bgColor;
               const belowCellBgColor =
-                alternateRows[(i - 1) % alternateRows.length].bgColor;
+                alternateRows[(alternateRowIdx + 1) % alternateRows.length]
+                  .bgColor;
               const avgColor = ColorHelper.calcAvgColor(
                 aboveCellBgColor!,
                 belowCellBgColor!
               );
-              console.log("avgColor: ", avgColor);
+              savedAvgColor = avgColor;
               color = { ...color, bgColor: avgColor };
             }
+          }
 
+          const styledString = this.createStyledCell(cell.content, color);
+          cell.content = styledString;
+        });
+      });
+    }
+    if (borderColor) {
+      this._table.forEach((row) => {
+        row.forEach((cell) => {
+          if (cell.type === "border") {
+            const color = { ...borderColor, bgColor: savedAvgColor };
             const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
           }
         });
       });
     }
-    // if (borderColor) {
-    //   this._table.forEach((row) => {
-    //     row.forEach((cell) => {
-    //       if (cell.type === "border") {
-    //         const styledString = this.createValidChalkString(
-    //           cell.content,
-    //           borderColor
-    //         );
-    //         cell.content = styledString;
-    //       }
-    //     });
-    //   });
-    // }
+  }
+
+  needToGetAvgColor(rowType: CellTypes, rowIdx: number) {
+    const { alternateRows } = this._options.colors as CustomColors;
+    if (
+      rowType === "border" &&
+      alternateRows.length > 1 &&
+      rowIdx > 0 &&
+      rowIdx < this._table.length - 1
+    ) {
+      return true;
+    }
+    return false;
+  }
+
+  // getCorrectCellColor(
+  //   cell: Cell,
+  //   colIdx: number,
+  //   rowIdx: number
+  // ): CustomColors {
+  //   const { targetCells, alternateRows, borderColor } = this._options
+  //     .colors as CustomColors;
+
+  //   if (alternateRows) {
+  //     const rowType = this.getRowType(rowIdx);
+  //     if (rowType === "primary") {
+  //       const rowColor = alternateRows[rowIdx % alternateRows.length];
+  //       return rowColor;
+  //     }
+  //   }
+  //   if (borderColor) {
+  //     if (cell.type === "border") return borderColor;
+  //   }
+  //   return {};
+  // }
+
+  // alternateRowColor(
+  //   lastIdx: number,
+  //   alternateRows: CustomColors["alternateRows"]
+  // ): CustomColors["alternateRows"] {
+  //   const rowColor = alternateRows[lastIdx % alternateRows.length];
+  //   return rowColor;
+  // }
+
+  getRowType(rowIdx: number): CellTypes {
+    const leftBorderExists =
+      (this._options.borders as CustomBorders).sides.left !== undefined;
+    const definingCell = leftBorderExists
+      ? this._table[rowIdx][1]
+      : this._table[rowIdx][0];
+    return definingCell.type;
   }
 
   checkCellNeedsColor(

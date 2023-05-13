@@ -15,10 +15,10 @@ function main() {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
   const updatedOptions: PartialTableOptions = {
-    maxRows: 15,
-    maxColumns: 6,
-    maxColWidths: [30, 30, 10],
-    maxRowHeight: 2,
+    maxRows: 7,
+    maxColumns: 8,
+    maxColWidths: [20, 30, 10],
+    maxRowHeight: 3,
     cellPadding: 2,
     borders: {
       sides: {
@@ -33,8 +33,8 @@ function main() {
     colors: {
       borderColor: { fgColor: "#a7a7a7" },
       alternateRows: [
-        { fgColor: "#e0e0e0", bgColor: "#374a60" },
-        { fgColor: "#e0e0e0", bgColor: "#22354b" },
+        { fgColor: "#e0e0e0", bgColor: "#357079" },
+        { fgColor: "#e0e0e0", bgColor: "#2c4c65" },
       ],
     },
   };
@@ -48,11 +48,8 @@ function main() {
   // );
 
   // console.log("__________________________________________________");
-  console.log("\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
-  );
+  console.log("\n\n\n\n\n\n\n\n");
+  const myVersitable = Versitable.make(validTableData, updatedOptions);
   myVersitable.print();
   // const color1 = "rgb(255, 225, 0)";
   // const color2 = "#ff3c3c";
