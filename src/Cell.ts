@@ -8,8 +8,7 @@ export class Cell implements CellType {
   constructor(
     type: CellTypes = "primary",
     content: string = "",
-    length: number = 0,
-    color?: string
+    length: number = 0
   ) {
     this.type = type;
     this.content = content;

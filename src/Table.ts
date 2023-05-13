@@ -128,7 +128,7 @@ export class Versitable implements VersitableType {
     if (borderColor) {
       this._table.forEach((row) => {
         row.forEach((cell) => {
-          if (cell.type === "border") {
+          if (this.isBorderType(cell.type)) {
             const color = { ...borderColor, bgColor: savedAvgColor };
             const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
@@ -141,13 +141,18 @@ export class Versitable implements VersitableType {
   needToGetAvgColor(rowType: CellTypes, rowIdx: number) {
     const { alternateRows } = this._options.colors as CustomColors;
     if (
-      rowType === "border" &&
+      this.isBorderType(rowType) &&
       alternateRows.length > 1 &&
       rowIdx > 0 &&
       rowIdx < this._table.length - 1
     ) {
       return true;
     }
+    return false;
+  }
+
+  isBorderType(type: CellTypes) {
+    if (type !== "primary" && type !== "overflow") return true;
     return false;
   }
 
@@ -196,11 +201,11 @@ export class Versitable implements VersitableType {
     rowIdx: number
   ) {
     if (target === "alternateRows") {
-      if (cell.type === "primary" || cell.type === "overflow") return true;
+      if (!this.isBorderType(cell.type)) return true;
       else if (
         colIdx > 0 &&
         colIdx < this._table[rowIdx].length - 1 &&
-        this._table[rowIdx][colIdx - 1].type !== "border"
+        this.isBorderType(this._table[rowIdx][colIdx - 1].type)
       ) {
         // Cell is a betweenColumns border
         return true;
@@ -322,7 +327,7 @@ export class Versitable implements VersitableType {
     switch (type) {
       case "betweenRows":
         insertIdxs = this._table.reduce((acc, row, idx) => {
-          if (idx > 0 && row[0].type === "primary") acc.push(idx);
+          if (idx > 0 && this.getRowType(idx) === "primary") acc.push(idx);
           return acc;
         }, [] as number[]);
         break;
@@ -351,9 +356,7 @@ export class Versitable implements VersitableType {
     for (let i = 0; i < this._table.length; i++) {
       const row = this._table[i];
       const rowNeedsBorder =
-        row.find(
-          (cell) => cell.type === "primary" || cell.type === "overflow"
-        ) !== undefined;
+        this.getRowType(i) === "primary" || this.getRowType(i) === "overflow";
       if (rowNeedsBorder) {
         const rowWithBorder = this.createVerticalBorder(row, type);
         this._table[i] = rowWithBorder;
@@ -494,7 +497,7 @@ export class Versitable implements VersitableType {
     this._colWidths.forEach((colWidth, idx) => {
       // Border segment is the same length as the column
       const baseBorderCell = new Cell(
-        "border",
+        type,
         horizontalLine.repeat(colWidth),
         colWidth
       );
@@ -503,24 +506,24 @@ export class Versitable implements VersitableType {
       if (idx === 0) {
         // Far left column
         if (sides.left) {
-          const leftEdgeCell = new Cell("border", leftEdge, 1);
+          const leftEdgeCell = new Cell(type, leftEdge, 1);
           borderRow.push(leftEdgeCell, baseBorderCell);
         } else borderRow.push(baseBorderCell);
         if (sides.betweenColumns) {
-          const separatorCell = new Cell("border", separator, 1);
+          const separatorCell = new Cell(type, separator, 1);
           borderRow.push(separatorCell);
         }
       } else if (idx === this._colWidths.length - 1) {
         // Far right column
         if (sides.right) {
-          const rightEdgeCell = new Cell("border", rightEdge, 1);
+          const rightEdgeCell = new Cell(type, rightEdge, 1);
           borderRow.push(baseBorderCell, rightEdgeCell);
         } else borderRow.push(baseBorderCell);
       } else {
         // Middle column
         borderRow.push(baseBorderCell);
         if (sides.betweenColumns) {
-          const separatorCell = new Cell("border", separator, 1);
+          const separatorCell = new Cell(type, separator, 1);
           borderRow.push(separatorCell);
         }
       }
@@ -532,7 +535,7 @@ export class Versitable implements VersitableType {
   createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[] {
     const { sides } = this._options.borders as CustomBorders;
     const { verticalLine } = this.getGlyphsForBorderType(type);
-    const verticalLineCell: CellType = new Cell("border", verticalLine, 1);
+    const verticalLineCell: CellType = new Cell(type, verticalLine, 1);
 
     if (type === "left") return [verticalLineCell, ...row];
     else if (type === "right") return [...row, verticalLineCell];
@@ -547,17 +550,13 @@ export class Versitable implements VersitableType {
         if (
           (isFirstCol && sides.left) ||
           (isLastCol && sides.right) ||
-          cell.type === "border" ||
+          this.isBorderType(cell.type) ||
           colIdx === row.length - 2
         ) {
           return newRow.push(cell);
         }
         // Otherwise push the cell to the new row with a vertical line
-        const newVerticalLineCell: CellType = new Cell(
-          "border",
-          verticalLine,
-          1
-        );
+        const newVerticalLineCell: CellType = new Cell(type, verticalLine, 1);
         return newRow.push(cell, newVerticalLineCell);
       });
       return newRow;

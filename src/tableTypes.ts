@@ -45,9 +45,18 @@ export interface CellType {
   length: number;
 }
 
-export type CellTypes = "primary" | "overflow" | "border";
+export type CellTypes = "primary" | "overflow" | AllBordersType;
 
-export const cellTypesArr: CellTypes[] = ["primary", "overflow", "border"];
+export const cellTypesArr: CellTypes[] = [
+  "primary",
+  "overflow",
+  "top",
+  "bottom",
+  "left",
+  "right",
+  "betweenColumns",
+  "betweenRows",
+];
 
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
@@ -96,6 +105,8 @@ export type PartialCellStyle = CellStyle &
 // must have either row or column specified, but not necessarily both
 export type TargetCellsColors = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
+
+export type AllBordersType = HorizontalBorderType | VerticalBorderType;
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
 
