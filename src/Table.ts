@@ -543,9 +543,9 @@ export class Versitable implements VersitableType {
             ...this.appendVertBorderToCell(cell.type, borderGlyph, cell)
           );
         } else {
-          const borderGlyph =
-            cell.type === "betweenRows" ? separator : verticalLine;
-          const cellType = cell.type as AllBordersType;
+          const isBetweenRows = cell.type === "betweenRows";
+          const borderGlyph = isBetweenRows ? separator : verticalLine;
+          const cellType = isBetweenRows ? "betweenRows" : "betweenColumns";
           acc.push(...this.appendVertBorderToCell(cellType, borderGlyph, cell));
         }
         return acc;

@@ -64,7 +64,7 @@ function main() {
       },
     },
     colors: {
-      borderColor: { fgColor: "#aaaaaa" },
+      borderColor: { fgColor: "#ff0000" },
       alternateRows: alternateRows1,
     },
   };
