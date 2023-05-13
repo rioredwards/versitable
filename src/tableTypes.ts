@@ -19,6 +19,7 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
+  getRowType(rowIdx: number): CellTypes;
   createStyledCell(cellString: string, cellStyle: CellStyle): string;
   findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
   insertHorizontalBorder(type: HorizontalBorderType): void;
@@ -45,6 +46,8 @@ export interface CellType {
 }
 
 export type CellTypes = "primary" | "overflow" | "border";
+
+export const cellTypesArr: CellTypes[] = ["primary", "overflow", "border"];
 
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
