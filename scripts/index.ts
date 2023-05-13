@@ -14,11 +14,31 @@ function main() {
   const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
+
+  const alternateRows1 = [
+    { fgColor: "#e0e0e0", bgColor: "#31715d" },
+    { fgColor: "#e0e0e0", bgColor: "#275e6f" },
+    { fgColor: "#e0e0e0", bgColor: "#7c4f44" },
+  ];
+  const alternateRows2 = [
+    { fgColor: "#1f1f1f", bgColor: "#d6d6d6" },
+    { fgColor: "#1f1f1f", bgColor: "#cbcbcb" },
+    { fgColor: "#1f1f1f", bgColor: "#c0c0c0" },
+    { fgColor: "#1f1f1f", bgColor: "#b4b4b4" },
+    { fgColor: "#1f1f1f", bgColor: "#adadad" },
+    { fgColor: "#1f1f1f", bgColor: "#a4a4a4" },
+    { fgColor: "#1f1f1f", bgColor: "#9a9a9a" },
+    { fgColor: "#1f1f1f", bgColor: "#929292" },
+    { fgColor: "#1f1f1f", bgColor: "#878787" },
+    { fgColor: "#1f1f1f", bgColor: "#7e7e7e" },
+    { fgColor: "#1f1f1f", bgColor: "#757575" },
+  ];
+
   const updatedOptions: PartialTableOptions = {
-    maxRows: 9,
-    maxColumns: 8,
+    maxRows: 6,
+    maxColumns: 6,
     maxColWidths: [20, 30, 10],
-    maxRowHeight: 4,
+    maxRowHeight: 3,
     cellPadding: 2,
     borders: {
       sides: {
@@ -45,11 +65,7 @@ function main() {
     },
     colors: {
       borderColor: { fgColor: "#aaaaaa" },
-      alternateRows: [
-        { fgColor: "#e0e0e0", bgColor: "#31715d" },
-        { fgColor: "#e0e0e0", bgColor: "#275e6f" },
-        { fgColor: "#e0e0e0", bgColor: "#704534" },
-      ],
+      alternateRows: alternateRows1,
     },
   };
 

@@ -6,17 +6,17 @@ const CELL_PADDING = 2;
 const MAX_COLUMNS = 6;
 const MAX_ROWS = 100;
 const MAX_COL_WIDTHS = 40;
-const MAX_ROW_HEIGHT = 1;
+const MAX_ROW_HEIGHT = 2;
 const HEADER = true;
 // Color Options
 const BORDER_COLOR = {
-  fgColor: "#22ba1f",
+  fgColor: "#e0e0e0",
   bgColor: undefined,
   style: undefined,
 };
 const ALTERNATE_ROWS = [
-  { fgColor: "#e0e0e0", bgColor: "#222222", style: undefined },
   { fgColor: "#e0e0e0", bgColor: "#3c3c3c", style: undefined },
+  { fgColor: "#e0e0e0", bgColor: "#2f2f2f", style: undefined },
 ];
 const TARGET_CELLS_COLORS = undefined;
 // Border Options

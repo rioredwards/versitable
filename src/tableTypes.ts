@@ -127,13 +127,14 @@ export interface CustomBorders {
 }
 
 export type HorizontalGlyphs = {
-  leftEdge: string;
-  rightEdge: string;
-  separator: string;
+  horizontalLine: string;
 };
 
 export type VerticalGlyphs = {
   verticalLine: string;
+  topEdge?: string;
+  bottomEdge?: string;
+  separator?: string;
 };
 
 export interface BorderGlyphs {

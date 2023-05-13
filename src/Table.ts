@@ -104,9 +104,9 @@ export class Versitable implements VersitableType {
               belowCellBgColor!
             );
             color = { ...borderColor, bgColor: avgColor };
-            savedAvgColor ??= avgColor;
+            if (!borderColor.bgColor) savedAvgColor ??= avgColor;
           } else if (
-            !this.isBorderType(rowType) &&
+            !this.isAnyBorder(rowType) &&
             cell.type === "betweenColumns"
           ) {
             // Cell is a betweenColumns border
@@ -134,9 +134,12 @@ export class Versitable implements VersitableType {
     if (borderColor) {
       this._table.forEach((row) => {
         row.forEach((cell) => {
-          if (this.isBorderType(cell.type)) {
-            const bgColor = cell.type === "betweenRows" ? savedAvgColor : null;
-            const color = { ...borderColor, bgColor: savedAvgColor };
+          if (this.isOuterBorder(cell.type)) {
+            // If border bgColor is not set, use savedAvgColor
+            const bgColor =
+              savedAvgColor ??
+              (this._options.colors as CustomColors).borderColor.bgColor;
+            const color = { ...borderColor, bgColor };
             const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
           }
@@ -148,7 +151,7 @@ export class Versitable implements VersitableType {
   needToGetAvgColor(rowType: CellTypes, rowIdx: number) {
     const { alternateRows } = this._options.colors as CustomColors;
     if (
-      this.isBorderType(rowType) &&
+      this.isAnyBorder(rowType) &&
       alternateRows.length > 1 &&
       rowIdx > 0 &&
       rowIdx < this._table.length - 1
@@ -158,8 +161,24 @@ export class Versitable implements VersitableType {
     return false;
   }
 
-  isBorderType(type: CellTypes) {
+  isAnyBorder(type: CellTypes) {
     if (type !== "primary" && type !== "overflow") return true;
+    return false;
+  }
+
+  isOuterBorder(type: CellTypes) {
+    if (
+      type === "left" ||
+      type === "right" ||
+      type === "top" ||
+      type === "bottom"
+    )
+      return true;
+    return false;
+  }
+
+  isInnerBorder(type: CellTypes) {
+    if (type === "betweenColumns" || type === "betweenRows") return true;
     return false;
   }
 
@@ -334,12 +353,8 @@ export class Versitable implements VersitableType {
   insertVerticalBorder(type: VerticalBorderType) {
     for (let i = 0; i < this._table.length; i++) {
       const row = this._table[i];
-      const rowNeedsBorder =
-        this.getRowType(i) === "primary" || this.getRowType(i) === "overflow";
-      if (rowNeedsBorder) {
-        const rowWithBorder = this.createVerticalBorder(row, type);
-        this._table[i] = rowWithBorder;
-      }
+      const rowWithBorder = this.createVerticalBorder(row, type);
+      this._table[i] = rowWithBorder;
     }
   }
 
@@ -352,9 +367,9 @@ export class Versitable implements VersitableType {
     if (sides.top) this.insertHorizontalBorder("top");
     if (sides.bottom) this.insertHorizontalBorder("bottom");
     // Insert vertical borders
-    if (sides.left) this.insertVerticalBorder("left");
-    if (sides.right) this.insertVerticalBorder("right");
     if (sides.betweenColumns) this.insertVerticalBorder("betweenColumns");
+    if (sides.right) this.insertVerticalBorder("right");
+    if (sides.left) this.insertVerticalBorder("left");
   }
 
   // Calculations for table properties
@@ -442,101 +457,102 @@ export class Versitable implements VersitableType {
     const { glyphs } = this._options.borders as CustomBorders;
 
     switch (type) {
+      case "left":
+        return {
+          topEdge: glyphs.topLeftCorner,
+          bottomEdge: glyphs.bottomLeftCorner,
+          separator: glyphs.leftSeparator,
+          verticalLine: glyphs.verticalLine,
+        };
+      case "right":
+        return {
+          topEdge: glyphs.topRightCorner,
+          bottomEdge: glyphs.bottomRightCorner,
+          separator: glyphs.rightSeparator,
+          verticalLine: glyphs.verticalLine,
+        };
+      case "betweenColumns":
+        return {
+          topEdge: glyphs.topSeparator,
+          bottomEdge: glyphs.bottomSeparator,
+          separator: glyphs.middleSeparator,
+          verticalLine: glyphs.verticalLine,
+        };
       case "top":
-        return {
-          leftEdge: glyphs.topLeftCorner,
-          rightEdge: glyphs.topRightCorner,
-          separator: glyphs.topSeparator,
-        };
       case "bottom":
-        return {
-          leftEdge: glyphs.bottomLeftCorner,
-          rightEdge: glyphs.bottomRightCorner,
-          separator: glyphs.bottomSeparator,
-        };
       case "betweenRows":
         return {
-          leftEdge: glyphs.leftSeparator,
-          rightEdge: glyphs.rightSeparator,
-          separator: glyphs.middleSeparator,
+          horizontalLine: glyphs.horizontalLine,
         };
       default:
-        return { verticalLine: glyphs.verticalLine };
+        throw new Error("Invalid border type");
     }
   }
 
   createHorizontalBorder(type: HorizontalBorderType): CellType[] {
-    const { sides, glyphs } = this._options.borders as CustomBorders;
-    let horizontalLine = glyphs.horizontalLine;
-    const { leftEdge, rightEdge, separator } =
-      this.getGlyphsForBorderType(type);
+    const { horizontalLine } = this.getGlyphsForBorderType(type);
 
-    let borderRow: CellType[] = [];
-
-    this._colWidths.forEach((colWidth, idx) => {
-      // Border segment is the same length as the column
-      const baseBorderCell = new Cell(
-        type,
-        horizontalLine.repeat(colWidth),
-        colWidth
-      );
-
-      // If there are borders between columns add the separator
-      if (idx === 0) {
-        // Far left column
-        if (sides.left) {
-          const leftEdgeCell = new Cell(type, leftEdge, 1);
-          borderRow.push(leftEdgeCell, baseBorderCell);
-        } else borderRow.push(baseBorderCell);
-        if (sides.betweenColumns) {
-          const separatorCell = new Cell(type, separator, 1);
-          borderRow.push(separatorCell);
-        }
-      } else if (idx === this._colWidths.length - 1) {
-        // Far right column
-        if (sides.right) {
-          const rightEdgeCell = new Cell(type, rightEdge, 1);
-          borderRow.push(baseBorderCell, rightEdgeCell);
-        } else borderRow.push(baseBorderCell);
-      } else {
-        // Middle column
-        borderRow.push(baseBorderCell);
-        if (sides.betweenColumns) {
-          const separatorCell = new Cell(type, separator, 1);
-          borderRow.push(separatorCell);
-        }
-      }
+    return this._colWidths.map((colWidth) => {
+      return new Cell(type, horizontalLine.repeat(colWidth), colWidth);
     });
-
-    return borderRow;
   }
 
   createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[] {
-    const { sides } = this._options.borders as CustomBorders;
-    const { verticalLine } = this.getGlyphsForBorderType(type);
-    const verticalLineCell: CellType = new Cell(type, verticalLine, 1);
+    const { verticalLine, topEdge, bottomEdge, separator } =
+      this.getGlyphsForBorderType(type);
 
-    if (type === "left") return [verticalLineCell, ...row];
-    else if (type === "right") return [...row, verticalLineCell];
-    else {
+    if (type === "left" || type === "right") {
+      if (row[0].type === "top") {
+        const topEdgeCell: CellType = new Cell(type, topEdge, 1);
+        const newRow =
+          type === "left" ? [topEdgeCell, ...row] : [...row, topEdgeCell];
+        return newRow;
+      } else if (row[0].type === "bottom") {
+        const bottomEdgeCell: CellType = new Cell(type, bottomEdge, 1);
+        const newRow =
+          type === "left" ? [bottomEdgeCell, ...row] : [...row, bottomEdgeCell];
+        return newRow;
+      } else if (row[0].type === "betweenRows") {
+        const separatorCell: CellType = new Cell(type, separator, 1);
+        const newRow =
+          type === "left" ? [separatorCell, ...row] : [...row, separatorCell];
+        return newRow;
+      } else {
+        const verticalLineCell: CellType = new Cell(type, verticalLine, 1);
+        const newRow =
+          type === "left"
+            ? [verticalLineCell, ...row]
+            : [...row, verticalLineCell];
+        return newRow;
+      }
+    } else {
       // border === "betweenColumns"
       const newRow: CellType[] = [];
       row.map((cell, colIdx) => {
-        const isFirstCol = colIdx === 0;
         const isLastCol = colIdx === row.length - 1;
-        // If the cell is the first or last column, is a border cell, or is the last cell in the row
-        // then push the cell to the new row with no vertical line
-        if (
-          (isFirstCol && sides.left) ||
-          (isLastCol && sides.right) ||
-          this.isBorderType(cell.type) ||
-          colIdx === row.length - 2
-        ) {
+        if (isLastCol) {
           return newRow.push(cell);
+        } else if (this.isAnyBorder(cell.type)) {
+          if (cell.type === "top") {
+            const topEdgeCell: CellType = new Cell("top", topEdge, 1);
+            return newRow.push(cell, topEdgeCell);
+          } else if (cell.type === "bottom") {
+            const bottomEdgeCell: CellType = new Cell("bottom", bottomEdge, 1);
+            return newRow.push(cell, bottomEdgeCell);
+          } else {
+            // Between rows
+            const separatorCell: CellType = new Cell(
+              "betweenRows",
+              separator,
+              1
+            );
+            return newRow.push(cell, separatorCell);
+          }
+        } else {
+          // between columns
+          const verticalLineCell: CellType = new Cell(type, verticalLine, 1);
+          return newRow.push(cell, verticalLineCell);
         }
-        // Otherwise push the cell to the new row with a vertical line
-        const newVerticalLineCell: CellType = new Cell(type, verticalLine, 1);
-        return newRow.push(cell, newVerticalLineCell);
       });
       return newRow;
     }
