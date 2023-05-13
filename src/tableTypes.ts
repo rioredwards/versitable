@@ -1,53 +1,62 @@
+import { Chalk } from "chalk";
 export interface VersitableType {
-  _table: string[][];
+  _table: CellType[][];
   _options: TableOptions;
-  _cellLengths: number[][];
   _colWidths: number[];
-  _overFlowRowIdxs: SignificantIndicesType;
-  _borderRowIdxs: SignificantIndicesType;
-  _borderColumnsIdxs: SignificantIndicesType;
 
   constructor: Function;
 
   // Mutations to formattedTable
-  limitRows(): void;
-  limitCols(): void;
+  limitInputRows(inputTable: string[][]): string[][];
+  limitInputCols(inputTable: string[][]): string[][];
+  stringsToCells(table: string[][]): CellType[][];
   splitCells(): void;
   padCells(): void;
   addBorders(): void;
+  addColors(): void;
 
   // Calculations for table properties
-  calcCellLengths(): number[][];
   calcColWidths(): number[];
 
   // Helper methods
+  getRowType(rowIdx: number): CellTypes;
+  createStyledCell(cellString: string, cellStyle: CellStyle): string;
   findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
   insertHorizontalBorder(type: HorizontalBorderType): void;
   insertVerticalBorder(type: VerticalBorderType): void;
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
+  populateColorsOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
-  createNewInsertRow(): string[];
+  createNewInsertRow(type: CellTypes): CellType[];
   getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
   getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
-  createHorizontalBorder(type: HorizontalBorderType): string[];
-  createVerticalBorder(row: string[], border: VerticalBorderType): string[];
+  createHorizontalBorder(type: HorizontalBorderType): CellType[];
+  createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[];
 
   // Validation methods
   validateTable(table: string[][]): void;
   validateOptions(options: PartialTableOptions): void;
 }
 
-export interface SignificantIndicesType {
-  _indices: number[];
-
-  constructor: Function;
+export interface CellType {
+  type: CellTypes;
+  content: string;
   length: number;
-  indices: number[];
-  addIndex: (idx: number) => void;
-  addIndices: (idx: number[]) => void;
-  shiftIndices(idx: number, shift: number): void;
 }
+
+export type CellTypes = "primary" | "overflow" | AllBordersType;
+
+export const cellTypesArr: CellTypes[] = [
+  "primary",
+  "overflow",
+  "top",
+  "bottom",
+  "left",
+  "right",
+  "betweenColumns",
+  "betweenRows",
+];
 
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
@@ -69,21 +78,35 @@ export type Colors = Partial<CustomColors> | boolean;
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
+export type CustomColorsTarget =
+  | "alternateRows"
+  | "borderColor"
+  | "targetCells";
+
 export interface CustomColors {
-  borderColor: string;
-  alternateRows: string[];
+  borderColor: PartialCellStyle;
+  alternateRows: PartialCellStyle[];
   targetCells: TargetCellsColors[];
 }
 
-interface TargetCellsColorsBase {
-  style: string;
-  fgColor: string;
-  bgColor: string;
+export interface CellStyle {
+  style?: string;
+  fgColor?: string;
+  bgColor?: string;
 }
 
+// must have either fgColor or bgColor specified, but not necessarily both
+export type PartialCellStyle = CellStyle &
+  (
+    | { fgColor: string; bgColor?: string }
+    | { fgColor?: string; bgColor: string }
+  );
+
 // must have either row or column specified, but not necessarily both
-export type TargetCellsColors = TargetCellsColorsBase &
+export type TargetCellsColors = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
+
+export type AllBordersType = HorizontalBorderType | VerticalBorderType;
 
 export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
 
@@ -130,3 +153,57 @@ export interface BorderGlyphs {
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
+
+export const chalkFgColors = [
+  "black",
+  "red",
+  "green",
+  "yellow",
+  "blue",
+  "magenta",
+  "cyan",
+  "white",
+  "gray",
+  "grey",
+  "blackBright",
+  "redBright",
+  "greenBright",
+  "yellowBright",
+  "blueBright",
+  "magentaBright",
+  "cyanBright",
+  "whiteBright",
+];
+
+export const chalkBgColors = [
+  "bgBlack",
+  "bgRed",
+  "bgGreen",
+  "bgYellow",
+  "bgBlue",
+  "bgMagenta",
+  "bgCyan",
+  "bgWhite",
+  "bgGray",
+  "bgGrey",
+  "bgBlackBright",
+  "bgRedBright",
+  "bgGreenBright",
+  "bgYellowBright",
+  "bgBlueBright",
+  "bgMagentaBright",
+  "bgCyanBright",
+  "bgWhiteBright",
+];
+
+export const chalkModifiers = [
+  "reset",
+  "bold",
+  "dim",
+  "italic",
+  "underline",
+  "inverse",
+  "hidden",
+  "strikethrough",
+  "visible",
+];

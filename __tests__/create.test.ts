@@ -14,11 +14,6 @@ const {
   topRightCorner,
   bottomLeftCorner,
   bottomRightCorner,
-  topSeparator,
-  bottomSeparator,
-  middleSeparator,
-  rightSeparator,
-  leftSeparator,
 } = (TABLE_DEFAULTS.borders as CustomBorders).glyphs;
 
 describe("Versitable.make", () => {
@@ -82,6 +77,7 @@ describe("Versitable.make", () => {
       borders: false,
       maxColWidths: 7,
       cellPadding: 0,
+      colors: false,
     });
     expect(myVersitable[0][0].length).toBeLessThanOrEqual(7);
   });
@@ -90,6 +86,7 @@ describe("Versitable.make", () => {
     const myVersitable = Versitable.make(validTableData, {
       ...TABLE_DEFAULTS,
       borders: true,
+      colors: false,
     });
 
     expect(myVersitable[0][0][0]).toBe(topLeftCorner);
@@ -142,6 +139,7 @@ describe("Versitable.make", () => {
           betweenRows: true,
         },
       },
+      colors: false,
     });
 
     let borderRowCount = 0;

@@ -33,15 +33,12 @@
     "url": "https://github.com/rioredwards/versitable/issues"
   },
   "dependencies": {
-    "chalk": "^4.0.0",
-    "chalk-pipe": "^4.0.0"
+    "chalk": "^4.0.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.21.5",
     "@babel/preset-typescript": "^7.21.5",
     "@faker-js/faker": "^7.6.0",
-    "@types/chalk-pipe": "^2.0.1",
-    "@types/inquirer": "^9.0.3",
     "@types/jest": "^29.5.1",
     "@types/node": "^18.15.11",
     "error-affirmations": "^1.2.7",
