@@ -16,7 +16,7 @@ function main() {
   });
 
   const alternateRows1 = [
-    { fgColor: "#e0e0e0", bgColor: "#31715d" },
+    { fgColor: "#e0e0e0", bgColor: "#31715d", style: "underline" },
     { fgColor: "#e0e0e0", bgColor: "#275e6f" },
     { fgColor: "#e0e0e0", bgColor: "#7c4f44" },
   ];

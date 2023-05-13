@@ -16,6 +16,7 @@ import {
   CustomColorsTarget,
   cellTypesArr,
   AllBordersType,
+  PartialCellStyle,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -75,10 +76,11 @@ export class Versitable implements VersitableType {
 
     const { targetCells, alternateRows, borderColor } = this._options
       .colors as CustomColors;
-    let savedAvgColor: any;
+    let savedAvgBGColor: any;
 
     if (alternateRows) {
       // Iterate over rows, cycling through alternateRows colors
+      const alternating = alternateRows.length > 1;
       let alternateRowIdx = 0;
       this._table.forEach((row, rowIdx) => {
         const rowType = this.getRowType(rowIdx);
@@ -91,29 +93,35 @@ export class Versitable implements VersitableType {
             rowIdx
           );
           if (!cellNeedsColor) return;
-
+          // Cycle through alternateRows colors
           let color = alternateRows[alternateRowIdx % alternateRows.length];
-          // If cell is a betweenRow border cell, calculate avg color from adjacent rows
-          if (this.needToGetAvgColor(rowType, rowIdx)) {
+
+          // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
+          if (this.needToGetAvgColor(color, rowType, alternateRowIdx)) {
             // Cell is a betweenRows border
             const aboveCellBgColor = color.bgColor;
-            const belowCellBgColor =
-              alternateRows[(alternateRowIdx + 1) % alternateRows.length]
-                .bgColor;
+            const nextRowColor =
+              alternateRows[(alternateRowIdx + 1) % alternateRows.length];
+            const belowCellBgColor = nextRowColor.bgColor;
             const avgColor = ColorHelper.calcAvgColor(
               aboveCellBgColor!,
               belowCellBgColor!
             );
+            // Add avgColor as bgColor for this cell
             color = { ...borderColor, bgColor: avgColor };
-            if (!borderColor.bgColor) savedAvgColor ??= avgColor;
-          } else if (
-            !this.isAnyBorder(rowType) &&
-            cell.type === "betweenColumns"
-          ) {
+            // Conditionally save avgColor for use in outer border cells
+            if (!borderColor.bgColor) savedAvgBGColor ??= avgColor;
+          } else if (cell.type === "betweenColumns") {
             // Cell is a betweenColumns border
-            color = { ...color, fgColor: borderColor.fgColor! };
+            const bgColor = color.bgColor;
+            if (borderColor) {
+              color = { ...borderColor, bgColor: bgColor } as PartialCellStyle;
+            }
+          } else {
+            // Cell is overflow or primary, so use color as-is
           }
 
+          // Color is determined, so apply it to the cell
           const styledString = this.createStyledCell(cell.content, color);
           cell.content = styledString;
         });
@@ -122,7 +130,7 @@ export class Versitable implements VersitableType {
           (this._options.borders as CustomBorders).sides.top !== undefined;
 
         if (
-          alternateRows.length > 1 &&
+          alternating &&
           rowIdx < this._table.length - 1 &&
           this.getRowType(rowIdx + 1) === "primary"
         ) {
@@ -136,9 +144,9 @@ export class Versitable implements VersitableType {
       this._table.forEach((row) => {
         row.forEach((cell) => {
           if (this.isOuterBorder(cell.type)) {
-            // If border bgColor is not set, use savedAvgColor
+            // If border bgColor is not set, use savedAvgBGColor
             const bgColor =
-              savedAvgColor ??
+              savedAvgBGColor ??
               (this._options.colors as CustomColors).borderColor.bgColor;
             const color = { ...borderColor, bgColor };
             const styledString = this.createStyledCell(cell.content, color);
@@ -149,14 +157,15 @@ export class Versitable implements VersitableType {
     }
   }
 
-  needToGetAvgColor(rowType: CellTypes, rowIdx: number) {
+  needToGetAvgColor(
+    color: PartialCellStyle,
+    rowType: CellTypes,
+    alternateRowIdx: number
+  ) {
     const { alternateRows } = this._options.colors as CustomColors;
-    if (
-      this.isAnyBorder(rowType) &&
-      alternateRows.length > 1 &&
-      rowIdx > 0 &&
-      rowIdx < this._table.length - 1
-    ) {
+    const nextColor =
+      alternateRows[(alternateRowIdx + 1) % alternateRows.length];
+    if (rowType === "betweenRows" && color.bgColor && nextColor.bgColor) {
       return true;
     }
     return false;

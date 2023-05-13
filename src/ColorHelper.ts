@@ -63,19 +63,19 @@ export class ColorHelper {
   ): string {
     let formattedFgColor = fgColor ? this.convertToRGBString(fgColor) : "";
     let formattedBgColor = bgColor ? this.convertToRGBString(bgColor) : "";
-    let formattedModifier = "";
+    let formattedModifier = modifier ? modifier : "";
 
+    if (fgColor) {
+      // Add dot separator if modifier is also present
+      if (formattedModifier) formattedFgColor = `.${formattedFgColor}`;
+    }
     if (bgColor) {
       // rgb(xxx, xxx, xxx) -> bgRgb(xxx,xxx,xxx)
       formattedBgColor = `bgR${formattedBgColor.substring(1)}`;
       // Add dot separator if fgColor is also present
       if (formattedFgColor) formattedBgColor = `.${formattedBgColor}`;
     }
-    if (modifier) {
-      // Add dot separator if fgColor is also present
-      if (formattedFgColor || formattedModifier)
-        formattedModifier = `.${formattedModifier}`;
-    }
-    return chalk`{${formattedFgColor}${formattedBgColor}${formattedModifier} ${text}}`;
+
+    return chalk`{${formattedModifier}${formattedFgColor}${formattedBgColor} ${text}}`;
   }
 }
