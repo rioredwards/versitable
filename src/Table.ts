@@ -78,13 +78,9 @@ export class Versitable implements VersitableType {
 
     if (alternateRows) {
       // Iterate over rows, cycling through alternateRows colors
-      const needToAlternateRows = alternateRows.length > 1;
       let alternateRowIdx = 0;
       this._table.forEach((row, rowIdx) => {
         const rowType = this.getRowType(rowIdx);
-        if (needToAlternateRows && rowType === "primary") {
-          alternateRowIdx++;
-        }
 
         row.forEach((cell, colIdx) => {
           const cellNeedsColor = this.checkCellNeedsColor(
@@ -98,26 +94,35 @@ export class Versitable implements VersitableType {
           let color = alternateRows[alternateRowIdx % alternateRows.length];
           // If cell is a betweenRow border cell, calculate avg color from adjacent rows
           if (this.needToGetAvgColor(rowType, rowIdx)) {
-            if (savedAvgColor) {
-              color = { ...color, bgColor: savedAvgColor };
-            } else {
-              // Cell is a betweenCols border
-              const aboveCellBgColor = color.bgColor;
-              const belowCellBgColor =
-                alternateRows[(alternateRowIdx + 1) % alternateRows.length]
-                  .bgColor;
-              const avgColor = ColorHelper.calcAvgColor(
-                aboveCellBgColor!,
-                belowCellBgColor!
-              );
-              savedAvgColor = avgColor;
-              color = { ...color, bgColor: avgColor };
-            }
+            // Cell is a betweenCols border
+            const aboveCellBgColor = color.bgColor;
+            const belowCellBgColor =
+              alternateRows[(alternateRowIdx + 1) % alternateRows.length]
+                .bgColor;
+            const avgColor = ColorHelper.calcAvgColor(
+              aboveCellBgColor!,
+              belowCellBgColor!
+            );
+            color = { ...color, bgColor: avgColor };
+            savedAvgColor = avgColor;
           }
 
           const styledString = this.createStyledCell(cell.content, color);
           cell.content = styledString;
         });
+
+        const topRowExists =
+          (this._options.borders as CustomBorders).sides.top !== undefined;
+
+        if (
+          alternateRows.length > 1 &&
+          rowIdx < this._table.length - 1 &&
+          this.getRowType(rowIdx + 1) === "primary"
+        ) {
+          if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
+            alternateRowIdx++;
+          }
+        }
       });
     }
     if (borderColor) {
