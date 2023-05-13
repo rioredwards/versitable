@@ -228,8 +228,8 @@ export const validTableData = [
   [
     "81bc784f-60ba-4404-88c0-f5468546b683",
     "https://cloudflare-ipfs.com/ipfs/Qmd3W5DuhgHirLHGVixi6V76LhCkZUz6pnFt5AJBiyvHye/avatar/656.jpg",
-    "🚰",
-    "🥊🔮🐶",
+    "",
+    "",
     "female",
     "Michele",
     "Maggio",
