@@ -94,7 +94,7 @@ export class Versitable implements VersitableType {
           let color = alternateRows[alternateRowIdx % alternateRows.length];
           // If cell is a betweenRow border cell, calculate avg color from adjacent rows
           if (this.needToGetAvgColor(rowType, rowIdx)) {
-            // Cell is a betweenCols border
+            // Cell is a betweenRows border
             const aboveCellBgColor = color.bgColor;
             const belowCellBgColor =
               alternateRows[(alternateRowIdx + 1) % alternateRows.length]
@@ -103,8 +103,14 @@ export class Versitable implements VersitableType {
               aboveCellBgColor!,
               belowCellBgColor!
             );
-            color = { ...color, bgColor: avgColor };
-            savedAvgColor = avgColor;
+            color = { ...borderColor, bgColor: avgColor };
+            savedAvgColor ??= avgColor;
+          } else if (
+            !this.isBorderType(rowType) &&
+            cell.type === "betweenColumns"
+          ) {
+            // Cell is a betweenColumns border
+            color = { ...color, fgColor: borderColor.fgColor! };
           }
 
           const styledString = this.createStyledCell(cell.content, color);
@@ -129,6 +135,7 @@ export class Versitable implements VersitableType {
       this._table.forEach((row) => {
         row.forEach((cell) => {
           if (this.isBorderType(cell.type)) {
+            const bgColor = cell.type === "betweenRows" ? savedAvgColor : null;
             const color = { ...borderColor, bgColor: savedAvgColor };
             const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
@@ -156,35 +163,6 @@ export class Versitable implements VersitableType {
     return false;
   }
 
-  // getCorrectCellColor(
-  //   cell: Cell,
-  //   colIdx: number,
-  //   rowIdx: number
-  // ): CustomColors {
-  //   const { targetCells, alternateRows, borderColor } = this._options
-  //     .colors as CustomColors;
-
-  //   if (alternateRows) {
-  //     const rowType = this.getRowType(rowIdx);
-  //     if (rowType === "primary") {
-  //       const rowColor = alternateRows[rowIdx % alternateRows.length];
-  //       return rowColor;
-  //     }
-  //   }
-  //   if (borderColor) {
-  //     if (cell.type === "border") return borderColor;
-  //   }
-  //   return {};
-  // }
-
-  // alternateRowColor(
-  //   lastIdx: number,
-  //   alternateRows: CustomColors["alternateRows"]
-  // ): CustomColors["alternateRows"] {
-  //   const rowColor = alternateRows[lastIdx % alternateRows.length];
-  //   return rowColor;
-  // }
-
   getRowType(rowIdx: number): CellTypes {
     const leftBorderExists =
       (this._options.borders as CustomBorders).sides.left !== undefined;
@@ -200,24 +178,25 @@ export class Versitable implements VersitableType {
     colIdx: number,
     rowIdx: number
   ) {
+    const leftBorderExists =
+      (this._options.borders as CustomBorders).sides.left !== undefined;
+    const rightBorderExists =
+      (this._options.borders as CustomBorders).sides.right !== undefined;
     if (target === "alternateRows") {
-      if (!this.isBorderType(cell.type)) return true;
-      else if (
-        colIdx > 0 &&
-        colIdx < this._table[rowIdx].length - 1 &&
-        this.isBorderType(this._table[rowIdx][colIdx - 1].type)
+      if (
+        cell.type !== "top" &&
+        cell.type !== "bottom" &&
+        cell.type !== "left" &&
+        cell.type !== "right"
       ) {
-        // Cell is a betweenColumns border
+        if (
+          (leftBorderExists && colIdx === 0) ||
+          (rightBorderExists && colIdx === this._table[0].length - 1)
+        ) {
+          return false;
+        }
         return true;
-      } else if (
-        colIdx > 0 &&
-        colIdx < this._table[rowIdx].length - 1 &&
-        rowIdx > 0 &&
-        rowIdx < this._table.length - 1
-      ) {
-        return true;
-        // Cell is a betweenRows border
-      } else return false;
+      }
     }
   }
 

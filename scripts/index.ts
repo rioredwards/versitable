@@ -15,10 +15,10 @@ function main() {
     return [hotkey.app, hotkey.hotkey, hotkey.description];
   });
   const updatedOptions: PartialTableOptions = {
-    maxRows: 7,
+    maxRows: 9,
     maxColumns: 8,
     maxColWidths: [20, 30, 10],
-    maxRowHeight: 3,
+    maxRowHeight: 4,
     cellPadding: 2,
     borders: {
       sides: {
@@ -29,14 +29,26 @@ function main() {
         left: true,
         right: true,
       },
+      glyphs: {
+        horizontalLine: "━",
+        verticalLine: "┃",
+        topLeftCorner: "┏",
+        topRightCorner: "┓",
+        bottomLeftCorner: "┗",
+        bottomRightCorner: "┛",
+        topSeparator: "┳",
+        bottomSeparator: "┻",
+        middleSeparator: "╋",
+        rightSeparator: "┫",
+        leftSeparator: "┣",
+      },
     },
     colors: {
-      borderColor: { fgColor: "#a7a7a7" },
+      borderColor: { fgColor: "#aaaaaa" },
       alternateRows: [
-        { fgColor: "#e0e0e0", bgColor: "#795335" },
-        { fgColor: "#e0e0e0", bgColor: "#357079" },
-        { fgColor: "#e0e0e0", bgColor: "#2c4c65" },
-        { fgColor: "#e0e0e0", bgColor: "#384b6b" },
+        { fgColor: "#e0e0e0", bgColor: "#31715d" },
+        { fgColor: "#e0e0e0", bgColor: "#275e6f" },
+        { fgColor: "#e0e0e0", bgColor: "#704534" },
       ],
     },
   };
@@ -53,15 +65,6 @@ function main() {
   console.log("\n\n\n\n\n\n\n\n");
   const myVersitable = Versitable.make(validTableData, updatedOptions);
   myVersitable.print();
-  // const color1 = "rgb(255, 225, 0)";
-  // const color2 = "#ff3c3c";
-  // const averageColor = ColorHelper.calcAvgColor(color1, color2);
-  // console.log("color1: ", ColorHelper.createStyledString(color1, color1));
-  // console.log("color2: ", ColorHelper.createStyledString(color2, color2));
-  // console.log(
-  //   "averageColor: ",
-  //   ColorHelper.createStyledString(averageColor, averageColor)
-  // );
 }
 
 main();
