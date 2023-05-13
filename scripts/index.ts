@@ -33,8 +33,10 @@ function main() {
     colors: {
       borderColor: { fgColor: "#a7a7a7" },
       alternateRows: [
+        { fgColor: "#e0e0e0", bgColor: "#795335" },
         { fgColor: "#e0e0e0", bgColor: "#357079" },
         { fgColor: "#e0e0e0", bgColor: "#2c4c65" },
+        { fgColor: "#e0e0e0", bgColor: "#384b6b" },
       ],
     },
   };
