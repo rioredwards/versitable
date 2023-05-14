@@ -16,47 +16,49 @@ function main() {
   });
 
   const alternateRows1 = [
-    { fgColor: "#e0e0e0", style: "italic" },
-    { fgColor: "#e0e0e0", bgColor: "#275e6f" },
+    { fgColor: "#e0e0e0", bgColor: "#447c65" },
     { fgColor: "#e0e0e0", bgColor: "#445c7c" },
-    { fgColor: "#e0e0e0" },
+    { fgColor: "#e0e0e0", bgColor: "#7c5a44" },
+    { fgColor: "#e0e0e0", bgColor: "#44737c" },
   ];
   const alternateRows2 = [
     { fgColor: "#1f1f1f", bgColor: "#d6d6d6" },
-    { fgColor: "#1f1f1f", bgColor: "#cbcbcb" },
+    // { fgColor: "#1f1f1f", bgColor: "#cbcbcb" },
     { fgColor: "#1f1f1f", bgColor: "#c0c0c0" },
-    { fgColor: "#1f1f1f", bgColor: "#b4b4b4" },
-    { fgColor: "#1f1f1f", bgColor: "#adadad" },
-    { fgColor: "#1f1f1f", bgColor: "#a4a4a4" },
-    { fgColor: "#1f1f1f", bgColor: "#9a9a9a" },
-    { fgColor: "#1f1f1f", bgColor: "#929292" },
-    { fgColor: "#1f1f1f", bgColor: "#878787" },
-    { fgColor: "#1f1f1f", bgColor: "#7e7e7e" },
-    { fgColor: "#1f1f1f", bgColor: "#757575" },
+    // { fgColor: "#1f1f1f", bgColor: "#b4b4b4" },
+    // { fgColor: "#1f1f1f", bgColor: "#adadad" },
+    // { fgColor: "#1f1f1f", bgColor: "#a4a4a4" },
+    // { fgColor: "#1f1f1f", bgColor: "#9a9a9a" },
+    // { fgColor: "#1f1f1f", bgColor: "#929292" },
+    // { fgColor: "#1f1f1f", bgColor: "#878787" },
+    // { fgColor: "#1f1f1f", bgColor: "#7e7e7e" },
+    // { fgColor: "#1f1f1f", bgColor: "#757575" },
   ];
   const alternateRows3 = [
-    { fgColor: "#e2e2e2", bgColor: "#4b4b4b" },
-    { fgColor: "#e2e2e2", bgColor: "#434343" },
-    { fgColor: "#e2e2e2", bgColor: "#3c3c3c" },
-    { fgColor: "#e2e2e2", bgColor: "#373737" },
-    { fgColor: "#e2e2e2", bgColor: "#323232" },
-    { fgColor: "#e2e2e2", bgColor: "#2e2e2e" },
+    { fgColor: "#cfcfcf", bgColor: "#4b4b4b" },
+    // { fgColor: "#cfcfcf", bgColor: "#434343" },
+    // { fgColor: "#cfcfcf", bgColor: "#3c3c3c" },
+    // { fgColor: "#cfcfcf", bgColor: "#373737" },
+    { fgColor: "#cfcfcf", bgColor: "#323232" },
+    // { fgColor: "#cfcfcf", bgColor: "#2e2e2e" },
+    // { fgColor: "#cfcfcf", bgColor: "#292929" },
+    // { fgColor: "#cfcfcf", bgColor: "#252525" },
   ];
 
   const updatedOptions: PartialTableOptions = {
-    maxRows: 6,
-    maxColumns: 6,
-    maxColWidths: [20, 30, 10],
+    maxRows: 8,
+    maxColumns: 8,
+    maxColWidths: [25, 34, 10],
     maxRowHeight: 3,
     cellPadding: 2,
     borders: {
       sides: {
         betweenRows: true,
-        betweenColumns: false,
+        betweenColumns: true,
         top: true,
         bottom: true,
         left: true,
-        right: true,
+        right: false,
       },
       glyphs: {
         horizontalLine: "━",
@@ -73,8 +75,8 @@ function main() {
       },
     },
     colors: {
-      borderColor: { fgColor: "#909090" },
-      alternateRows: alternateRows1,
+      borderColor: { fgColor: "#898989" },
+      alternateRows: alternateRows3,
     },
   };
 

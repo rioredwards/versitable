@@ -113,7 +113,7 @@ export class Versitable implements VersitableType {
           }
 
           // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
-          if (this.needToGetAvgColor(savedRowColor, rowType, alternateRowIdx)) {
+          if (this.needToGetAvgColor(avgRowColor, rowType, alternateRowIdx)) {
             // Cell is a betweenRows border
             const aboveCellBgColor = cellColor.bgColor;
             const nextRowColor =
@@ -123,6 +123,13 @@ export class Versitable implements VersitableType {
               aboveCellBgColor!,
               belowCellBgColor!
             );
+
+            if (borderColor.bgColor) {
+              avgRowColor = ColorHelper.calcAvgColor(
+                avgRowColor!,
+                borderColor.bgColor!
+              );
+            }
 
             // Conditionally save avgColor for use in outer border cells
             if (!borderColor.bgColor) savedAvgBGTableColor ??= avgRowColor;
@@ -141,7 +148,7 @@ export class Versitable implements VersitableType {
           }
 
           // Color is determined, so apply it to the cell and save it for the next cells
-          savedRowColor = cellColor;
+          savedRowColor ??= cellColor;
           const styledString = this.createStyledCell(cell.content, cellColor);
           cell.content = styledString;
         });
@@ -175,11 +182,11 @@ export class Versitable implements VersitableType {
   }
 
   needToGetAvgColor(
-    savedRowColor: PartialCellStyle | undefined,
+    avgRowColor: string | undefined,
     rowType: CellTypes,
     alternateRowIdx: number
   ) {
-    if (savedRowColor !== undefined) return false;
+    if (avgRowColor !== undefined) return false;
     const { alternateRows } = this.colors;
     const currColor = alternateRows[alternateRowIdx % alternateRows.length];
     const nextColor =
