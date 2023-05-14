@@ -16,9 +16,10 @@ function main() {
   });
 
   const alternateRows1 = [
-    { fgColor: "#e0e0e0", bgColor: "#31715d", style: "underline" },
+    { fgColor: "#e0e0e0", style: "italic" },
     { fgColor: "#e0e0e0", bgColor: "#275e6f" },
-    { fgColor: "#e0e0e0", bgColor: "#7c4f44" },
+    { fgColor: "#e0e0e0" },
+    { fgColor: "#e0e0e0", bgColor: "#445c7c" },
   ];
   const alternateRows2 = [
     { fgColor: "#1f1f1f", bgColor: "#d6d6d6" },
@@ -33,6 +34,14 @@ function main() {
     { fgColor: "#1f1f1f", bgColor: "#7e7e7e" },
     { fgColor: "#1f1f1f", bgColor: "#757575" },
   ];
+  const alternateRows3 = [
+    { fgColor: "#e2e2e2", bgColor: "#4b4b4b" },
+    { fgColor: "#e2e2e2", bgColor: "#434343" },
+    { fgColor: "#e2e2e2", bgColor: "#3c3c3c" },
+    { fgColor: "#e2e2e2", bgColor: "#373737" },
+    { fgColor: "#e2e2e2", bgColor: "#323232" },
+    { fgColor: "#e2e2e2", bgColor: "#2e2e2e" },
+  ];
 
   const updatedOptions: PartialTableOptions = {
     maxRows: 6,
@@ -43,7 +52,7 @@ function main() {
     borders: {
       sides: {
         betweenRows: true,
-        betweenColumns: true,
+        betweenColumns: false,
         top: true,
         bottom: true,
         left: true,
@@ -64,7 +73,7 @@ function main() {
       },
     },
     colors: {
-      borderColor: { fgColor: "#ff0000" },
+      borderColor: { fgColor: "#909090" },
       alternateRows: alternateRows1,
     },
   };
