@@ -34,3 +34,7 @@ export function insert2DArray(
     targetArray.splice(index + i, 0, arrayToInsert[i]);
   }
 }
+
+export function nullUndefinedOrFalse(val: any) {
+  return val === null || val === undefined || val === false;
+}

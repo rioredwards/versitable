@@ -17,15 +17,13 @@ import {
   cellTypesArr,
   AllBordersType,
   PartialCellStyle,
-  BorderSides,
 } from "./tableTypes";
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
 } from "./tableValidations";
-import { deepMerge } from "./utils";
+import { deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
-import { chalkFgColors } from "./tableTypes";
 import { ColorHelper } from "./ColorHelper";
 
 // This is the return type of the make() function.
@@ -81,7 +79,7 @@ export class Versitable implements VersitableType {
   }
 
   addColors() {
-    if (!this._options.colors) return;
+    if (nullUndefinedOrFalse(this.colors)) return;
 
     const { targetCells, alternateRows, borderColor } = this.colors;
     let savedAvgBGTableColor: string;
@@ -153,7 +151,7 @@ export class Versitable implements VersitableType {
           cell.content = styledString;
         });
 
-        const topRowExists = this.borders.sides.top !== undefined;
+        const topRowExists = this.borderExists("top");
         if (
           alternating &&
           rowIdx < this._table.length - 1 &&
@@ -165,6 +163,7 @@ export class Versitable implements VersitableType {
         }
       });
     }
+
     if (borderColor) {
       this._table.forEach((row) => {
         row.forEach((cell) => {
@@ -212,9 +211,12 @@ export class Versitable implements VersitableType {
     return false;
   }
 
+  borderExists(type: AllBordersType) {
+    return !nullUndefinedOrFalse(this.borders.sides[type]);
+  }
+
   getRowType(rowIdx: number): CellTypes {
-    const leftBorderExists = this.borders.sides.left !== undefined;
-    const definingCell = leftBorderExists
+    const definingCell = this.borderExists("left")
       ? this._table[rowIdx][1]
       : this._table[rowIdx][0];
     return definingCell.type;
@@ -226,13 +228,11 @@ export class Versitable implements VersitableType {
     colIdx: number,
     rowIdx: number
   ) {
-    const leftBorderExists = this.borders.sides.left !== undefined;
-    const rightBorderExists = this.borders.sides.right !== undefined;
     if (target === "alternateRows") {
       if (!this.isOuterBorder(cell.type)) {
         if (
-          (leftBorderExists && colIdx === 0) ||
-          (rightBorderExists && colIdx === this._table[0].length - 1)
+          (this.borderExists("left") && colIdx === 0) ||
+          (this.borderExists("right") && colIdx === this._table[0].length - 1)
         ) {
           return false;
         }
