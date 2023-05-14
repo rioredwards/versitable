@@ -18,8 +18,8 @@ function main() {
   const alternateRows1 = [
     { fgColor: "#e0e0e0", style: "italic" },
     { fgColor: "#e0e0e0", bgColor: "#275e6f" },
-    { fgColor: "#e0e0e0" },
     { fgColor: "#e0e0e0", bgColor: "#445c7c" },
+    { fgColor: "#e0e0e0" },
   ];
   const alternateRows2 = [
     { fgColor: "#1f1f1f", bgColor: "#d6d6d6" },

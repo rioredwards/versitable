@@ -93,6 +93,7 @@ export class Versitable implements VersitableType {
       this._table.forEach((row, rowIdx) => {
         const rowType = this.getRowType(rowIdx);
         let savedRowColor: PartialCellStyle | undefined = undefined;
+        let avgRowColor: string | undefined = undefined;
 
         row.forEach((cell, colIdx) => {
           const cellNeedsColor = this.checkCellNeedsColor(
@@ -112,40 +113,31 @@ export class Versitable implements VersitableType {
           }
 
           // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
-          let avgColor: string | undefined = undefined;
           if (this.needToGetAvgColor(savedRowColor, rowType, alternateRowIdx)) {
             // Cell is a betweenRows border
             const aboveCellBgColor = cellColor.bgColor;
             const nextRowColor =
               alternateRows[(alternateRowIdx + 1) % alternateRows.length];
             const belowCellBgColor = nextRowColor.bgColor;
-            avgColor = ColorHelper.calcAvgColor(
+            avgRowColor = ColorHelper.calcAvgColor(
               aboveCellBgColor!,
               belowCellBgColor!
             );
 
             // Conditionally save avgColor for use in outer border cells
-            if (!borderColor.bgColor) savedAvgBGTableColor ??= avgColor;
+            if (!borderColor.bgColor) savedAvgBGTableColor ??= avgRowColor;
           }
-          if (rowType === "betweenRows") {
-            // If cell is a betweenRow border cell merge with borderColor and avgColor
+          if (this.isInnerBorder(cell.type)) {
             if (borderColor) {
               cellColor = {
                 ...borderColor,
-                bgColor: avgColor,
               } as PartialCellStyle;
             }
-          } else if (rowType === "betweenColumns") {
-            // Cell is a betweenColumns border. Use bgColor from row color
-            const bgColor = cellColor.bgColor;
-            if (borderColor) {
-              cellColor = {
-                ...borderColor,
-                bgColor: bgColor,
-              } as PartialCellStyle;
-            }
-          } else {
-            // Cell is overflow or primary, so use color as-is
+            // Add different bgColor based on if cell is betweenRows or betweenCols
+            cellColor.bgColor =
+              cell.type === "betweenRows"
+                ? avgRowColor
+                : savedRowColor!.bgColor;
           }
 
           // Color is determined, so apply it to the cell and save it for the next cells
