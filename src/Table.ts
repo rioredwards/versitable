@@ -82,7 +82,6 @@ export class Versitable implements VersitableType {
     if (nullUndefinedOrFalse(this.colors)) return;
 
     const { targetCells, alternateRows, borderColor } = this.colors;
-    let savedAvgBGTableColor: string;
 
     if (alternateRows) {
       // Iterate over rows, cycling through alternateRows colors
@@ -128,9 +127,6 @@ export class Versitable implements VersitableType {
                 borderColor.bgColor!
               );
             }
-
-            // Conditionally save avgColor for use in outer border cells
-            if (!borderColor.bgColor) savedAvgBGTableColor ??= avgRowColor;
           }
           if (this.isInnerBorder(cell.type)) {
             if (borderColor) {
@@ -169,9 +165,7 @@ export class Versitable implements VersitableType {
         row.forEach((cell) => {
           if (this.isOuterBorder(cell.type)) {
             // If border bgColor is not set, use savedAvgBGTableColor
-            const bgColor =
-              savedAvgBGTableColor ?? this.colors.borderColor.bgColor;
-            const color = { ...borderColor, bgColor };
+            const color = { ...borderColor };
             const styledString = this.createStyledCell(cell.content, color);
             cell.content = styledString;
           }
