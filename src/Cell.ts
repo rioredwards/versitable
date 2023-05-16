@@ -31,10 +31,10 @@ export class Cell implements CellType {
     let paddedContent: string;
     switch (align) {
       case "left":
-        paddedContent = " ".repeat(padLength) + this.content;
+        paddedContent = this.content + " ".repeat(padLength);
         break;
       case "right":
-        paddedContent = this.content + " ".repeat(padLength);
+        paddedContent = " ".repeat(padLength) + this.content;
         break;
       case "center":
         const leftPadLength = Math.floor(padLength / 2);

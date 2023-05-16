@@ -320,13 +320,7 @@ export class Versitable implements VersitableType {
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
         if (cellPadding > 0) {
-          const padding = " ".repeat(cellPadding);
-          const newCell = new Cell(
-            cell.type,
-            cell.content + padding,
-            cell.length + cellPadding
-          );
-          this._table[rowIdx][colIdx] = newCell;
+          cell.pad(cellPadding, "center");
         }
       });
     });
