@@ -80,7 +80,7 @@ const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
 const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
 function main() {
-  logAllBorderCombos(hotkeysFormattedForTable);
+  // logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.table(
   //   validTableData
@@ -90,8 +90,8 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  // const myVersitable = Versitable.make(validTableData, updatedOptions);
-  // myVersitable.print();
+  const myVersitable = Versitable.make(validTableData, updatedOptions);
+  myVersitable.print();
 }
 
 main();

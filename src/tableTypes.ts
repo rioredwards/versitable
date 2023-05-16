@@ -43,7 +43,13 @@ export interface CellType {
   type: CellTypes;
   content: string;
   length: number;
+  color?: string;
+
+  splitAt(index: number): CellType;
+  pad(padLength: number, align?: Align): void;
 }
+
+export type Align = "left" | "right" | "center";
 
 export type CellTypes = "primary" | "overflow" | AllBordersType;
 
