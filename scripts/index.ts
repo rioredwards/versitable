@@ -41,7 +41,7 @@ const alternateRows3 = [
 const updatedOptions: PartialTableOptions = {
   maxRows: 8,
   maxColumns: 8,
-  maxColWidths: [25, 34, 10],
+  maxColWidths: [20, 20, 10],
   maxRowHeight: 3,
   cellPadding: 2,
   borders: {

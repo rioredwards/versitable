@@ -265,45 +265,56 @@ export class Versitable implements VersitableType {
   }
 
   splitCells(): void {
-    let newTable: CellType[][] = [];
+    const maxRowHeight = this._options.maxRowHeight;
+    // Keep track of original table size, so as not to iterate over inserted rows
+    const ogRowsLength = this._table.length;
+    const ogColsLength = this._table[0].length;
+    let numInsertedRows = 0;
 
-    this._table.forEach((row) => {
-      let insertRows: CellType[][] = [this.createNewInsertRow("primary")];
+    for (let rowIdx = 0; rowIdx < ogRowsLength; rowIdx++) {
+      let insertRows: Cell[][] = [];
+      const rowIdxWithInserts = rowIdx + numInsertedRows;
 
-      row.forEach((cell, colIdx) => {
+      for (let colIdx = 0; colIdx < ogColsLength; colIdx++) {
         const maxColWidth = this._colWidths[colIdx];
+        const cell = this._table[rowIdxWithInserts][colIdx];
 
-        if (cell.length <= maxColWidth) {
-          // Cell is not too long, so just add it
-          insertRows[0][colIdx] = cell;
-        } else {
-          // cell is too long, truncate cell and conditionally insert remainder into next row
-          let sliceIdx = 0; // used with maxColWidth to calculate idx to slice string & used as rowIdx of slice in insertRows
-          while (sliceIdx < this._options.maxRowHeight) {
-            if (cell.content[sliceIdx * maxColWidth] === undefined) break; // Reached end of cell on last slice
-            // Check if new insertRow is needed
-            if (insertRows[sliceIdx] === undefined) {
-              insertRows.push(this.createNewInsertRow("overflow"));
-            }
-
-            const sliceStartIdx = sliceIdx * maxColWidth;
-            const sliceEndIdx = maxColWidth + sliceIdx * maxColWidth;
-            const sliceContent = cell.content.substring(
-              sliceStartIdx,
-              sliceEndIdx
-            );
-            const sliceLength = countCharsWithEmojis(sliceContent);
-            const type = sliceIdx === 0 ? "primary" : "overflow";
-            const insertCell = new Cell(type, sliceContent, sliceLength);
-            // Update insertRows and cellLengths arrays with new cell
-            insertRows[sliceIdx][colIdx] = insertCell;
-            sliceIdx++;
-          }
+        // Cell isn't too long to fit in column, don't alter it
+        if (cell.length <= maxColWidth) continue;
+        if (maxRowHeight === 1) {
+          // Row height is one, so just split cell in place and continue
+          cell.splitAt(maxColWidth);
+          continue;
         }
-      });
-      newTable.push(...insertRows);
-    });
-    this._table = newTable;
+        // Row height is greater than one, so split cell and insert overflow into new rows
+        let sliceNum = 0;
+        let lastSlice: Cell | undefined;
+        while (sliceNum < maxRowHeight - 1) {
+          const targetCell = lastSlice || cell;
+          // If last slice reached end of cell, break out of loop
+          if (targetCell.content[sliceNum * maxColWidth] === undefined) break;
+          // Create new insert row if needed
+          if (insertRows[sliceNum] === undefined) {
+            insertRows.push(this.createNewInsertRow("overflow"));
+            numInsertedRows++;
+          }
+          const insertCell = targetCell.splitAt(maxColWidth);
+          const isLastInsertRow = sliceNum === maxRowHeight - 2;
+          if (insertCell.length > maxColWidth && isLastInsertRow) {
+            insertCell.splitAt(maxColWidth);
+          }
+          // Add new cell to insert row
+          insertRows[sliceNum][colIdx] = insertCell;
+          lastSlice = insertCell;
+          sliceNum++;
+        }
+      }
+      // Add insert rows to table
+      if (insertRows.length > 0) {
+        this._table.splice(rowIdxWithInserts + 1, 0, ...insertRows);
+        insertRows = [];
+      }
+    }
   }
 
   createNewInsertRow(type: CellTypes): CellType[] {
@@ -320,7 +331,7 @@ export class Versitable implements VersitableType {
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
         if (cellPadding > 0) {
-          cell.pad(cellPadding, "center");
+          cell.pad(cellPadding, "left");
         }
       });
     });

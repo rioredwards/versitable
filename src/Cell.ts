@@ -20,11 +20,11 @@ export class Cell implements CellType {
   }
 
   splitAt(index: number): Cell {
-    const overflowContent = this.content.substring(index);
-    const overflowLength = this.length - index;
+    const remainderContent = this.content.substring(index);
+    const remainderLength = this.length - index;
     this.content = this.content.substring(0, index);
     this.length = index;
-    return new Cell("overflow", overflowContent, overflowLength);
+    return new Cell("overflow", remainderContent, remainderLength);
   }
 
   pad(padLength: number, align: Align = "left"): void {
