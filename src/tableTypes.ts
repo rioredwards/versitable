@@ -10,7 +10,7 @@ export interface VersitableType {
   limitInputRows(inputTable: string[][]): string[][];
   limitInputCols(inputTable: string[][]): string[][];
   stringsToCells(table: string[][]): CellType[][];
-  splitCells(): void;
+  splitCellsBetweenRows(): void;
   padCells(): void;
   addBorders(): void;
   addColors(): void;

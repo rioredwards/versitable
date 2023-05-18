@@ -64,7 +64,7 @@ export class Versitable implements VersitableType {
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
     this._table = this.stringsToCells(limitInputColsTable);
     this._colWidths = this.calcColWidths();
-    this.splitCells();
+    this.splitCellsBetweenRows();
     this.padCells();
     this.addBorders();
     this.addColors();
@@ -264,25 +264,24 @@ export class Versitable implements VersitableType {
     return inputTable.map((row) => row.slice(0, actualMaxColumns));
   }
 
-  splitCells(): void {
+  splitCellsBetweenRows(): void {
     const maxRowHeight = this._options.maxRowHeight;
-    // Keep track of original table size, so as not to iterate over inserted rows
-    const ogRowsLength = this._table.length;
-    const ogColsLength = this._table[0].length;
-    let numInsertedRows = 0;
+    const originalRowCount = this._table.length;
+    const originalRowLength = this._table[0].length;
+    let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
 
-    for (let rowIdx = 0; rowIdx < ogRowsLength; rowIdx++) {
+    for (let i = 0; i < originalRowCount; i++) {
       let insertRows: Cell[][] = [];
-      const rowIdxWithInserts = rowIdx + numInsertedRows;
+      const rowIdxWithInserts = i + totalInsertRows;
 
-      for (let colIdx = 0; colIdx < ogColsLength; colIdx++) {
+      for (let colIdx = 0; colIdx < originalRowLength; colIdx++) {
         const maxColWidth = this._colWidths[colIdx];
         const cell = this._table[rowIdxWithInserts][colIdx];
 
-        // Cell isn't too long to fit in column, don't alter it
+        // Cell isn't too long to fit in column, skip over it
         if (cell.length <= maxColWidth) continue;
+        // Row height is one, so just split cell in place and continue
         if (maxRowHeight === 1) {
-          // Row height is one, so just split cell in place and continue
           cell.splitAt(maxColWidth);
           continue;
         }
@@ -296,7 +295,7 @@ export class Versitable implements VersitableType {
           // Create new insert row if needed
           if (insertRows[sliceNum] === undefined) {
             insertRows.push(this.createNewInsertRow("overflow"));
-            numInsertedRows++;
+            totalInsertRows++;
           }
           const insertCell = targetCell.splitAt(maxColWidth);
           const isLastInsertRow = sliceNum === maxRowHeight - 2;
