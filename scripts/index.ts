@@ -90,7 +90,10 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(validTableData, updatedOptions);
+  const myVersitable = Versitable.make(
+    hotkeysFormattedForTable,
+    updatedOptions
+  );
   myVersitable.print();
 }
 

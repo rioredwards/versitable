@@ -1,6 +1,5 @@
-import { Chalk } from "chalk";
 export interface VersitableType {
-  _table: CellType[][];
+  _table: ICell[][];
   _options: TableOptions;
   _colWidths: number[];
 
@@ -9,7 +8,7 @@ export interface VersitableType {
   // Mutations to formattedTable
   limitInputRows(inputTable: string[][]): string[][];
   limitInputCols(inputTable: string[][]): string[][];
-  stringsToCells(table: string[][]): CellType[][];
+  stringsToCells(table: string[][]): ICell[][];
   splitCellsBetweenRows(): void;
   padCells(): void;
   addBorders(): void;
@@ -19,41 +18,65 @@ export interface VersitableType {
   calcColWidths(): number[];
 
   // Helper methods
-  getRowType(rowIdx: number): CellTypes;
+  getRowType(rowIdx: number): CellType;
   createStyledCell(cellString: string, cellStyle: CellStyle): string;
-  findHorizontalBorderInsertIdxs(type: HorizontalBorderType): number[];
-  insertHorizontalBorder(type: HorizontalBorderType): void;
-  insertVerticalBorder(type: VerticalBorderType): void;
+  findHorizontalBorderInsertIdxs(type: HorizontalBorder): number[];
+  insertHorizontalBorder(type: HorizontalBorder): void;
+  insertVerticalBorder(type: VerticalBorder): void;
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
   populateColorsOptWithDefaults(): void;
   findLongestStrLenInCol(): number[];
-  createNewInsertRow(type: CellTypes): CellType[];
-  getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
-  getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
-  createHorizontalBorder(type: HorizontalBorderType): CellType[];
-  createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[];
+  createNewInsertRow(type: CellType): ICell[];
+  getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;
+  getGlyphsForBorderType(type: VerticalBorder): VerticalGlyphs;
+  createHorizontalBorder(type: HorizontalBorder): ICell[];
+  createVerticalBorder(row: ICell[], type: VerticalBorder): ICell[];
 
   // Validation methods
   validateTable(table: string[][]): void;
   validateOptions(options: PartialTableOptions): void;
 }
 
-export interface CellType {
-  type: CellTypes;
+export interface ICell {
+  type: CellType;
   content: string;
   length: number;
   color?: string;
 
-  splitAt(index: number): CellType;
+  splitAt(index: number): ICell;
   pad(padLength: number, align?: Align): void;
+  isBorder(): boolean;
+}
+
+export type RowType =
+  | "primary"
+  | "overflow"
+  | "upperBorder"
+  | "lowerBorder"
+  | "innerBorder";
+
+export interface IRow {
+  cells: ICell[];
+  length: number;
+  type: RowType;
+  borders: Set<AnyBorder>;
+  constructor: Function;
 }
 
 export type Align = "left" | "right" | "center";
 
-export type CellTypes = "primary" | "overflow" | AllBordersType;
+export type CellType = RegularCellContent | AnyBorder;
 
-export const cellTypesArr: CellTypes[] = [
+export type RegularCellContent = "primary" | "overflow";
+
+export type AnyBorder = HorizontalBorder | VerticalBorder;
+
+export type HorizontalBorder = "top" | "bottom" | "betweenRows";
+
+export type VerticalBorder = "left" | "right" | "betweenColumns";
+
+export const cellTypesArr: CellType[] = [
   "primary",
   "overflow",
   "top",
@@ -73,7 +96,7 @@ export interface TableOptions {
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
   header: boolean; // Whether to include a header row (this defaults to the first row of the table)
   colors: Colors; // Colors for borders, alternate rows and targetCells colors
-  borders: Borders; // Border sides and glyphs
+  borders: Borders; // AnyBorder sides and glyphs
 }
 
 export interface PartialTableOptions extends DeepPartial<TableOptions> {}
@@ -111,12 +134,6 @@ export type PartialCellStyle = CellStyle &
 // must have either row or column specified, but not necessarily both
 export type TargetCellsColors = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
-
-export type AllBordersType = HorizontalBorderType | VerticalBorderType;
-
-export type HorizontalBorderType = "top" | "bottom" | "betweenRows";
-
-export type VerticalBorderType = "left" | "right" | "betweenColumns";
 
 export interface BorderSides {
   top: boolean;

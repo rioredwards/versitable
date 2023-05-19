@@ -1,24 +1,25 @@
 import { countCharsWithEmojis } from "./emojis";
-import { Align, CellType, CellTypes } from "./tableTypes";
+import { Align, CellType, ICell } from "./tableTypes";
 
-export class Cell implements CellType {
-  type: CellTypes;
+export class Cell implements ICell {
+  type: CellType;
   content: string;
   length: number;
   color?: string;
 
   constructor(
-    type: CellTypes = "primary",
+    type: CellType = "primary",
     content: string = "",
-    length?: number,
+    length: number = countCharsWithEmojis(content),
     color?: string
   ) {
     this.type = type;
     this.content = content;
-    this.length = length || countCharsWithEmojis(content);
-    this.color = color || undefined;
+    this.length = length;
+    this.color = color;
   }
 
+  // Splits cell into two cells at index. Mutates the cell and returns a new cell with the overflow content.
   splitAt(index: number): Cell {
     const remainderContent = this.content.substring(index);
     const remainderLength = this.length - index;
@@ -48,5 +49,9 @@ export class Cell implements CellType {
     const paddedLength = this.length + padLength;
     this.content = paddedContent;
     this.length = paddedLength;
+  }
+
+  isBorder(): boolean {
+    return this.type !== "primary" && this.type === "overflow";
   }
 }

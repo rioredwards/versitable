@@ -1,22 +1,20 @@
-import { countCharsWithEmojis } from "./emojis";
 import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
   CellType,
-  CellTypes,
   CustomBorders,
   CustomColors,
-  HorizontalBorderType,
+  HorizontalBorder,
   HorizontalGlyphs,
   PartialTableOptions,
   TableOptions,
   VersitableType,
-  VerticalBorderType,
+  VerticalBorder,
   VerticalGlyphs,
   CellStyle,
   CustomColorsTarget,
-  cellTypesArr,
-  AllBordersType,
   PartialCellStyle,
+  AnyBorder,
+  IRow,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -25,6 +23,7 @@ import {
 import { deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
 import { ColorHelper } from "./ColorHelper";
+import { Row } from "./Row";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -46,7 +45,7 @@ export class VersitableArray extends Array<string[]> {
 
 // Main class which does all the work
 export class Versitable implements VersitableType {
-  _table: CellType[][];
+  _rows: Row[];
   _options: TableOptions;
   _colWidths: number[];
 
@@ -62,12 +61,28 @@ export class Versitable implements VersitableType {
     this.populateColorsOptWithDefaults();
     const limitInputRowsTable = this.limitInputRows(inputTable);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
-    this._table = this.stringsToCells(limitInputColsTable);
+    this._rows = this.createRowsFromStrings(limitInputColsTable);
     this._colWidths = this.calcColWidths();
     this.splitCellsBetweenRows();
     this.padCells();
     this.addBorders();
     this.addColors();
+  }
+
+  get numRows(): number {
+    return this._rows.length;
+  }
+
+  get numCols(): number {
+    return this._rows[0].length;
+  }
+
+  get rowByIdx(): (rowIdx: number) => Row {
+    return (rowIdx: number) => this._rows[rowIdx];
+  }
+
+  get colByIdx(): (colIdx: number) => Cell[] {
+    return (colIdx: number) => this._rows.map((row) => row.cells[colIdx]);
   }
 
   get borders(): CustomBorders {
@@ -87,7 +102,7 @@ export class Versitable implements VersitableType {
       // Iterate over rows, cycling through alternateRows colors
       const alternating = alternateRows.length > 1;
       let alternateRowIdx = 0;
-      this._table.forEach((row, rowIdx) => {
+      this._rows.forEach((row, rowIdx) => {
         const rowType = this.getRowType(rowIdx);
         let savedRowColor: PartialCellStyle | undefined = undefined;
         let avgRowColor: string | undefined = undefined;
@@ -150,7 +165,7 @@ export class Versitable implements VersitableType {
         const topRowExists = this.borderExists("top");
         if (
           alternating &&
-          rowIdx < this._table.length - 1 &&
+          rowIdx < this._rows.length - 1 &&
           this.getRowType(rowIdx + 1) === "primary"
         ) {
           if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
@@ -161,7 +176,7 @@ export class Versitable implements VersitableType {
     }
 
     if (borderColor) {
-      this._table.forEach((row) => {
+      this._rows.forEach((row) => {
         row.forEach((cell) => {
           if (this.isOuterBorder(cell.type)) {
             // If border bgColor is not set, use savedAvgBGTableColor
@@ -176,7 +191,7 @@ export class Versitable implements VersitableType {
 
   needToGetAvgColor(
     avgRowColor: string | undefined,
-    rowType: CellTypes,
+    rowType: CellType,
     alternateRowIdx: number
   ) {
     if (avgRowColor !== undefined) return false;
@@ -190,29 +205,29 @@ export class Versitable implements VersitableType {
     return false;
   }
 
-  isAnyBorder(type: CellTypes) {
+  isAnyBorder(type: CellType) {
     if (type !== "primary" && type !== "overflow") return true;
     return false;
   }
 
-  isOuterBorder(type: CellTypes) {
+  isOuterBorder(type: CellType) {
     if (this.isAnyBorder(type) && !this.isInnerBorder(type)) return true;
     return false;
   }
 
-  isInnerBorder(type: CellTypes) {
+  isInnerBorder(type: CellType) {
     if (type === "betweenColumns" || type === "betweenRows") return true;
     return false;
   }
 
-  borderExists(type: AllBordersType) {
+  borderExists(type: AnyBorder) {
     return !nullUndefinedOrFalse(this.borders.sides[type]);
   }
 
-  getRowType(rowIdx: number): CellTypes {
+  getRowType(rowIdx: number): CellType {
     const definingCell = this.borderExists("left")
-      ? this._table[rowIdx][1]
-      : this._table[rowIdx][0];
+      ? this._rows[rowIdx][1]
+      : this._rows[rowIdx][0];
     return definingCell.type;
   }
 
@@ -226,7 +241,7 @@ export class Versitable implements VersitableType {
       if (!this.isOuterBorder(cell.type)) {
         if (
           (this.borderExists("left") && colIdx === 0) ||
-          (this.borderExists("right") && colIdx === this._table[0].length - 1)
+          (this.borderExists("right") && colIdx === this._rows[0].length - 1)
         ) {
           return false;
         }
@@ -266,8 +281,8 @@ export class Versitable implements VersitableType {
 
   splitCellsBetweenRows(): void {
     const maxRowHeight = this._options.maxRowHeight;
-    const originalRowCount = this._table.length;
-    const originalRowLength = this._table[0].length;
+    const originalRowCount = this._rows.length;
+    const originalRowLength = this._rows[0].length;
     let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
 
     for (let i = 0; i < originalRowCount; i++) {
@@ -276,7 +291,7 @@ export class Versitable implements VersitableType {
 
       for (let colIdx = 0; colIdx < originalRowLength; colIdx++) {
         const maxColWidth = this._colWidths[colIdx];
-        const cell = this._table[rowIdxWithInserts][colIdx];
+        const cell = this._rows[rowIdxWithInserts][colIdx];
 
         // Cell isn't too long to fit in column, skip over it
         if (cell.length <= maxColWidth) continue;
@@ -310,13 +325,13 @@ export class Versitable implements VersitableType {
       }
       // Add insert rows to table
       if (insertRows.length > 0) {
-        this._table.splice(rowIdxWithInserts + 1, 0, ...insertRows);
+        this._rows.splice(rowIdxWithInserts + 1, 0, ...insertRows);
         insertRows = [];
       }
     }
   }
 
-  createNewInsertRow(type: CellTypes): CellType[] {
+  createNewInsertRow(type: CellType): CellType[] {
     return this._colWidths.map((colWidth) => {
       const newCell = new Cell(type, " ".repeat(colWidth), colWidth);
       return newCell;
@@ -324,7 +339,7 @@ export class Versitable implements VersitableType {
   }
 
   padCells(): void {
-    this._table.forEach((row, rowIdx) => {
+    this._rows.forEach((row, rowIdx) => {
       row.forEach((cell, colIdx) => {
         const maxColWidth = this._colWidths[colIdx];
         const cellPadding =
@@ -340,11 +355,11 @@ export class Versitable implements VersitableType {
     });
   }
 
-  findHorizontalBorderInsertIdxs(type: HorizontalBorderType) {
+  findHorizontalBorderInsertIdxs(type: HorizontalBorder) {
     let insertIdxs: number[] = [];
     switch (type) {
       case "betweenRows":
-        insertIdxs = this._table.reduce((acc, row, idx) => {
+        insertIdxs = this._rows.reduce((acc, row, idx) => {
           if (idx > 0 && this.getRowType(idx) === "primary") acc.push(idx);
           return acc;
         }, [] as number[]);
@@ -353,7 +368,7 @@ export class Versitable implements VersitableType {
         insertIdxs.push(0);
         break;
       case "bottom":
-        insertIdxs.push(this._table.length);
+        insertIdxs.push(this._rows.length);
         break;
       default:
         throw new Error("Invalid horizontal border type");
@@ -361,20 +376,20 @@ export class Versitable implements VersitableType {
     return insertIdxs;
   }
 
-  insertHorizontalBorder(type: HorizontalBorderType) {
+  insertHorizontalBorder(type: HorizontalBorder) {
     const insertIdxs = this.findHorizontalBorderInsertIdxs(type);
 
     for (let i = insertIdxs.length - 1; i >= 0; i--) {
       const border = this.createHorizontalBorder(type);
-      this._table.splice(insertIdxs[i], 0, border);
+      this._rows.splice(insertIdxs[i], 0, border);
     }
   }
 
-  insertVerticalBorder(type: VerticalBorderType) {
-    for (let i = 0; i < this._table.length; i++) {
-      const row = this._table[i];
+  insertVerticalBorder(type: VerticalBorder) {
+    for (let i = 0; i < this._rows.length; i++) {
+      const row = this._rows[i];
       const rowWithBorder = this.createVerticalBorder(row, type);
-      this._table[i] = rowWithBorder;
+      this._rows[i] = rowWithBorder;
     }
   }
 
@@ -395,19 +410,17 @@ export class Versitable implements VersitableType {
   // Calculations for table properties
   calcColWidths(): number[] {
     const maxColWidthsArr = this.populateArrFromMaxColWidths();
-    const maxCharsPerColumn = this.findLongestStrLenInCol();
+    const longestStrLenPerCol = this.findLongestStrLenPerCol();
 
-    return this._table[0].map((_, colIdx) => {
-      return Math.min(maxColWidthsArr[colIdx], maxCharsPerColumn[colIdx]);
+    return longestStrLenPerCol.map((longestStrLen, colIdx) => {
+      return Math.min(maxColWidthsArr[colIdx], longestStrLen);
     });
   }
 
   // Helper functions
-  stringsToCells(table: string[][]): CellType[][] {
-    return table.map((row) =>
-      row.map((cell) => {
-        return new Cell("primary", cell, countCharsWithEmojis(cell));
-      })
+  createRowsFromStrings(tableContentStrings: string[][]): Row[] {
+    return tableContentStrings.map((rowContentStrings) =>
+      Row.createRowFromStrings(rowContentStrings)
     );
   }
 
@@ -416,7 +429,7 @@ export class Versitable implements VersitableType {
   }
 
   populateArrFromMaxColWidths(): number[] {
-    const numCols = this._table[0].length;
+    const numCols = this.numCols;
     const userMaxColWidths = this._options.maxColWidths;
     // format options.maxColWidths
     if (typeof userMaxColWidths === "number") {
@@ -458,21 +471,22 @@ export class Versitable implements VersitableType {
     }
   }
 
-  findLongestStrLenInCol(): number[] {
-    return this._table[0].map((_, colIdx) => {
-      let max = 0;
-      for (let i = 0; i < this._table.length; i += 1) {
-        const cellLength = this._table[i][colIdx].length;
-        if (cellLength > max) max = cellLength;
-      }
-      return max;
-    });
+  findLongestStrLenPerCol(): number[] {
+    let longestStrings: number[] = [];
+    for (let i = 0; i < this._rows.length; i += 1) {
+      const longestInCol = this.colByIdx(i).reduce((acc, cell) => {
+        if (cell.length > acc) acc = cell.length;
+        return acc;
+      }, 0);
+      longestStrings.push(longestInCol);
+    }
+    return longestStrings;
   }
 
-  getGlyphsForBorderType(type: HorizontalBorderType): HorizontalGlyphs;
-  getGlyphsForBorderType(type: VerticalBorderType): VerticalGlyphs;
+  getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;
+  getGlyphsForBorderType(type: VerticalBorder): VerticalGlyphs;
   getGlyphsForBorderType(
-    type: HorizontalBorderType | VerticalBorderType
+    type: HorizontalBorder | VerticalBorder
   ): HorizontalGlyphs | VerticalGlyphs {
     const { glyphs } = this._options.borders as CustomBorders;
 
@@ -509,7 +523,7 @@ export class Versitable implements VersitableType {
     }
   }
 
-  createHorizontalBorder(type: HorizontalBorderType): CellType[] {
+  createHorizontalBorder(type: HorizontalBorder): CellType[] {
     const { horizontalLine } = this.getGlyphsForBorderType(type);
 
     return this._colWidths.map((colWidth) => {
@@ -518,7 +532,7 @@ export class Versitable implements VersitableType {
   }
 
   appendVertBorderToCell(
-    borderType: AllBordersType,
+    borderType: AnyBorder,
     borderStr: string,
     cell: CellType
   ): CellType[] {
@@ -527,7 +541,7 @@ export class Versitable implements VersitableType {
   }
 
   addVertBorderToCells(
-    borderType: AllBordersType,
+    borderType: AnyBorder,
     borderStr: string,
     cells: CellType[]
   ): CellType[] {
@@ -537,7 +551,7 @@ export class Versitable implements VersitableType {
       : [...cells, borderCell];
   }
 
-  createVerticalBorder(row: CellType[], type: VerticalBorderType): CellType[] {
+  createVerticalBorder(row: CellType[], type: VerticalBorder): CellType[] {
     const { verticalLine, topEdge, bottomEdge, separator } =
       this.getGlyphsForBorderType(type);
 
