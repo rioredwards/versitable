@@ -8,6 +8,10 @@ import {
 } from "./tableTypes";
 
 export class RowFactory {
+  static createRowFromCells(cells: Cell[]): Row {
+    return new Row(cells);
+  }
+
   static createRowFromStrings(
     cellContents: string[],
     type: CellType = "primary"
