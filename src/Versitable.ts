@@ -379,7 +379,7 @@ export class Versitable {
             insertCell.splitAt(maxColWidth);
           }
           // Add new cell to insert row
-          insertRows[sliceNum].insertCellAtIdx(colIdx, insertCell);
+          insertRows[sliceNum].splice(colIdx, 1, insertCell);
           lastSlice = insertCell;
           sliceNum++;
         }

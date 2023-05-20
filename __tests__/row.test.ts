@@ -70,7 +70,7 @@ describe("Rows: ", () => {
     });
     it("should insert cells into row", () => {
       const row = new Row([new Cell(), new Cell()]);
-      row.splice(1, 0, [new Cell(), new Cell()]);
+      row.splice(1, 0, new Cell(), new Cell());
       expect(row.length).toBe(4);
     });
   });

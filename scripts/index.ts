@@ -45,7 +45,7 @@ const updatedOptions: PartialTableOptions = {
   borders: {
     sides: {
       betweenRows: true,
-      betweenColumns: false,
+      betweenColumns: true,
       top: false,
       bottom: false,
       left: false,

@@ -52,8 +52,8 @@ export class Row {
     );
   }
 
-  splice(startIdx: number, endIdx: number, insertCells?: Cell[]): void {
-    this.cells.splice(startIdx, endIdx, ...(insertCells ?? []));
+  splice(startIdx: number, deleteCount: number, ...insertCells: Cell[]): void {
+    this.cells.splice(startIdx, deleteCount, ...insertCells);
   }
 
   cellAtIdx(idx: number): Cell {
