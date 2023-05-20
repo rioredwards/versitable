@@ -37,15 +37,15 @@ const rowStyles3 = [
 ];
 
 const updatedOptions: PartialTableOptions = {
-  maxRows: 8,
-  maxColumns: 3,
-  maxColWidths: [10, 20, 10],
+  maxRows: 11,
+  maxColumns: 8,
+  maxColWidths: [15, 15, 10],
   maxRowHeight: 3,
   cellPadding: 5,
   borders: {
     sides: {
       betweenRows: false,
-      betweenColumns: false,
+      betweenColumns: true,
       top: true,
       bottom: true,
       left: true,
@@ -66,8 +66,8 @@ const updatedOptions: PartialTableOptions = {
     },
   },
   styles: {
-    borderStyle: { fgColor: "#898989", bgColor: "#434343" },
-    rowStyles: rowStyles3,
+    borderStyle: { fgColor: "#898989" },
+    rowStyles: rowStyles1,
   },
 };
 
@@ -88,10 +88,7 @@ function main() {
 
   // console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
-  );
+  const myVersitable = Versitable.make(validTableData, updatedOptions);
   myVersitable.print();
 }
 

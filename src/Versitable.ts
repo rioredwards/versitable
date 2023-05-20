@@ -13,6 +13,7 @@ import {
   CustomStylesTarget,
   AnyBorder,
   RowType,
+  PartialCellStyle,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -48,7 +49,7 @@ export class Versitable {
     this.splitTooLongCellsAndInsertOverflow();
     this.padCells();
     this.addBorders();
-    // this.addColors();
+    this.addColors();
   }
 
   // This is how users will create a new table
@@ -153,149 +154,148 @@ export class Versitable {
     }
   }
 
-  // addColors() {
-  //   if (nullUndefinedOrFalse(this.colors)) return;
-
-  //   const { targetCells, alternateRows, borderColor } = this.colors;
-
-  //   if (alternateRows) {
-  //     // Iterate over rows, cycling through alternateRows colors
-  //     const alternating = alternateRows.length > 1;
-  //     let alternateRowIdx = 0;
-  //     this._rows.forEach((row, rowIdx) => {
-  //       const rowType = this.getRowType(rowIdx);
-  //       let savedRowColor: PartialCellStyle | undefined = undefined;
-  //       let avgRowColor: string | undefined = undefined;
-
-  //       row.forEach((cell, colIdx) => {
-  //         const cellNeedsColor = this.checkCellNeedsColor(
-  //           "alternateRows",
-  //           cell,
-  //           colIdx,
-  //           rowIdx
-  //         );
-  //         if (!cellNeedsColor) return;
-  //         let cellColor: PartialCellStyle;
-  //         // Save color from previous cell if it exists
-  //         if (savedRowColor) {
-  //           cellColor = savedRowColor;
-  //         } else {
-  //           // Cycle through alternateRows colors
-  //           cellColor = alternateRows[alternateRowIdx % alternateRows.length];
-  //         }
-
-  //         // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
-  //         if (this.needToGetAvgColor(avgRowColor, rowType, alternateRowIdx)) {
-  //           // Cell is a betweenRows border
-  //           const aboveCellBgColor = cellColor.bgColor;
-  //           const nextRowColor =
-  //             alternateRows[(alternateRowIdx + 1) % alternateRows.length];
-  //           const belowCellBgColor = nextRowColor.bgColor;
-  //           avgRowColor = ColorHelper.calcAvgColor(
-  //             aboveCellBgColor!,
-  //             belowCellBgColor!
-  //           );
-
-  //           if (borderColor.bgColor) {
-  //             avgRowColor = ColorHelper.calcAvgColor(
-  //               avgRowColor!,
-  //               borderColor.bgColor!
-  //             );
-  //           }
-  //         }
-  //         if (this.isInnerBorder(cell.type)) {
-  //           if (borderColor) {
-  //             cellColor = {
-  //               ...borderColor,
-  //             } as PartialCellStyle;
-  //           }
-  //           // Add different bgColor based on if cell is betweenRows or betweenCols
-  //           cellColor.bgColor =
-  //             cell.type === "betweenRows"
-  //               ? avgRowColor
-  //               : savedRowColor!.bgColor;
-  //         }
-
-  //         // Color is determined, so apply it to the cell and save it for the next cells
-  //         savedRowColor ??= cellColor;
-  //         const styledString = this.createStyledCell(cell.content, cellColor);
-  //         cell.content = styledString;
-  //       });
-
-  //       const topRowExists = this.borderExists("top");
-  //       if (
-  //         alternating &&
-  //         rowIdx < this._rows.length - 1 &&
-  //         this.getRowType(rowIdx + 1) === "primary"
-  //       ) {
-  //         if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
-  //           alternateRowIdx++;
-  //         }
-  //       }
-  //     });
-  //   }
-
-  //   if (borderColor) {
-  //     this._rows.forEach((row) => {
-  //       row.forEach((cell) => {
-  //         if (this.isOuterBorder(cell.type)) {
-  //           // If border bgColor is not set, use savedAvgBGTableColor
-  //           const color = { ...borderColor };
-  //           const styledString = this.createStyledCell(cell.content, color);
-  //           cell.content = styledString;
-  //         }
-  //       });
-  //     });
-  //   }
-  // }
-
-  // needToGetAvgColor(
-  //   avgRowColor: string | undefined,
-  //   rowType: CellType,
-  //   alternateRowIdx: number
-  // ) {
-  //   if (avgRowColor !== undefined) return false;
-  //   const { alternateRows } = this.colors;
-  //   const currColor = alternateRows[alternateRowIdx % alternateRows.length];
-  //   const nextColor =
-  //     alternateRows[(alternateRowIdx + 1) % alternateRows.length];
-  //   if (rowType === "betweenRows" && currColor.bgColor && nextColor.bgColor) {
-  //     return true;
-  //   }
-  //   return false;
-  // }
-
-  // checkCellNeedsStyle(
-  //   target: CustomStylesTarget,
-  //   cell: Cell,
-  //   colIdx: number,
-  //   rowIdx: number
-  // ) {
-  //   if (target === "rowStyles") {
-  //     if (!this.isOuterBorder(cell.type)) {
-  //       if (
-  //         (this.borderExists("left") && colIdx === 0) ||
-  //         (this.borderExists("right") && colIdx === this._rows[0].length - 1)
-  //       ) {
-  //         return false;
-  //       }
-  //       return true;
-  //     }
-  //   }
-  // }
-
-  // createStyledCell(cellString: string, styleObj: StyleObj): string {
-  //   // StyleHelper.validateColor(styleObj.color); // TODO
-  //   const { fgColor, bgColor, modifier } = styleObj;
-  //   return StyleHelper.createStyledString(
-  //     cellString,
-  //     fgColor,
-  //     bgColor,
-  //     modifier
-  //   );
-  // }
-
   // Mutations to table
+  addColors() {
+    if (nullUndefinedOrFalse(this.styles)) return;
+
+    const { targetCellStyles, rowStyles, borderStyle } = this.styles;
+
+    if (rowStyles) {
+      // Iterate over rows, cycling through rowStyles colors
+      const isAlternating = rowStyles.length > 1;
+      let rowStylesIdx = 0;
+      this._rows.forEach((row, rowIdx) => {
+        const rowType = this.rowTypes[rowIdx];
+        let savedRowColor: PartialCellStyle | undefined = undefined;
+        let avgRowColor: string | undefined = undefined;
+
+        row.cells.forEach((cell, colIdx) => {
+          const cellNeedsStyle = this.checkCellNeedsStyle(
+            "rowStyles",
+            cell,
+            colIdx,
+            rowIdx
+          );
+          // Early return if cell doesn't need style
+          if (!cellNeedsStyle) return;
+          let cellColor: PartialCellStyle;
+          // Save color from previous cell if it exists
+          if (savedRowColor) {
+            cellColor = savedRowColor;
+          } else {
+            // Cycle through rowStyles colors
+            cellColor = rowStyles[rowStylesIdx % rowStyles.length];
+          }
+
+          // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
+          if (this.needToGetAvgColor(avgRowColor, rowType, rowStylesIdx)) {
+            // Cell is a betweenRows border
+            const aboveCellBgColor = cellColor.bgColor;
+            const nextRowColor =
+              rowStyles[(rowStylesIdx + 1) % rowStyles.length];
+            const belowCellBgColor = nextRowColor.bgColor;
+            avgRowColor = StyleHelper.calcAvgColor(
+              aboveCellBgColor!,
+              belowCellBgColor!
+            );
+
+            if (borderStyle.bgColor) {
+              avgRowColor = StyleHelper.calcAvgColor(
+                avgRowColor!,
+                borderStyle.bgColor!
+              );
+            }
+          }
+          if (this.isInnerBorder(cell.type)) {
+            if (borderStyle) {
+              cellColor = {
+                ...borderStyle,
+              } as PartialCellStyle;
+            }
+            // Add different bgColor based on if cell is betweenRows or betweenCols
+            cellColor.bgColor =
+              cell.type === "betweenRows"
+                ? avgRowColor
+                : savedRowColor!.bgColor;
+          }
+
+          // Color is determined, so apply it to the cell and save it for the next cells
+          savedRowColor ??= cellColor;
+          const styledString = this.createStyledCell(cell.content, cellColor);
+          cell.content = styledString;
+        });
+
+        const topRowExists = this.borderExists("top");
+        if (
+          isAlternating &&
+          rowIdx < this._rows.length - 1 &&
+          this._rows[rowIdx + 1].type === "primary"
+        ) {
+          if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
+            rowStylesIdx++;
+          }
+        }
+      });
+    }
+
+    if (borderStyle) {
+      this._rows.forEach((row) => {
+        row.cells.forEach((cell) => {
+          if (this.isOuterBorder(cell.type)) {
+            // If border bgColor is not set, use savedAvgBGTableColor
+            const color = { ...borderStyle };
+            const styledString = this.createStyledCell(cell.content, color);
+            cell.content = styledString;
+          }
+        });
+      });
+    }
+  }
+
+  needToGetAvgColor(
+    avgRowColor: string | undefined,
+    rowType: RowType,
+    rowStylesIdx: number
+  ) {
+    if (avgRowColor !== undefined) return false;
+    const { rowStyles } = this.styles;
+    const currColor = rowStyles[rowStylesIdx % rowStyles.length];
+    const nextColor = rowStyles[(rowStylesIdx + 1) % rowStyles.length];
+    if (rowType === "innerBorder" && currColor.bgColor && nextColor.bgColor) {
+      return true;
+    }
+    return false;
+  }
+
+  checkCellNeedsStyle(
+    target: CustomStylesTarget,
+    cell: Cell,
+    colIdx: number,
+    rowIdx: number
+  ) {
+    if (target === "rowStyles") {
+      if (!this.isOuterBorder(cell.type)) {
+        if (
+          (this.borderExists("left") && colIdx === 0) ||
+          (this.borderExists("right") && colIdx === this._rows[0].length - 1)
+        ) {
+          return false;
+        }
+        return true;
+      }
+    }
+  }
+
+  createStyledCell(cellString: string, styleObj: StyleObj): string {
+    // StyleHelper.validateColor(styleObj.color); // TODO
+    const { fgColor, bgColor, modifier } = styleObj;
+    return StyleHelper.createStyledString(
+      cellString,
+      fgColor,
+      bgColor,
+      modifier
+    );
+  }
 
   // Calculations for table properties
   calcColWidths(): number[] {
