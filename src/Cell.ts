@@ -50,10 +50,10 @@ export class Cell implements ICell {
     let paddedContent: string;
     switch (align) {
       case "left":
-        paddedContent = this.content + " ".repeat(padLength);
+        paddedContent = " ".repeat(padLength) + this.content;
         break;
       case "right":
-        paddedContent = " ".repeat(padLength) + this.content;
+        paddedContent = this.content + " ".repeat(padLength);
         break;
       case "center":
         const leftPadLength = Math.floor(padLength / 2);
@@ -70,6 +70,6 @@ export class Cell implements ICell {
   }
 
   isBorder(): boolean {
-    return this.type !== "primary" && this.type === "overflow";
+    return this.type !== "primary" && this.type !== "overflow";
   }
 }
