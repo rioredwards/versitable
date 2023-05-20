@@ -1,22 +1,22 @@
 import { countCharsWithEmojis } from "./emojis";
-import { Align, CellType, ICell } from "./tableTypes";
+import { Align, CellType } from "./tableTypes";
 
-export class Cell implements ICell {
+export class Cell {
   type: CellType;
   content: string;
   length: number;
-  color?: string;
+  style?: string;
 
   constructor(
     type: CellType = "primary",
     content: string = "",
     length: number = countCharsWithEmojis(content),
-    color?: string
+    style?: string
   ) {
     this.type = type;
     this.content = content;
     this.length = length;
-    this.color = color;
+    this.style = style;
   }
 
   truncateToLength(length: number): void {
@@ -26,21 +26,21 @@ export class Cell implements ICell {
 
   // Splits cell into two cells at index
   splitAtIdx(index: number): Cell[] {
-    const firstSlice = this.content.substring(0, index);
-    const secondSlice = this.content.substring(index);
+    const firstSliceContent = this.content.substring(0, index);
+    const secondSliceContent = this.content.substring(index);
     const firstSliceLength = index;
     const secondSliceLength = this.length - firstSliceLength;
     const firstCell = new Cell(
       this.type,
-      firstSlice,
+      firstSliceContent,
       firstSliceLength,
-      this.color
+      this.style
     );
     const secondCell = new Cell(
       "overflow",
-      secondSlice,
+      secondSliceContent,
       secondSliceLength,
-      this.color
+      this.style
     );
 
     return [firstCell, secondCell];

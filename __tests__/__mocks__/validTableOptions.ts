@@ -1,4 +1,9 @@
-import { Borders, Colors, PartialTableOptions } from "../../src/tableTypes";
+import {
+  Borders,
+  CustomStyles,
+  PartialTableOptions,
+  Styles,
+} from "../../src/tableTypes";
 
 export const validTableOptions: PartialTableOptions = {
   optionChecks: "error",
@@ -8,24 +13,24 @@ export const validTableOptions: PartialTableOptions = {
   maxColWidths: [30, 30, 60],
   maxRowHeight: 2,
   header: true,
-  colors: {
-    borderColor: { fgColor: "#9148d5" },
-    alternateRows: [
-      { fgColor: "red", bgColor: "blue", style: "bold" },
-      { fgColor: "#48d0d5", bgColor: "#8342b1", style: "italics" },
+  styles: {
+    borderStyle: { fgColor: "#9148d5" },
+    rowStyles: [
+      { fgColor: "red", bgColor: "blue", modifier: "bold" },
+      { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "italics" },
     ],
-    targetCells: [
+    targetCellStyles: [
       {
         column: 0,
         row: 0,
         fgColor: "orange",
-        style: "bold",
+        modifier: "bold",
         bgColor: "magenta",
       },
       {
         column: 2,
         row: 1,
-        style: "italic",
+        modifier: "italic",
         fgColor: "magentaBright",
         bgColor: "yellowBright",
       },
@@ -115,21 +120,21 @@ export const validBordersOption: Borders[] = [
   },
 ];
 
-export const validColorsOption: Colors[] = [
+export const validStylesOption: Styles[] = [
   true,
   false,
   {
-    borderColor: { fgColor: "#9148d5" },
-    alternateRows: [
-      { fgColor: "red", bgColor: "blue", style: "bold" },
-      { fgColor: "#48d0d5", bgColor: "#8342b1", style: "italics" },
+    borderStyle: { fgColor: "#9148d5" },
+    rowStyles: [
+      { fgColor: "red", bgColor: "blue", modifier: "bold" },
+      { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "italics" },
     ],
-    targetCells: [
+    targetCellStyles: [
       {
         column: 0,
         row: 0,
         fgColor: "orange",
-        style: "bold",
+        modifier: "bold",
         bgColor: "magenta",
       },
     ],

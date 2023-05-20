@@ -11,7 +11,7 @@ describe("Cells: ", () => {
       expect(cell.type).toBe("primary");
       expect(cell.content).toBe("");
       expect(cell.length).toBe(0);
-      expect(cell.color).toBeUndefined();
+      expect(cell.style).toBeUndefined();
     });
     it("should create a cell with a type", () => {
       const cell = new Cell("primary");
@@ -27,7 +27,7 @@ describe("Cells: ", () => {
     });
     it("should create a cell with a color", () => {
       const cell = new Cell("primary", "content", 7, "red");
-      expect(cell.color).toBe("red");
+      expect(cell.style).toBe("red");
     });
   });
 

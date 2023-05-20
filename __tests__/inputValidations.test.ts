@@ -2,7 +2,7 @@ import * as tableValidations from "../src/inputValidations";
 import {
   invalidBordersOption,
   invalidCellPaddings,
-  invalidColorsOption,
+  invalidStylesOption,
   invalidHeader,
   invalidMaxColWidths,
   invalidMaxColumns,
@@ -12,7 +12,7 @@ import {
 import {
   validBordersOption,
   validCellPaddings,
-  validColorsOption,
+  validStylesOption,
   validHeader,
   validMaxColWidths,
   validMaxColumns,
@@ -155,17 +155,17 @@ describe("checkTableOptionsAreValid", () => {
       expect(result).toBeTruthy();
     });
   });
-  it("should throw an error if colors option is invalid", () => {
-    invalidColorsOption.forEach((colors: any) => {
+  it.only("should throw an error if styles option is invalid", () => {
+    invalidStylesOption.forEach((styles: any) => {
       expect(() =>
-        tableValidations.checkTableOptionsAreValid({ colors })
+        tableValidations.checkTableOptionsAreValid({ styles })
       ).toThrowError();
     });
   });
-  it("should return true if colors option is valid", () => {
-    validColorsOption.forEach((colors: any) => {
+  it("should return true if styles option is valid", () => {
+    validStylesOption.forEach((styles: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
-        colors,
+        styles,
       });
       expect(result).toBeTruthy();
     });

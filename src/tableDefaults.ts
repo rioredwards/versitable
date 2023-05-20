@@ -9,16 +9,16 @@ const MAX_COL_WIDTHS = 40;
 const MAX_ROW_HEIGHT = 2;
 const HEADER = true;
 // Color Options
-const BORDER_COLOR = {
+const BORDER_STYLE = {
   fgColor: "#e0e0e0",
   bgColor: undefined,
-  style: undefined,
+  modifier: undefined,
 };
-const ALTERNATE_ROWS = [
-  { fgColor: "#e0e0e0", bgColor: "#3c3c3c", style: undefined },
-  { fgColor: "#e0e0e0", bgColor: "#2f2f2f", style: undefined },
+const ROW_STYLES = [
+  { fgColor: "#e0e0e0", bgColor: "#3c3c3c", modifier: undefined },
+  { fgColor: "#e0e0e0", bgColor: "#2f2f2f", modifier: undefined },
 ];
-const TARGET_CELLS_COLORS = undefined;
+const TARGET_CELL_STYLES = undefined;
 // Border Options
 const HORIZONTAL_LINE = "─";
 const VERTICAL_LINE = "│";
@@ -40,10 +40,10 @@ export const TABLE_DEFAULTS: TableOptions = {
   maxColWidths: MAX_COL_WIDTHS,
   maxRowHeight: MAX_ROW_HEIGHT,
   header: HEADER,
-  colors: {
-    borderColor: BORDER_COLOR,
-    alternateRows: ALTERNATE_ROWS,
-    targetCells: TARGET_CELLS_COLORS,
+  styles: {
+    borderStyle: BORDER_STYLE,
+    rowStyles: ROW_STYLES,
+    targetCellStyles: TARGET_CELL_STYLES,
   },
   borders: {
     glyphs: {

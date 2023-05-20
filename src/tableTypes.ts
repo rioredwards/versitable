@@ -1,64 +1,12 @@
 import { Cell } from "./Cell";
 import { Row } from "./Row";
 
-export interface VersitableType {
-  _rows: Row[];
-  _options: TableOptions;
-  _colWidths: number[];
-
-  constructor: Function;
-
-  // Mutations to formattedTable
-  limitInputRows(inputTable: string[][]): string[][];
-  limitInputCols(inputTable: string[][]): string[][];
-  splitCellsBetweenRows(): void;
-  padCells(): void;
-  addBorders(): void;
-
-  // Calculations for table properties
-  calcColWidths(): number[];
-
-  // Helper methods
-  createStyledCell(cellString: string, cellStyle: CellStyle): string;
-  findHorizontalBorderInsertIdxs(type: HorizontalBorder): number[];
-  insertHorizontalBorder(type: HorizontalBorder): void;
-  insertVerticalBorder(type: VerticalBorder): void;
-  populateArrFromMaxColWidths(): number[];
-  populateBordersOptWithDefaults(): void;
-  populateColorsOptWithDefaults(): void;
-  getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;
-  getGlyphsForBorderType(type: VerticalBorder): VerticalGlyphs;
-
-  // Validation methods
-  validateTable(table: string[][]): void;
-  validateOptions(options: PartialTableOptions): void;
-}
-
-export interface ICell {
-  type: CellType;
-  content: string;
-  length: number;
-  color?: string;
-
-  splitAtIdx(index: number): Cell[];
-  pad(padLength: number, align?: Align): void;
-  isBorder(): boolean;
-}
-
 export type RowType =
   | "primary"
   | "overflow"
   | "upperBorder"
   | "lowerBorder"
   | "innerBorder";
-
-export interface IRow {
-  cells: ICell[];
-  length: number;
-  type: RowType;
-  borders: Set<AnyBorder>;
-  constructor: Function;
-}
 
 export type Align = "left" | "right" | "center";
 
@@ -83,6 +31,15 @@ export const cellTypesArr: CellType[] = [
   "betweenRows",
 ];
 
+export const borderSides = [
+  "top",
+  "right",
+  "bottom",
+  "left",
+  "betweenColumns",
+  "betweenRows",
+];
+
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
   cellPadding: number; // Padding between cell content and cell border (minimum if cells vary in length) (end of cell only)
@@ -91,7 +48,7 @@ export interface TableOptions {
   maxColWidths: number[] | number; // Max column widths (doesn't include padding)
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
   header: boolean; // Whether to include a header row (this defaults to the first row of the table)
-  colors: Colors; // Colors for borders, alternate rows and targetCells colors
+  styles: Styles; // Styles for borders, alternate rows and targetCells colors
   borders: Borders; // AnyBorder sides and glyphs
 }
 
@@ -99,36 +56,36 @@ export interface PartialTableOptions extends DeepPartial<TableOptions> {}
 
 export type OptionChecks = "error" | "warn" | "skip";
 
-export type Colors = Partial<CustomColors> | boolean;
+export type Styles = Partial<CustomStyles> | boolean;
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
 
-export type CustomColorsTarget =
-  | "alternateRows"
-  | "borderColor"
-  | "targetCells";
+export type CustomStylesTarget =
+  | "borderStyle"
+  | "rowStyles"
+  | "targetCellStyles";
 
-export interface CustomColors {
-  borderColor: PartialCellStyle;
-  alternateRows: PartialCellStyle[];
-  targetCells: TargetCellsColors[];
+export interface CustomStyles {
+  borderStyle: PartialCellStyle;
+  rowStyles: PartialCellStyle[];
+  targetCellStyles: TargetCellStyle[];
 }
 
-export interface CellStyle {
-  style?: string;
+export interface StyleObj {
+  modifier?: string;
   fgColor?: string;
   bgColor?: string;
 }
 
 // must have either fgColor or bgColor specified, but not necessarily both
-export type PartialCellStyle = CellStyle &
+export type PartialCellStyle = StyleObj &
   (
     | { fgColor: string; bgColor?: string }
     | { fgColor?: string; bgColor: string }
   );
 
 // must have either row or column specified, but not necessarily both
-export type TargetCellsColors = PartialCellStyle &
+export type TargetCellStyle = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
 
 export interface BorderSides {

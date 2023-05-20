@@ -2,16 +2,15 @@ import { TABLE_DEFAULTS } from "./tableDefaults";
 import {
   CellType,
   CustomBorders,
-  CustomColors,
+  CustomStyles,
   HorizontalBorder,
   HorizontalGlyphs,
   PartialTableOptions,
   TableOptions,
-  VersitableType,
   VerticalBorder,
   VerticalGlyphs,
-  CellStyle,
-  CustomColorsTarget,
+  StyleObj,
+  CustomStylesTarget,
   AnyBorder,
   RowType,
 } from "./tableTypes";
@@ -21,13 +20,13 @@ import {
 } from "./inputValidations";
 import { deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
-import { ColorHelper } from "./ColorHelper";
+import { StyleHelper } from "./StyleHelper";
 import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
 
 // Main class which does all the work
-export class Versitable implements VersitableType {
+export class Versitable {
   _rows: Row[];
   _options: TableOptions;
   _colWidths: number[];
@@ -41,7 +40,7 @@ export class Versitable implements VersitableType {
 
     this._options = deepMerge(TABLE_DEFAULTS, inputOptions || {});
     this.populateBordersOptWithDefaults();
-    this.populateColorsOptWithDefaults();
+    this.populateStylesOptWithDefaults();
     const limitInputRowsTable = this.limitInputRows(inputTable);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
     this._rows = this.createRowsFromStrings(limitInputColsTable);
@@ -80,8 +79,8 @@ export class Versitable implements VersitableType {
     return this._options.borders as CustomBorders;
   }
 
-  get colors(): CustomColors {
-    return this._options.colors as CustomColors;
+  get colors(): CustomStyles {
+    return this._options.styles as CustomStyles;
   }
 
   getColByIdx(colIdx: number): Cell[] {
@@ -223,13 +222,13 @@ export class Versitable implements VersitableType {
     return !nullUndefinedOrFalse(this.borders.sides[type]);
   }
 
-  checkCellNeedsColor(
-    target: CustomColorsTarget,
+  checkCellNeedsStyle(
+    target: CustomStylesTarget,
     cell: Cell,
     colIdx: number,
     rowIdx: number
   ) {
-    if (target === "alternateRows") {
+    if (target === "rowStyles") {
       if (!this.isOuterBorder(cell.type)) {
         if (
           (this.borderExists("left") && colIdx === 0) ||
@@ -242,10 +241,15 @@ export class Versitable implements VersitableType {
     }
   }
 
-  createStyledCell(cellString: string, cellStyle: CellStyle): string {
-    // ColorHelper.validateColor(cellStyle.color); // TODO
-    const { fgColor, bgColor, style } = cellStyle;
-    return ColorHelper.createStyledString(cellString, fgColor, bgColor, style);
+  createStyledCell(cellString: string, styleObj: StyleObj): string {
+    // StyleHelper.validateColor(styleObj.color); // TODO
+    const { fgColor, bgColor, modifier } = styleObj;
+    return StyleHelper.createStyledString(
+      cellString,
+      fgColor,
+      bgColor,
+      modifier
+    );
   }
 
   // Mutations to table
@@ -447,16 +451,16 @@ export class Versitable implements VersitableType {
     }
   }
 
-  populateColorsOptWithDefaults(): void {
-    if (typeof this._options.colors === "boolean") {
-      if (this._options.colors === true) {
-        this._options.colors = TABLE_DEFAULTS.colors as CustomColors;
+  populateStylesOptWithDefaults(): void {
+    if (typeof this._options.styles === "boolean") {
+      if (this._options.styles === true) {
+        this._options.styles = TABLE_DEFAULTS.styles as CustomStyles;
       } else return;
     } else {
-      this._options.colors = deepMerge(
-        TABLE_DEFAULTS.colors,
-        this._options.colors
-      ) as CustomColors;
+      this._options.styles = deepMerge(
+        TABLE_DEFAULTS.styles,
+        this._options.styles
+      ) as CustomStyles;
     }
   }
 

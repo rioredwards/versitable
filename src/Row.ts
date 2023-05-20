@@ -1,7 +1,7 @@
 import { Cell } from "./Cell";
-import { AnyBorder, IRow, RegularCellContent, RowType } from "./tableTypes";
+import { AnyBorder, RegularCellContent, RowType } from "./tableTypes";
 
-export class Row implements IRow {
+export class Row {
   cells: Cell[];
 
   constructor(cells: Cell[]) {

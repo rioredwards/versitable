@@ -77,7 +77,7 @@ describe.skip("Versitable.make", () => {
       borders: false,
       maxColWidths: 7,
       cellPadding: 0,
-      colors: false,
+      styles: false,
     });
     expect(myVersitable[0][0].length).toBeLessThanOrEqual(7);
   });
@@ -86,7 +86,7 @@ describe.skip("Versitable.make", () => {
     const myVersitable = Versitable.make(validTableData, {
       ...TABLE_DEFAULTS,
       borders: true,
-      colors: false,
+      styles: false,
     });
 
     expect(myVersitable[0][0][0]).toBe(topLeftCorner);
@@ -139,7 +139,7 @@ describe.skip("Versitable.make", () => {
           betweenRows: true,
         },
       },
-      colors: false,
+      styles: false,
     });
 
     let borderRowCount = 0;
