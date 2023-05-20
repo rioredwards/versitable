@@ -41,15 +41,15 @@ const updatedOptions: PartialTableOptions = {
   maxColumns: 3,
   maxColWidths: [10, 20, 10],
   maxRowHeight: 3,
-  cellPadding: 2,
+  cellPadding: 5,
   borders: {
     sides: {
-      betweenRows: true,
-      betweenColumns: true,
-      top: false,
-      bottom: false,
-      left: false,
-      right: false,
+      betweenRows: false,
+      betweenColumns: false,
+      top: true,
+      bottom: true,
+      left: true,
+      right: true,
     },
     glyphs: {
       horizontalLine: "━",
