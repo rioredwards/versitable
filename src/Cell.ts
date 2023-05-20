@@ -19,13 +19,31 @@ export class Cell implements ICell {
     this.color = color;
   }
 
-  // Splits cell into two cells at index. Mutates the cell and returns a new cell with the overflow content.
-  splitAt(index: number): Cell {
-    const remainderContent = this.content.substring(index);
-    const remainderLength = this.length - index;
-    this.content = this.content.substring(0, index);
-    this.length = index;
-    return new Cell("overflow", remainderContent, remainderLength);
+  truncateToLength(length: number): void {
+    this.content = this.content.substring(0, length);
+    this.length = length;
+  }
+
+  // Splits cell into two cells at index
+  splitAt(index: number): Cell[] {
+    const firstSlice = this.content.substring(0, index);
+    const secondSlice = this.content.substring(index);
+    const firstSliceLength = index;
+    const secondSliceLength = this.length - firstSliceLength;
+    const firstCell = new Cell(
+      this.type,
+      firstSlice,
+      firstSliceLength,
+      this.color
+    );
+    const secondCell = new Cell(
+      "overflow",
+      secondSlice,
+      secondSliceLength,
+      this.color
+    );
+
+    return [firstCell, secondCell];
   }
 
   pad(padLength: number, align: Align = "left"): void {

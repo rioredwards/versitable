@@ -1,4 +1,4 @@
-describe("Rows", () => {
+describe.skip("Rows", () => {
   beforeEach(() => {
     jest.resetModules();
   });

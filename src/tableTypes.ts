@@ -1,5 +1,8 @@
+import { Cell } from "./Cell";
+import { Row } from "./Row";
+
 export interface VersitableType {
-  _table: ICell[][];
+  _rows: Row[];
   _options: TableOptions;
   _colWidths: number[];
 
@@ -8,17 +11,14 @@ export interface VersitableType {
   // Mutations to formattedTable
   limitInputRows(inputTable: string[][]): string[][];
   limitInputCols(inputTable: string[][]): string[][];
-  stringsToCells(table: string[][]): ICell[][];
   splitCellsBetweenRows(): void;
   padCells(): void;
   addBorders(): void;
-  addColors(): void;
 
   // Calculations for table properties
   calcColWidths(): number[];
 
   // Helper methods
-  getRowType(rowIdx: number): CellType;
   createStyledCell(cellString: string, cellStyle: CellStyle): string;
   findHorizontalBorderInsertIdxs(type: HorizontalBorder): number[];
   insertHorizontalBorder(type: HorizontalBorder): void;
@@ -26,12 +26,8 @@ export interface VersitableType {
   populateArrFromMaxColWidths(): number[];
   populateBordersOptWithDefaults(): void;
   populateColorsOptWithDefaults(): void;
-  findLongestStrLenInCol(): number[];
-  createNewInsertRow(type: CellType): ICell[];
   getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;
   getGlyphsForBorderType(type: VerticalBorder): VerticalGlyphs;
-  createHorizontalBorder(type: HorizontalBorder): ICell[];
-  createVerticalBorder(row: ICell[], type: VerticalBorder): ICell[];
 
   // Validation methods
   validateTable(table: string[][]): void;
@@ -44,7 +40,7 @@ export interface ICell {
   length: number;
   color?: string;
 
-  splitAt(index: number): ICell;
+  splitAt(index: number): Cell[];
   pad(padLength: number, align?: Align): void;
   isBorder(): boolean;
 }

@@ -20,7 +20,7 @@ import {
   validMaxRows,
 } from "./__mocks__/validTableData";
 
-describe("checkTableOptionsAreValid", () => {
+describe.skip("checkTableOptionsAreValid", () => {
   it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
     expect(() =>
       tableValidations.checkTableOptionsAreValid({

@@ -3,6 +3,7 @@ const emojiPattern = String.raw`(?:🧑🏻‍❤️‍💋‍🧑🏼|🧑🏻�
 const generalCounter = new RegExp(emojiPattern + "|.", "g");
 export function countCharsWithEmojis(str: string) {
   // String of all emojis
+  if (str.length === 0) return 0;
   const matches = [...str.matchAll(generalCounter)];
 
   // Count emojis as 2 characters

@@ -14,7 +14,7 @@ import {
   CustomColorsTarget,
   PartialCellStyle,
   AnyBorder,
-  IRow,
+  RowType,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -66,23 +66,19 @@ export class Versitable implements VersitableType {
     this.splitCellsBetweenRows();
     this.padCells();
     this.addBorders();
-    this.addColors();
+    // this.addColors();
   }
 
-  get numRows(): number {
+  get rowCount(): number {
     return this._rows.length;
   }
 
-  get numCols(): number {
+  get colCount(): number {
     return this._rows[0].length;
   }
 
-  get rowByIdx(): (rowIdx: number) => Row {
-    return (rowIdx: number) => this._rows[rowIdx];
-  }
-
-  get colByIdx(): (colIdx: number) => Cell[] {
-    return (colIdx: number) => this._rows.map((row) => row.cells[colIdx]);
+  get rowTypes(): RowType[] {
+    return this._rows.map((row) => row.type);
   }
 
   get borders(): CustomBorders {
@@ -93,117 +89,125 @@ export class Versitable implements VersitableType {
     return this._options.colors as CustomColors;
   }
 
-  addColors() {
-    if (nullUndefinedOrFalse(this.colors)) return;
-
-    const { targetCells, alternateRows, borderColor } = this.colors;
-
-    if (alternateRows) {
-      // Iterate over rows, cycling through alternateRows colors
-      const alternating = alternateRows.length > 1;
-      let alternateRowIdx = 0;
-      this._rows.forEach((row, rowIdx) => {
-        const rowType = this.getRowType(rowIdx);
-        let savedRowColor: PartialCellStyle | undefined = undefined;
-        let avgRowColor: string | undefined = undefined;
-
-        row.forEach((cell, colIdx) => {
-          const cellNeedsColor = this.checkCellNeedsColor(
-            "alternateRows",
-            cell,
-            colIdx,
-            rowIdx
-          );
-          if (!cellNeedsColor) return;
-          let cellColor: PartialCellStyle;
-          // Save color from previous cell if it exists
-          if (savedRowColor) {
-            cellColor = savedRowColor;
-          } else {
-            // Cycle through alternateRows colors
-            cellColor = alternateRows[alternateRowIdx % alternateRows.length];
-          }
-
-          // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
-          if (this.needToGetAvgColor(avgRowColor, rowType, alternateRowIdx)) {
-            // Cell is a betweenRows border
-            const aboveCellBgColor = cellColor.bgColor;
-            const nextRowColor =
-              alternateRows[(alternateRowIdx + 1) % alternateRows.length];
-            const belowCellBgColor = nextRowColor.bgColor;
-            avgRowColor = ColorHelper.calcAvgColor(
-              aboveCellBgColor!,
-              belowCellBgColor!
-            );
-
-            if (borderColor.bgColor) {
-              avgRowColor = ColorHelper.calcAvgColor(
-                avgRowColor!,
-                borderColor.bgColor!
-              );
-            }
-          }
-          if (this.isInnerBorder(cell.type)) {
-            if (borderColor) {
-              cellColor = {
-                ...borderColor,
-              } as PartialCellStyle;
-            }
-            // Add different bgColor based on if cell is betweenRows or betweenCols
-            cellColor.bgColor =
-              cell.type === "betweenRows"
-                ? avgRowColor
-                : savedRowColor!.bgColor;
-          }
-
-          // Color is determined, so apply it to the cell and save it for the next cells
-          savedRowColor ??= cellColor;
-          const styledString = this.createStyledCell(cell.content, cellColor);
-          cell.content = styledString;
-        });
-
-        const topRowExists = this.borderExists("top");
-        if (
-          alternating &&
-          rowIdx < this._rows.length - 1 &&
-          this.getRowType(rowIdx + 1) === "primary"
-        ) {
-          if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
-            alternateRowIdx++;
-          }
-        }
-      });
-    }
-
-    if (borderColor) {
-      this._rows.forEach((row) => {
-        row.forEach((cell) => {
-          if (this.isOuterBorder(cell.type)) {
-            // If border bgColor is not set, use savedAvgBGTableColor
-            const color = { ...borderColor };
-            const styledString = this.createStyledCell(cell.content, color);
-            cell.content = styledString;
-          }
-        });
-      });
-    }
+  getColByIdx(colIdx: number): Cell[] {
+    return this._rows.map((row) => row.cells[colIdx]);
   }
 
-  needToGetAvgColor(
-    avgRowColor: string | undefined,
-    rowType: CellType,
-    alternateRowIdx: number
-  ) {
-    if (avgRowColor !== undefined) return false;
-    const { alternateRows } = this.colors;
-    const currColor = alternateRows[alternateRowIdx % alternateRows.length];
-    const nextColor =
-      alternateRows[(alternateRowIdx + 1) % alternateRows.length];
-    if (rowType === "betweenRows" && currColor.bgColor && nextColor.bgColor) {
-      return true;
-    }
-    return false;
+  getCellByCoords(rowIdx: number, colIdx: number): Cell {
+    return this._rows[rowIdx].getCellByIdx(colIdx);
   }
+
+  // addColors() {
+  //   if (nullUndefinedOrFalse(this.colors)) return;
+
+  //   const { targetCells, alternateRows, borderColor } = this.colors;
+
+  //   if (alternateRows) {
+  //     // Iterate over rows, cycling through alternateRows colors
+  //     const alternating = alternateRows.length > 1;
+  //     let alternateRowIdx = 0;
+  //     this._rows.forEach((row, rowIdx) => {
+  //       const rowType = this.getRowType(rowIdx);
+  //       let savedRowColor: PartialCellStyle | undefined = undefined;
+  //       let avgRowColor: string | undefined = undefined;
+
+  //       row.forEach((cell, colIdx) => {
+  //         const cellNeedsColor = this.checkCellNeedsColor(
+  //           "alternateRows",
+  //           cell,
+  //           colIdx,
+  //           rowIdx
+  //         );
+  //         if (!cellNeedsColor) return;
+  //         let cellColor: PartialCellStyle;
+  //         // Save color from previous cell if it exists
+  //         if (savedRowColor) {
+  //           cellColor = savedRowColor;
+  //         } else {
+  //           // Cycle through alternateRows colors
+  //           cellColor = alternateRows[alternateRowIdx % alternateRows.length];
+  //         }
+
+  //         // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
+  //         if (this.needToGetAvgColor(avgRowColor, rowType, alternateRowIdx)) {
+  //           // Cell is a betweenRows border
+  //           const aboveCellBgColor = cellColor.bgColor;
+  //           const nextRowColor =
+  //             alternateRows[(alternateRowIdx + 1) % alternateRows.length];
+  //           const belowCellBgColor = nextRowColor.bgColor;
+  //           avgRowColor = ColorHelper.calcAvgColor(
+  //             aboveCellBgColor!,
+  //             belowCellBgColor!
+  //           );
+
+  //           if (borderColor.bgColor) {
+  //             avgRowColor = ColorHelper.calcAvgColor(
+  //               avgRowColor!,
+  //               borderColor.bgColor!
+  //             );
+  //           }
+  //         }
+  //         if (this.isInnerBorder(cell.type)) {
+  //           if (borderColor) {
+  //             cellColor = {
+  //               ...borderColor,
+  //             } as PartialCellStyle;
+  //           }
+  //           // Add different bgColor based on if cell is betweenRows or betweenCols
+  //           cellColor.bgColor =
+  //             cell.type === "betweenRows"
+  //               ? avgRowColor
+  //               : savedRowColor!.bgColor;
+  //         }
+
+  //         // Color is determined, so apply it to the cell and save it for the next cells
+  //         savedRowColor ??= cellColor;
+  //         const styledString = this.createStyledCell(cell.content, cellColor);
+  //         cell.content = styledString;
+  //       });
+
+  //       const topRowExists = this.borderExists("top");
+  //       if (
+  //         alternating &&
+  //         rowIdx < this._rows.length - 1 &&
+  //         this.getRowType(rowIdx + 1) === "primary"
+  //       ) {
+  //         if ((topRowExists && rowIdx > 1) || (!topRowExists && rowIdx > 0)) {
+  //           alternateRowIdx++;
+  //         }
+  //       }
+  //     });
+  //   }
+
+  //   if (borderColor) {
+  //     this._rows.forEach((row) => {
+  //       row.forEach((cell) => {
+  //         if (this.isOuterBorder(cell.type)) {
+  //           // If border bgColor is not set, use savedAvgBGTableColor
+  //           const color = { ...borderColor };
+  //           const styledString = this.createStyledCell(cell.content, color);
+  //           cell.content = styledString;
+  //         }
+  //       });
+  //     });
+  //   }
+  // }
+
+  // needToGetAvgColor(
+  //   avgRowColor: string | undefined,
+  //   rowType: CellType,
+  //   alternateRowIdx: number
+  // ) {
+  //   if (avgRowColor !== undefined) return false;
+  //   const { alternateRows } = this.colors;
+  //   const currColor = alternateRows[alternateRowIdx % alternateRows.length];
+  //   const nextColor =
+  //     alternateRows[(alternateRowIdx + 1) % alternateRows.length];
+  //   if (rowType === "betweenRows" && currColor.bgColor && nextColor.bgColor) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   isAnyBorder(type: CellType) {
     if (type !== "primary" && type !== "overflow") return true;
@@ -222,13 +226,6 @@ export class Versitable implements VersitableType {
 
   borderExists(type: AnyBorder) {
     return !nullUndefinedOrFalse(this.borders.sides[type]);
-  }
-
-  getRowType(rowIdx: number): CellType {
-    const definingCell = this.borderExists("left")
-      ? this._rows[rowIdx][1]
-      : this._rows[rowIdx][0];
-    return definingCell.type;
   }
 
   checkCellNeedsColor(
@@ -257,10 +254,10 @@ export class Versitable implements VersitableType {
   }
 
   // User-facing methods
-  // Make a new table with Versitable.make(inputTable, inputOptions)
-  static make(inputTable: string[][], inputOptions?: PartialTableOptions) {
-    const newCellTable = new Versitable(inputTable, inputOptions);
-    const newStringTable = Versitable.cellsToStrings(newCellTable._table);
+  // Make a new table with Versitable.make(inputStrings, inputOptions)
+  static make(inputStrings: string[][], inputOptions?: PartialTableOptions) {
+    const newVersitable = new Versitable(inputStrings, inputOptions);
+    const newStringTable = Versitable.cellsToStrings(newVersitable._rows);
     return new VersitableArray(newStringTable);
   }
 
@@ -281,45 +278,45 @@ export class Versitable implements VersitableType {
 
   splitCellsBetweenRows(): void {
     const maxRowHeight = this._options.maxRowHeight;
-    const originalRowCount = this._rows.length;
-    const originalRowLength = this._rows[0].length;
+    const originalRowCount = this.rowCount;
     let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
 
     for (let i = 0; i < originalRowCount; i++) {
-      let insertRows: Cell[][] = [];
+      let insertRows: Row[] = [];
       const rowIdxWithInserts = i + totalInsertRows;
 
-      for (let colIdx = 0; colIdx < originalRowLength; colIdx++) {
+      for (let colIdx = 0; colIdx < this.colCount; colIdx++) {
         const maxColWidth = this._colWidths[colIdx];
-        const cell = this._rows[rowIdxWithInserts][colIdx];
+        const cell = this.getCellByCoords(rowIdxWithInserts, colIdx);
 
         // Cell isn't too long to fit in column, skip over it
         if (cell.length <= maxColWidth) continue;
         // Row height is one, so just split cell in place and continue
         if (maxRowHeight === 1) {
-          cell.splitAt(maxColWidth);
+          cell.truncateToLength(maxColWidth);
           continue;
         }
         // Row height is greater than one, so split cell and insert overflow into new rows
         let sliceNum = 0;
         let lastSlice: Cell | undefined;
-        while (sliceNum < maxRowHeight - 1) {
+        while (sliceNum < maxRowHeight) {
           const targetCell = lastSlice || cell;
           // If last slice reached end of cell, break out of loop
           if (targetCell.content[sliceNum * maxColWidth] === undefined) break;
           // Create new insert row if needed
           if (insertRows[sliceNum] === undefined) {
-            insertRows.push(this.createNewInsertRow("overflow"));
+            const rowType = sliceNum === 0 ? "primary" : "overflow";
+            insertRows.push(this.createBlankRow(rowType));
             totalInsertRows++;
           }
-          const insertCell = targetCell.splitAt(maxColWidth);
-          const isLastInsertRow = sliceNum === maxRowHeight - 2;
+          const [insertCell, overflowCell] = targetCell.splitAt(maxColWidth);
+          const isLastInsertRow = sliceNum === maxRowHeight - 1;
           if (insertCell.length > maxColWidth && isLastInsertRow) {
-            insertCell.splitAt(maxColWidth);
+            insertCell.truncateToLength(maxColWidth);
           }
           // Add new cell to insert row
-          insertRows[sliceNum][colIdx] = insertCell;
-          lastSlice = insertCell;
+          insertRows[sliceNum].addCellByIdx(colIdx, insertCell);
+          lastSlice = overflowCell;
           sliceNum++;
         }
       }
@@ -331,25 +328,23 @@ export class Versitable implements VersitableType {
     }
   }
 
-  createNewInsertRow(type: CellType): CellType[] {
-    return this._colWidths.map((colWidth) => {
-      const newCell = new Cell(type, " ".repeat(colWidth), colWidth);
-      return newCell;
-    });
+  createBlankRow(type: CellType): Row {
+    return Row.createBlankRowOfType(this.colCount, type);
   }
 
   padCells(): void {
-    this._rows.forEach((row, rowIdx) => {
-      row.forEach((cell, colIdx) => {
+    for (let rowIdx = 0; rowIdx < this.rowCount; rowIdx++) {
+      for (let colIdx = 0; colIdx < this.colCount; colIdx++) {
+        const cell = this.getCellByCoords(rowIdx, colIdx);
         const maxColWidth = this._colWidths[colIdx];
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
         if (cellPadding > 0) {
           cell.pad(cellPadding, "left");
         }
-      });
-    });
-    // Add padding to colWidths lengths
+      }
+    }
+    // Update colWidths property with new widths
     this._colWidths.forEach((width, idx, arr) => {
       arr[idx] = width + this._options.cellPadding;
     });
@@ -359,8 +354,8 @@ export class Versitable implements VersitableType {
     let insertIdxs: number[] = [];
     switch (type) {
       case "betweenRows":
-        insertIdxs = this._rows.reduce((acc, row, idx) => {
-          if (idx > 0 && this.getRowType(idx) === "primary") acc.push(idx);
+        insertIdxs = this.rowTypes.reduce((acc, type, idx) => {
+          if (type === "primary") acc.push(idx);
           return acc;
         }, [] as number[]);
         break;
@@ -380,15 +375,26 @@ export class Versitable implements VersitableType {
     const insertIdxs = this.findHorizontalBorderInsertIdxs(type);
 
     for (let i = insertIdxs.length - 1; i >= 0; i--) {
-      const border = this.createHorizontalBorder(type);
+      const { horizontalLine } = this.getGlyphsForBorderType(type);
+      const border = Row.createHorizontalBorder(
+        type,
+        this._colWidths,
+        horizontalLine
+      );
       this._rows.splice(insertIdxs[i], 0, border);
     }
   }
 
   insertVerticalBorder(type: VerticalBorder) {
-    for (let i = 0; i < this._rows.length; i++) {
+    const borderGlyphs = this.getGlyphsForBorderType(type);
+
+    for (let i = 0; i < this.rowCount; i++) {
       const row = this._rows[i];
-      const rowWithBorder = this.createVerticalBorder(row, type);
+      const rowWithBorder = Row.createRowWithVerticalBorders(
+        type,
+        row,
+        borderGlyphs
+      );
       this._rows[i] = rowWithBorder;
     }
   }
@@ -424,19 +430,19 @@ export class Versitable implements VersitableType {
     );
   }
 
-  static cellsToStrings(cellTable: CellType[][]): string[][] {
-    return cellTable.map((row) => row.map((cell) => cell.content));
+  static cellsToStrings(rows: Row[]): string[][] {
+    return rows.map((row) => row.cells.map((cell) => cell.content));
   }
 
   populateArrFromMaxColWidths(): number[] {
-    const numCols = this.numCols;
+    const colCount = this.colCount;
     const userMaxColWidths = this._options.maxColWidths;
     // format options.maxColWidths
     if (typeof userMaxColWidths === "number") {
-      return Array(numCols).fill(userMaxColWidths);
-    } else if (userMaxColWidths.length < numCols) {
+      return Array(colCount).fill(userMaxColWidths);
+    } else if (userMaxColWidths.length < colCount) {
       // This extends the options.maxColWidths array to match the number of columns in the table
-      const defaultWidthsArr = Array(numCols - userMaxColWidths.length).fill(
+      const defaultWidthsArr = Array(colCount - userMaxColWidths.length).fill(
         TABLE_DEFAULTS.maxColWidths
       );
       return userMaxColWidths.concat(defaultWidthsArr);
@@ -473,8 +479,8 @@ export class Versitable implements VersitableType {
 
   findLongestStrLenPerCol(): number[] {
     let longestStrings: number[] = [];
-    for (let i = 0; i < this._rows.length; i += 1) {
-      const longestInCol = this.colByIdx(i).reduce((acc, cell) => {
+    for (let i = 0; i < this.colCount - 1; i++) {
+      const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
         if (cell.length > acc) acc = cell.length;
         return acc;
       }, 0);
@@ -520,81 +526,6 @@ export class Versitable implements VersitableType {
         };
       default:
         throw new Error("Invalid border type");
-    }
-  }
-
-  createHorizontalBorder(type: HorizontalBorder): CellType[] {
-    const { horizontalLine } = this.getGlyphsForBorderType(type);
-
-    return this._colWidths.map((colWidth) => {
-      return new Cell(type, horizontalLine.repeat(colWidth), colWidth);
-    });
-  }
-
-  appendVertBorderToCell(
-    borderType: AnyBorder,
-    borderStr: string,
-    cell: CellType
-  ): CellType[] {
-    const borderCell = new Cell(borderType, borderStr, 1);
-    return [cell, borderCell];
-  }
-
-  addVertBorderToCells(
-    borderType: AnyBorder,
-    borderStr: string,
-    cells: CellType[]
-  ): CellType[] {
-    const borderCell = new Cell(borderType, borderStr, 1);
-    return borderType !== "right"
-      ? [borderCell, ...cells]
-      : [...cells, borderCell];
-  }
-
-  createVerticalBorder(row: CellType[], type: VerticalBorder): CellType[] {
-    const { verticalLine, topEdge, bottomEdge, separator } =
-      this.getGlyphsForBorderType(type);
-
-    if (type === "left" || type === "right") {
-      const rowType = row[0].type;
-      let borderGlyph;
-
-      switch (rowType) {
-        case "top":
-          borderGlyph = topEdge;
-          break;
-        case "bottom":
-          borderGlyph = bottomEdge;
-          break;
-        case "betweenRows":
-          borderGlyph = separator;
-          break;
-        default:
-          borderGlyph = verticalLine;
-          break;
-      }
-
-      return this.addVertBorderToCells(type, borderGlyph, row);
-    } else {
-      // border === "betweenColumns"
-      let newRow: CellType[] = row.reduce((acc: CellType[], cell, colIdx) => {
-        const isLastCol = colIdx === row.length - 1;
-        if (isLastCol) {
-          acc.push(cell);
-        } else if (cell.type === "top" || cell.type === "bottom") {
-          const borderGlyph = cell.type === "top" ? topEdge : bottomEdge;
-          acc.push(
-            ...this.appendVertBorderToCell(cell.type, borderGlyph, cell)
-          );
-        } else {
-          const isBetweenRows = cell.type === "betweenRows";
-          const borderGlyph = isBetweenRows ? separator : verticalLine;
-          const cellType = isBetweenRows ? "betweenRows" : "betweenColumns";
-          acc.push(...this.appendVertBorderToCell(cellType, borderGlyph, cell));
-        }
-        return acc;
-      }, []);
-      return newRow;
     }
   }
 
