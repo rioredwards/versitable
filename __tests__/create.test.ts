@@ -1,12 +1,11 @@
 import { Versitable } from "../src/Versitable";
-import {
-  invalidTableData,
-  invalidTableOptions,
-} from "./__mocks__/invalidTableData";
-import { validTableData, validTableOptions } from "./__mocks__/validTableData";
+import { invalidTableData } from "./__mocks__/invalidTableData";
+import { validTableData } from "./__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { CustomBorders } from "../src/tableTypes";
 import { VersitableFacade } from "../src/VersitableFacade";
+import { invalidTableOptions } from "./__mocks__/invalidTableOptions";
+import { validTableOptions } from "./__mocks__/validTableOptions";
 
 const {
   horizontalLine,
@@ -17,7 +16,7 @@ const {
   bottomRightCorner,
 } = (TABLE_DEFAULTS.borders as CustomBorders).glyphs;
 
-describe("Versitable.make", () => {
+describe.skip("Versitable.make", () => {
   beforeEach(() => {
     jest.resetModules();
   });

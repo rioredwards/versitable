@@ -18,7 +18,7 @@ import {
 import {
   checkTableIsValid,
   checkTableOptionsAreValid,
-} from "./tableValidations";
+} from "./inputValidations";
 import { deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
 import { ColorHelper } from "./ColorHelper";

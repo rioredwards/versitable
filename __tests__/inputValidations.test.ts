@@ -1,4 +1,4 @@
-import * as tableValidations from "../src/tableValidations";
+import * as tableValidations from "../src/inputValidations";
 import {
   invalidBordersOption,
   invalidCellPaddings,
@@ -8,7 +8,7 @@ import {
   invalidMaxColumns,
   invalidMaxRowHeight,
   invalidMaxRows,
-} from "./__mocks__/invalidTableData";
+} from "./__mocks__/invalidTableOptions";
 import {
   validBordersOption,
   validCellPaddings,
@@ -18,9 +18,9 @@ import {
   validMaxColumns,
   validMaxRowHeight,
   validMaxRows,
-} from "./__mocks__/validTableData";
+} from "./__mocks__/validTableOptions";
 
-describe.skip("checkTableOptionsAreValid", () => {
+describe("checkTableOptionsAreValid", () => {
   it("should throw an error if optionChecks is set to 'error' and option arguments are invalid", () => {
     expect(() =>
       tableValidations.checkTableOptionsAreValid({
