@@ -1,14 +1,5 @@
 import { Cell } from "./Cell";
-import { VerticalGlyphs } from "./tableTypes";
-import {
-  AnyBorder,
-  CellType,
-  HorizontalBorder,
-  IRow,
-  RegularCellContent,
-  RowType,
-  VerticalBorder,
-} from "./tableTypes";
+import { AnyBorder, IRow, RegularCellContent, RowType } from "./tableTypes";
 
 export class Row implements IRow {
   cells: Cell[];
@@ -48,15 +39,15 @@ export class Row implements IRow {
     return borderTypes;
   }
 
-  splice(startIdx: number, endIdx: number): void {
-    this.cells.splice(startIdx, endIdx);
+  splice(startIdx: number, endIdx: number, insertCells?: Cell[]): void {
+    this.cells.splice(startIdx, endIdx, ...(insertCells ?? []));
   }
 
-  getCellByIdx(idx: number): Cell {
+  cellAt(idx: number): Cell {
     return this.cells[idx];
   }
 
-  addCellByIdx(idx: number, cell: Cell): void {
+  insert(idx: number, cell: Cell): void {
     this.cells.splice(idx, 0, cell);
   }
 }

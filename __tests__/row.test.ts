@@ -12,88 +12,87 @@ describe("Rows: ", () => {
       expect(row.cells.length).toBe(2);
     });
   });
+
+  describe("length: ", () => {
+    it("should return the number of cells in the row", () => {
+      const row = new Row([new Cell(), new Cell()]);
+      expect(row.length).toBe(2);
+    });
+  });
+
+  describe("type should return the type of the row when: ", () => {
+    it("left border is NOT present", () => {
+      const row = new Row([new Cell("overflow"), new Cell("overflow")]);
+      expect(row.type).toBe("overflow");
+    });
+    it("left border IS present", () => {
+      const row = new Row([new Cell("left"), new Cell("overflow")]);
+      expect(row.type).toBe("overflow");
+    });
+    it("row contains top border cells", () => {
+      const row = new Row([new Cell("top")]);
+      expect(row.type).toBe("upperBorder");
+    });
+    it("row contains bottom border cells", () => {
+      const row = new Row([new Cell("bottom")]);
+      expect(row.type).toBe("lowerBorder");
+    });
+    it("row contains betweenRows border cells", () => {
+      const row = new Row([new Cell("betweenRows")]);
+      expect(row.type).toBe("innerBorder");
+    });
+  });
+
+  describe("borders: ", () => {
+    it("should return a set of border types", () => {
+      const row = new Row([
+        new Cell("top"),
+        new Cell("bottom"),
+        new Cell("betweenRows"),
+      ]);
+      expect(row.borders).toEqual(new Set(["top", "bottom", "betweenRows"]));
+    });
+    it("should return an empty set when no border cells are in row", () => {
+      const row = new Row([
+        new Cell("primary"),
+        new Cell("overflow"),
+        new Cell("primary"),
+      ]);
+      expect(row.borders).toEqual(new Set([]));
+    });
+  });
+
+  describe("splice: ", () => {
+    it("should remove cells from row", () => {
+      const row = new Row([new Cell(), new Cell(), new Cell()]);
+      row.splice(1, 2);
+      expect(row.length).toBe(1);
+    });
+    it("should insert cells into row", () => {
+      const row = new Row([new Cell(), new Cell()]);
+      row.splice(1, 0, [new Cell(), new Cell()]);
+      expect(row.length).toBe(4);
+    });
+  });
+
+  describe("cellAt: ", () => {
+    it("should return a cell", () => {
+      const row = new Row([
+        new Cell("overflow", "content1"),
+        new Cell("primary", "content2"),
+      ]);
+      expect(row.cellAt(0)).toBeInstanceOf(Cell);
+      expect(row.cellAt(1)).toBeInstanceOf(Cell);
+      expect(row.cellAt(0)).toEqual(new Cell("overflow", "content1"));
+      expect(row.cellAt(1)).toEqual(new Cell("primary", "content2"));
+    });
+  });
+
+  describe("insert: ", () => {
+    it("should add a cell to the row", () => {
+      const row = new Row([new Cell(), new Cell()]);
+      row.insert(1, new Cell());
+      expect(row.length).toBe(3);
+    });
+  });
 });
-
-// import { Cell } from "../src/Cell";
-
-// describe("Cells: ", () => {
-//   beforeEach(() => {
-//     jest.resetModules();
-//   });
-
-//   describe("Constructor: ", () => {
-//     it("should create a cell without any parameters", () => {
-//       const cell = new Cell();
-//       expect(cell.type).toBe("primary");
-//       expect(cell.content).toBe("");
-//       expect(cell.length).toBe(0);
-//       expect(cell.color).toBeUndefined();
-//     });
-//     it("should create a cell with a type", () => {
-//       const cell = new Cell("primary");
-//       expect(cell.type).toBe("primary");
-//     });
-//     it("should create a cell with content", () => {
-//       const cell = new Cell("primary", "content");
-//       expect(cell.content).toBe("content");
-//     });
-//     it("should create a cell with a length", () => {
-//       const cell = new Cell("primary", "content", 7);
-//       expect(cell.length).toBe(7);
-//     });
-//     it("should create a cell with a color", () => {
-//       const cell = new Cell("primary", "content", 7, "red");
-//       expect(cell.color).toBe("red");
-//     });
-//   });
-
-//   describe("truncateToLength: ", () => {
-//     it("should truncate a cell to the given length", () => {
-//       const cell = new Cell("primary", "some content", 12);
-//       cell.truncateToLength(4);
-//       expect(cell.content).toBe("some");
-//       expect(cell.length).toBe(4);
-//     });
-//   });
-
-//   describe("splitAt: ", () => {
-//     it("should split a cell at the given index", () => {
-//       const content = "some content";
-//       const cell = new Cell("primary", "some content", content.length);
-//       const [left, right] = cell.splitAt(4);
-//       expect(left.content).toBe("some");
-//       expect(right.content).toBe(" content");
-//     });
-//   });
-
-//   describe("pad: ", () => {
-//     it("should pad a cell with spaces on the left", () => {
-//       const cell = new Cell("primary", "content", 7);
-//       cell.pad(3, "left");
-//       expect(cell.content).toBe("   content");
-//     });
-//     it("should pad a cell with spaces on the right", () => {
-//       const cell = new Cell("primary", "content", 7);
-//       cell.pad(3, "right");
-//       expect(cell.content).toBe("content   ");
-//     });
-//     it("should pad a cell with spaces on both sides", () => {
-//       const cell = new Cell("primary", "content", 7);
-//       cell.pad(3, "center");
-//       expect(cell.content).toBe(" content  ");
-//     });
-//   });
-
-//   describe("isBorder", () => {
-//     it("should return true if the cell is a border", () => {
-//       const cell = new Cell("top", "content", 7);
-//       console.log("cell: ", cell);
-//       console.log(cell.isBorder());
-//       expect(cell.isBorder()).toBe(true);
-//     });
-//     it("should return false if the cell is not a border", () => {
-//       const cell = new Cell("primary", "content", 7);
-//       expect(cell.isBorder()).toBe(false);
-//     });
-//   });
-// });

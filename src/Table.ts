@@ -95,7 +95,7 @@ export class Versitable implements VersitableType {
   }
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
-    return this._rows[rowIdx].getCellByIdx(colIdx);
+    return this._rows[rowIdx].cellAt(colIdx);
   }
 
   // addColors() {
@@ -316,7 +316,7 @@ export class Versitable implements VersitableType {
             insertCell.truncateToLength(maxColWidth);
           }
           // Add new cell to insert row
-          insertRows[sliceNum].addCellByIdx(colIdx, insertCell);
+          insertRows[sliceNum].insert(colIdx, insertCell);
           lastSlice = overflowCell;
           sliceNum++;
         }
