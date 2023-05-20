@@ -419,7 +419,7 @@ export class Versitable {
     switch (type) {
       case "betweenRows":
         insertIdxs = this.rowTypes.reduce((acc, type, idx) => {
-          if (type === "primary") acc.push(idx);
+          if (idx > 0 && type === "primary") acc.push(idx);
           return acc;
         }, [] as number[]);
         break;
