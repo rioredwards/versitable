@@ -1,6 +1,5 @@
 import { Cell } from "../src/Cell";
 import { RowFactory } from "../src/RowFactory";
-// import { RowFactory } from "../src/RowFactory";
 
 describe("RowFactory: ", () => {
   beforeEach(() => {

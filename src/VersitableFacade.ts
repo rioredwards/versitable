@@ -1,5 +1,3 @@
-import { Versitable } from "./Table";
-
 // This is the return type of the make() method on the Versitable class.
 // Users will interact with this class.
 export class VersitableFacade extends Array<string[]> {
