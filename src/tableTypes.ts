@@ -40,7 +40,7 @@ export interface ICell {
   length: number;
   color?: string;
 
-  splitAt(index: number): Cell[];
+  splitAtIdx(index: number): Cell[];
   pad(padLength: number, align?: Align): void;
   isBorder(): boolean;
 }

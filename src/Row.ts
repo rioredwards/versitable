@@ -43,11 +43,11 @@ export class Row implements IRow {
     this.cells.splice(startIdx, endIdx, ...(insertCells ?? []));
   }
 
-  cellAt(idx: number): Cell {
+  cellAtIdx(idx: number): Cell {
     return this.cells[idx];
   }
 
-  insert(idx: number, cell: Cell): void {
+  insertCellAtIdx(idx: number, cell: Cell): void {
     this.cells.splice(idx, 0, cell);
   }
 }

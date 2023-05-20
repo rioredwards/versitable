@@ -12,7 +12,6 @@ import {
   VerticalGlyphs,
   CellStyle,
   CustomColorsTarget,
-  PartialCellStyle,
   AnyBorder,
   RowType,
 } from "./tableTypes";
@@ -25,24 +24,7 @@ import { Cell } from "./Cell";
 import { ColorHelper } from "./ColorHelper";
 import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
-
-// This is the return type of the make() function.
-// Users will interact with this class.
-export class VersitableArray extends Array<string[]> {
-  private _formattedTable: string[][];
-
-  constructor(table: string[][]) {
-    super(...table);
-    this._formattedTable = table;
-  }
-
-  print(): void {
-    const joinedTable = this._formattedTable
-      .map((row) => row.join(""))
-      .join("\n");
-    console.log(joinedTable);
-  }
-}
+import { VersitableFacade } from "./VersitableFacade";
 
 // Main class which does all the work
 export class Versitable implements VersitableType {
@@ -70,6 +52,18 @@ export class Versitable implements VersitableType {
     // this.addColors();
   }
 
+  // This is how users will create a new table
+  // It returns a VersitableFacade, which is the public interface
+  static make(inputStrings: string[][], inputOptions?: PartialTableOptions) {
+    const newVersitable = new Versitable(inputStrings, inputOptions);
+    const stringTable = Versitable.stringifyTable(newVersitable);
+    return new VersitableFacade(stringTable);
+  }
+
+  static stringifyTable(versitable: Versitable): string[][] {
+    return versitable._rows.map((row) => row.cells.map((cell) => cell.content));
+  }
+
   get rowCount(): number {
     return this._rows.length;
   }
@@ -95,7 +89,7 @@ export class Versitable implements VersitableType {
   }
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
-    return this._rows[rowIdx].cellAt(colIdx);
+    return this._rows[rowIdx].cellAtIdx(colIdx);
   }
 
   // addColors() {
@@ -254,14 +248,6 @@ export class Versitable implements VersitableType {
     return ColorHelper.createStyledString(cellString, fgColor, bgColor, style);
   }
 
-  // User-facing methods
-  // Make a new table with Versitable.make(inputStrings, inputOptions)
-  static make(inputStrings: string[][], inputOptions?: PartialTableOptions) {
-    const newVersitable = new Versitable(inputStrings, inputOptions);
-    const newStringTable = Versitable.cellsToStrings(newVersitable._rows);
-    return new VersitableArray(newStringTable);
-  }
-
   // Mutations to table
   limitInputRows(inputTable: string[][]): string[][] {
     if (inputTable.length > this._options.maxRows) {
@@ -310,13 +296,13 @@ export class Versitable implements VersitableType {
             insertRows.push(this.createBlankRow(rowType));
             totalInsertRows++;
           }
-          const [insertCell, overflowCell] = targetCell.splitAt(maxColWidth);
+          const [insertCell, overflowCell] = targetCell.splitAtIdx(maxColWidth);
           const isLastInsertRow = sliceNum === maxRowHeight - 1;
           if (insertCell.length > maxColWidth && isLastInsertRow) {
             insertCell.truncateToLength(maxColWidth);
           }
           // Add new cell to insert row
-          insertRows[sliceNum].insert(colIdx, insertCell);
+          insertRows[sliceNum].insertCellAtIdx(colIdx, insertCell);
           lastSlice = overflowCell;
           sliceNum++;
         }
@@ -429,10 +415,6 @@ export class Versitable implements VersitableType {
     return tableContentStrings.map((rowContentStrings) =>
       RowFactory.createRowFromStrings(rowContentStrings)
     );
-  }
-
-  static cellsToStrings(rows: Row[]): string[][] {
-    return rows.map((row) => row.cells.map((cell) => cell.content));
   }
 
   populateArrFromMaxColWidths(): number[] {

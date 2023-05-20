@@ -40,11 +40,11 @@ describe("Cells: ", () => {
     });
   });
 
-  describe("splitAt: ", () => {
+  describe("splitAtIdx: ", () => {
     it("should split a cell at the given index", () => {
       const content = "some content";
       const cell = new Cell("primary", "some content", content.length);
-      const [left, right] = cell.splitAt(4);
+      const [left, right] = cell.splitAtIdx(4);
       expect(left.content).toBe("some");
       expect(right.content).toBe(" content");
     });

@@ -1,4 +1,4 @@
-import { Versitable, VersitableArray } from "../src/Table";
+import { Versitable } from "../src/Table";
 import {
   invalidTableData,
   invalidTableOptions,
@@ -6,6 +6,7 @@ import {
 import { validTableData, validTableOptions } from "./__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { CustomBorders } from "../src/tableTypes";
+import { VersitableFacade } from "../src/VersitableFacade";
 
 const {
   horizontalLine,
@@ -21,10 +22,9 @@ describe.skip("Versitable.make", () => {
     jest.resetModules();
   });
 
-  it("should create a VersitableArray if passed in a string[][]", () => {
-    const myVersitable = Versitable.make(validTableData, { borders: false });
-    expect(myVersitable).toBeInstanceOf(VersitableArray);
-    expect(myVersitable[0]).toBeInstanceOf(Array);
+  it("should create a Versitable if passed in a string[][]", () => {
+    const myVersitable = Versitable.make(validTableData);
+    expect(myVersitable).toBeInstanceOf(VersitableFacade);
     expect(typeof myVersitable.print).toBe("function");
     expect(typeof myVersitable[0][0]).toBe("string");
   });
@@ -35,11 +35,11 @@ describe.skip("Versitable.make", () => {
     }
   });
 
-  it("should create a VersitableArray if passed in valid options", () => {
+  it("should create a VersitableFacade if passed in valid options", () => {
     const myVersitable = Versitable.make(validTableData, {
       ...validTableOptions,
     });
-    expect(myVersitable).toBeInstanceOf(VersitableArray);
+    expect(myVersitable).toBeInstanceOf(VersitableFacade);
     expect(myVersitable[0]).toBeInstanceOf(Array);
     expect(typeof myVersitable[0][0]).toBe("string");
   });

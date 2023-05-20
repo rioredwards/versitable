@@ -25,7 +25,7 @@ export class Cell implements ICell {
   }
 
   // Splits cell into two cells at index
-  splitAt(index: number): Cell[] {
+  splitAtIdx(index: number): Cell[] {
     const firstSlice = this.content.substring(0, index);
     const secondSlice = this.content.substring(index);
     const firstSliceLength = index;

@@ -75,23 +75,23 @@ describe("Rows: ", () => {
     });
   });
 
-  describe("cellAt: ", () => {
+  describe("cellAtIdx: ", () => {
     it("should return a cell", () => {
       const row = new Row([
         new Cell("overflow", "content1"),
         new Cell("primary", "content2"),
       ]);
-      expect(row.cellAt(0)).toBeInstanceOf(Cell);
-      expect(row.cellAt(1)).toBeInstanceOf(Cell);
-      expect(row.cellAt(0)).toEqual(new Cell("overflow", "content1"));
-      expect(row.cellAt(1)).toEqual(new Cell("primary", "content2"));
+      expect(row.cellAtIdx(0)).toBeInstanceOf(Cell);
+      expect(row.cellAtIdx(1)).toBeInstanceOf(Cell);
+      expect(row.cellAtIdx(0)).toEqual(new Cell("overflow", "content1"));
+      expect(row.cellAtIdx(1)).toEqual(new Cell("primary", "content2"));
     });
   });
 
-  describe("insert: ", () => {
+  describe("insertCellAtIdx: ", () => {
     it("should add a cell to the row", () => {
       const row = new Row([new Cell(), new Cell()]);
-      row.insert(1, new Cell());
+      row.insertCellAtIdx(1, new Cell());
       expect(row.length).toBe(3);
     });
   });
