@@ -155,14 +155,14 @@ describe("checkTableOptionsAreValid", () => {
       expect(result).toBeTruthy();
     });
   });
-  it.only("should throw an error if styles option is invalid", () => {
+  it("should throw an error if styles option is invalid", () => {
     invalidStylesOption.forEach((styles: any) => {
       expect(() =>
         tableValidations.checkTableOptionsAreValid({ styles })
       ).toThrowError();
     });
   });
-  it("should return true if styles option is valid", () => {
+  it.only("should return true if styles option is valid", () => {
     validStylesOption.forEach((styles: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         styles,

@@ -134,6 +134,13 @@ function isEmptyObj(obj: object): boolean {
   return Object.keys(obj).length === 0;
 }
 
+function isActuallyObject(value: any) {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return true;
+  }
+  return false;
+}
+
 function isValidArray(array: any, validationFn: ValidationFn) {
   if (!Array.isArray(array)) {
     handleInvalidEntry(`Invalid array: ${array}. Must be an array.`);
@@ -179,7 +186,7 @@ function isValidBorderGlyph(glyph: string) {
 
 function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
   if (glyphs === undefined) return true;
-  if (typeof glyphs !== "object") {
+  if (!isActuallyObject(glyphs)) {
     handleInvalidEntry("Invalid border glyphs option. Must be an object.");
     return false;
   }
@@ -193,7 +200,7 @@ function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
 
 function isValidBorderSidesOption(borderSidesOption: BorderSides) {
   if (borderSidesOption === undefined) return true;
-  if (typeof borderSidesOption !== "object") {
+  if (!isActuallyObject(borderSidesOption)) {
     handleInvalidEntry("Invalid border sides option. Must be an object.");
     return false;
   }
@@ -216,7 +223,7 @@ function isValidBorderSidesOption(borderSidesOption: BorderSides) {
 function isValidBordersOption(bordersOption: Borders) {
   if (bordersOption === undefined) return true;
   if (typeof bordersOption === "boolean") return true;
-  if (typeof bordersOption !== "object") {
+  if (!isActuallyObject(bordersOption)) {
     handleInvalidEntry("Invalid border option. Must be an object.");
     return false;
   }
@@ -246,7 +253,7 @@ function isValidBordersOption(bordersOption: Borders) {
 
 function isValidStyleObj(styleObj: StyleObj) {
   if (styleObj === undefined) return true;
-  if (typeof styleObj !== "object") {
+  if (!isActuallyObject(styleObj)) {
     handleInvalidEntry("Invalid style. Must be an object.");
     return false;
   }
@@ -286,7 +293,7 @@ function isValidTargetCellStyles(targetCellStylesOptions: TargetCellStyle[]) {
   }
   if (targetCellStylesOptions.length === 0) return false;
   targetCellStylesOptions.forEach((styleObj) => {
-    if (typeof styleObj !== "object") {
+    if (!isActuallyObject(styleObj)) {
       handleInvalidEntry("targetCellStyles option must be an array of objects");
       return false;
     }
@@ -317,7 +324,7 @@ function isValidStylesOption(stylesOption: Styles) {
   console.log("stylesOption: ", stylesOption);
   if (stylesOption === undefined) return true;
   if (typeof stylesOption === "boolean") return true;
-  if (typeof stylesOption !== "object") {
+  if (!isActuallyObject(stylesOption)) {
     handleInvalidEntry("styles option must be an object or a boolean");
     return false;
   }
@@ -340,7 +347,7 @@ function isValidStylesOption(stylesOption: Styles) {
         return false;
       }
     } else {
-      if (option === "borderStyle") debugger;
+      // if (option === "borderStyle") debugger;
       const { validationFn, errorMsg } = stylesOptionValidators[option];
       isValid(value, validationFn, errorMsg!);
     }
@@ -371,15 +378,19 @@ function getValidOptionChecksVal(optionChecksOption?: OptionChecks) {
 
 export function checkTableOptionsAreValid(
   options: PartialTableOptions | undefined
-): void | true {
+) {
   if (!options) return;
+  if (!isActuallyObject(options)) {
+    handleInvalidEntry("Invalid options. Must be an object.");
+    return false;
+  }
   optionChecks = getValidOptionChecksVal(options?.optionChecks);
   if (optionChecks === "skip") return;
 
   for (const [option, value] of Object.entries(options)) {
     if (option === "optionChecks") continue;
     if (option === "styles") {
-      // Handle color validations
+      // Handle style validations
       isValidStylesOption(value as Styles);
     } else if (option === "borders") {
       // Handle border validations
