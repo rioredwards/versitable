@@ -321,7 +321,6 @@ function isValidRowStylesOption(rowStylesOption: StyleObj[]) {
 }
 
 function isValidStylesOption(stylesOption: Styles) {
-  console.log("stylesOption: ", stylesOption);
   if (stylesOption === undefined) return true;
   if (typeof stylesOption === "boolean") return true;
   if (!isActuallyObject(stylesOption)) {
@@ -347,7 +346,6 @@ function isValidStylesOption(stylesOption: Styles) {
         return false;
       }
     } else {
-      // if (option === "borderStyle") debugger;
       const { validationFn, errorMsg } = stylesOptionValidators[option];
       isValid(value, validationFn, errorMsg!);
     }

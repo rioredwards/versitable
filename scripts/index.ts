@@ -1,20 +1,18 @@
 import { BorderGlyphs, PartialTableOptions } from "../src/tableTypes";
 import { hotkeys } from "../__tests__/__mocks__/hotkeys";
-import {
-  allBorderCombos,
-  validTableData,
-} from "../__tests__/__mocks__/validTableData";
+import { validTableData } from "../__tests__/__mocks__/validTableData";
 import { TABLE_DEFAULTS } from "../src/tableDefaults";
-import { Versitable } from "../src/Table";
-import { ColorHelper } from "../src/ColorHelper";
+import { Versitable } from "../src/Versitable";
+import { StyleHelper } from "../src/StyleHelper";
+import { allBorderCombos } from "../__tests__/__mocks__/validTableOptions";
 
-const alternateRows1 = [
+const rowStyles1 = [
   { fgColor: "#e0e0e0", bgColor: "#447c65" },
   { fgColor: "#e0e0e0", bgColor: "#445c7c" },
   { fgColor: "#e0e0e0", bgColor: "#7c5a44" },
   { fgColor: "#e0e0e0", bgColor: "#44737c" },
 ];
-const alternateRows2 = [
+const rowStyles2 = [
   { fgColor: "#1f1f1f", bgColor: "#d6d6d6" },
   // { fgColor: "#1f1f1f", bgColor: "#cbcbcb" },
   { fgColor: "#1f1f1f", bgColor: "#c0c0c0" },
@@ -27,7 +25,7 @@ const alternateRows2 = [
   // { fgColor: "#1f1f1f", bgColor: "#7e7e7e" },
   // { fgColor: "#1f1f1f", bgColor: "#757575" },
 ];
-const alternateRows3 = [
+const rowStyles3 = [
   // { fgColor: "#cfcfcf", bgColor: "#4b4b4b" },
   { fgColor: "#cfcfcf", bgColor: "#434343" },
   // { fgColor: "#cfcfcf", bgColor: "#3c3c3c" },
@@ -40,18 +38,18 @@ const alternateRows3 = [
 
 const updatedOptions: PartialTableOptions = {
   maxRows: 8,
-  maxColumns: 8,
-  maxColWidths: [20, 20, 10],
+  maxColumns: 3,
+  maxColWidths: [10, 20, 10],
   maxRowHeight: 3,
   cellPadding: 2,
   borders: {
     sides: {
-      betweenRows: true,
-      betweenColumns: true,
-      top: true,
-      bottom: true,
-      left: true,
-      right: true,
+      betweenRows: false,
+      betweenColumns: false,
+      top: false,
+      bottom: false,
+      left: false,
+      right: false,
     },
     glyphs: {
       horizontalLine: "━",
@@ -67,9 +65,9 @@ const updatedOptions: PartialTableOptions = {
       leftSeparator: "┣",
     },
   },
-  colors: {
-    borderColor: { fgColor: "#898989", bgColor: "#434343" },
-    alternateRows: alternateRows3,
+  styles: {
+    borderStyle: { fgColor: "#898989", bgColor: "#434343" },
+    rowStyles: rowStyles3,
   },
 };
 
@@ -123,8 +121,8 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
           leftSeparator: "┣",
         } as BorderGlyphs,
       },
-      colors: {
-        alternateRows: alternateRows3,
+      styles: {
+        rowStyles: rowStyles3,
       },
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);

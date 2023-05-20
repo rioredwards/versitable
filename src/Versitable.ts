@@ -79,7 +79,7 @@ export class Versitable {
     return this._options.borders as CustomBorders;
   }
 
-  get colors(): CustomStyles {
+  get styles(): CustomStyles {
     return this._options.styles as CustomStyles;
   }
 
@@ -89,6 +89,68 @@ export class Versitable {
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
     return this._rows[rowIdx].cellAtIdx(colIdx);
+  }
+
+  isAnyBorder(type: CellType) {
+    if (type !== "primary" && type !== "overflow") return true;
+    return false;
+  }
+
+  isOuterBorder(type: CellType) {
+    if (this.isAnyBorder(type) && !this.isInnerBorder(type)) return true;
+    return false;
+  }
+
+  isInnerBorder(type: CellType) {
+    if (type === "betweenColumns" || type === "betweenRows") return true;
+    return false;
+  }
+
+  borderExists(type: AnyBorder) {
+    return !nullUndefinedOrFalse(this.borders.sides[type]);
+  }
+
+  populateArrFromMaxColWidths(): number[] {
+    const colCount = this.colCount;
+    const userMaxColWidths = this._options.maxColWidths;
+    // format options.maxColWidths
+    if (typeof userMaxColWidths === "number") {
+      return Array(colCount).fill(userMaxColWidths);
+    } else if (userMaxColWidths.length < colCount) {
+      // This extends the options.maxColWidths array to match the number of columns in the table
+      const defaultWidthsArr = Array(colCount - userMaxColWidths.length).fill(
+        TABLE_DEFAULTS.maxColWidths
+      );
+      return userMaxColWidths.concat(defaultWidthsArr);
+    } else {
+      return userMaxColWidths;
+    }
+  }
+
+  populateBordersOptWithDefaults(): void {
+    if (typeof this._options.borders === "boolean") {
+      if (this._options.borders === true) {
+        this._options.borders = TABLE_DEFAULTS.borders as CustomBorders;
+      } else return;
+    } else {
+      this._options.borders = deepMerge(
+        TABLE_DEFAULTS.borders,
+        this._options.borders
+      ) as CustomBorders;
+    }
+  }
+
+  populateStylesOptWithDefaults(): void {
+    if (typeof this._options.styles === "boolean") {
+      if (this._options.styles === true) {
+        this._options.styles = TABLE_DEFAULTS.styles as CustomStyles;
+      } else return;
+    } else {
+      this._options.styles = deepMerge(
+        TABLE_DEFAULTS.styles,
+        this._options.styles
+      ) as CustomStyles;
+    }
   }
 
   // addColors() {
@@ -203,56 +265,67 @@ export class Versitable {
   //   return false;
   // }
 
-  isAnyBorder(type: CellType) {
-    if (type !== "primary" && type !== "overflow") return true;
-    return false;
+  // checkCellNeedsStyle(
+  //   target: CustomStylesTarget,
+  //   cell: Cell,
+  //   colIdx: number,
+  //   rowIdx: number
+  // ) {
+  //   if (target === "rowStyles") {
+  //     if (!this.isOuterBorder(cell.type)) {
+  //       if (
+  //         (this.borderExists("left") && colIdx === 0) ||
+  //         (this.borderExists("right") && colIdx === this._rows[0].length - 1)
+  //       ) {
+  //         return false;
+  //       }
+  //       return true;
+  //     }
+  //   }
+  // }
+
+  // createStyledCell(cellString: string, styleObj: StyleObj): string {
+  //   // StyleHelper.validateColor(styleObj.color); // TODO
+  //   const { fgColor, bgColor, modifier } = styleObj;
+  //   return StyleHelper.createStyledString(
+  //     cellString,
+  //     fgColor,
+  //     bgColor,
+  //     modifier
+  //   );
+  // }
+
+  // Mutations to table
+
+  // Calculations for table properties
+  calcColWidths(): number[] {
+    const maxColWidthsArr = this.populateArrFromMaxColWidths();
+    const longestStrLenPerCol = this.findLongestStrLenPerCol();
+
+    return longestStrLenPerCol.map((longestStrLen, colIdx) => {
+      return Math.min(maxColWidthsArr[colIdx], longestStrLen);
+    });
   }
 
-  isOuterBorder(type: CellType) {
-    if (this.isAnyBorder(type) && !this.isInnerBorder(type)) return true;
-    return false;
-  }
-
-  isInnerBorder(type: CellType) {
-    if (type === "betweenColumns" || type === "betweenRows") return true;
-    return false;
-  }
-
-  borderExists(type: AnyBorder) {
-    return !nullUndefinedOrFalse(this.borders.sides[type]);
-  }
-
-  checkCellNeedsStyle(
-    target: CustomStylesTarget,
-    cell: Cell,
-    colIdx: number,
-    rowIdx: number
-  ) {
-    if (target === "rowStyles") {
-      if (!this.isOuterBorder(cell.type)) {
-        if (
-          (this.borderExists("left") && colIdx === 0) ||
-          (this.borderExists("right") && colIdx === this._rows[0].length - 1)
-        ) {
-          return false;
-        }
-        return true;
-      }
+  findLongestStrLenPerCol(): number[] {
+    let longestStrings: number[] = [];
+    for (let i = 0; i < this.colCount - 1; i++) {
+      const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
+        if (cell.length > acc) acc = cell.length;
+        return acc;
+      }, 0);
+      longestStrings.push(longestInCol);
     }
+    return longestStrings;
   }
 
-  createStyledCell(cellString: string, styleObj: StyleObj): string {
-    // StyleHelper.validateColor(styleObj.color); // TODO
-    const { fgColor, bgColor, modifier } = styleObj;
-    return StyleHelper.createStyledString(
-      cellString,
-      fgColor,
-      bgColor,
-      modifier
+  // Helper functions
+  createRowsFromStrings(tableContentStrings: string[][]): Row[] {
+    return tableContentStrings.map((rowContentStrings) =>
+      RowFactory.createRowFromStrings(rowContentStrings)
     );
   }
 
-  // Mutations to table
   limitInputRows(inputTable: string[][]): string[][] {
     if (inputTable.length > this._options.maxRows) {
       return inputTable.slice(0, this._options.maxRows);
@@ -268,6 +341,23 @@ export class Versitable {
   }
 
   splitCellsBetweenRows(): void {
+    // Create a map to store rowIdxs and their respective insertRows
+    // Iterate through each row
+    //
+    // create an empty array to store overflow rows
+    // Recursively:
+    //  Find lengthyCellIdxs in row: cell.length > maxColWidth[colIdx]
+    //  If lengthyCellIdxs > 0, create an overflowRow
+    //  Split any lengthyCells into the new row at correct colIdx
+    // If on last last insertRow and cells are still too long, truncate them in place:
+    //  If lengthyCellIdxs.length > 0 && insertRows.length === maxRowHeight
+    //   truncate all lengthyCells to maxColWidth
+    //  Add overflowRow to overflowRows
+    //  Base case: lengthyCellIdxs.length === 0 || insertRows.length === maxRowHeight
+    //
+    // if overflowRows.length > 0, insert them into insertRows
+    // insertRows into table
+
     const maxRowHeight = this._options.maxRowHeight;
     const originalRowCount = this.rowCount;
     let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
@@ -331,7 +421,7 @@ export class Versitable {
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
         if (cellPadding > 0) {
-          cell.pad(cellPadding, "left");
+          cell.pad(cellPadding, "right");
         }
       }
     }
@@ -402,78 +492,6 @@ export class Versitable {
     if (sides.betweenColumns) this.insertVerticalBorder("betweenColumns");
     if (sides.right) this.insertVerticalBorder("right");
     if (sides.left) this.insertVerticalBorder("left");
-  }
-
-  // Calculations for table properties
-  calcColWidths(): number[] {
-    const maxColWidthsArr = this.populateArrFromMaxColWidths();
-    const longestStrLenPerCol = this.findLongestStrLenPerCol();
-
-    return longestStrLenPerCol.map((longestStrLen, colIdx) => {
-      return Math.min(maxColWidthsArr[colIdx], longestStrLen);
-    });
-  }
-
-  // Helper functions
-  createRowsFromStrings(tableContentStrings: string[][]): Row[] {
-    return tableContentStrings.map((rowContentStrings) =>
-      RowFactory.createRowFromStrings(rowContentStrings)
-    );
-  }
-
-  populateArrFromMaxColWidths(): number[] {
-    const colCount = this.colCount;
-    const userMaxColWidths = this._options.maxColWidths;
-    // format options.maxColWidths
-    if (typeof userMaxColWidths === "number") {
-      return Array(colCount).fill(userMaxColWidths);
-    } else if (userMaxColWidths.length < colCount) {
-      // This extends the options.maxColWidths array to match the number of columns in the table
-      const defaultWidthsArr = Array(colCount - userMaxColWidths.length).fill(
-        TABLE_DEFAULTS.maxColWidths
-      );
-      return userMaxColWidths.concat(defaultWidthsArr);
-    } else {
-      return userMaxColWidths;
-    }
-  }
-
-  populateBordersOptWithDefaults(): void {
-    if (typeof this._options.borders === "boolean") {
-      if (this._options.borders === true) {
-        this._options.borders = TABLE_DEFAULTS.borders as CustomBorders;
-      } else return;
-    } else {
-      this._options.borders = deepMerge(
-        TABLE_DEFAULTS.borders,
-        this._options.borders
-      ) as CustomBorders;
-    }
-  }
-
-  populateStylesOptWithDefaults(): void {
-    if (typeof this._options.styles === "boolean") {
-      if (this._options.styles === true) {
-        this._options.styles = TABLE_DEFAULTS.styles as CustomStyles;
-      } else return;
-    } else {
-      this._options.styles = deepMerge(
-        TABLE_DEFAULTS.styles,
-        this._options.styles
-      ) as CustomStyles;
-    }
-  }
-
-  findLongestStrLenPerCol(): number[] {
-    let longestStrings: number[] = [];
-    for (let i = 0; i < this.colCount - 1; i++) {
-      const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
-        if (cell.length > acc) acc = cell.length;
-        return acc;
-      }, 0);
-      longestStrings.push(longestInCol);
-    }
-    return longestStrings;
   }
 
   getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;

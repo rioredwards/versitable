@@ -162,7 +162,7 @@ describe("checkTableOptionsAreValid", () => {
       ).toThrowError();
     });
   });
-  it.only("should return true if styles option is valid", () => {
+  it("should return true if styles option is valid", () => {
     validStylesOption.forEach((styles: any) => {
       const result = tableValidations.checkTableOptionsAreValid({
         styles,
