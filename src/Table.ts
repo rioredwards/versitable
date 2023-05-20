@@ -24,6 +24,7 @@ import { deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
 import { ColorHelper } from "./ColorHelper";
 import { Row } from "./Row";
+import { RowFactory } from "./RowFactory";
 
 // This is the return type of the make() function.
 // Users will interact with this class.
@@ -329,7 +330,7 @@ export class Versitable implements VersitableType {
   }
 
   createBlankRow(type: CellType): Row {
-    return Row.createBlankRowOfType(this.colCount, type);
+    return RowFactory.createBlankRowOfLength(this.colCount, type);
   }
 
   padCells(): void {
@@ -376,7 +377,7 @@ export class Versitable implements VersitableType {
 
     for (let i = insertIdxs.length - 1; i >= 0; i--) {
       const { horizontalLine } = this.getGlyphsForBorderType(type);
-      const border = Row.createHorizontalBorder(
+      const border = RowFactory.createHorizontalBorder(
         type,
         this._colWidths,
         horizontalLine
@@ -390,7 +391,7 @@ export class Versitable implements VersitableType {
 
     for (let i = 0; i < this.rowCount; i++) {
       const row = this._rows[i];
-      const rowWithBorder = Row.createRowWithVerticalBorders(
+      const rowWithBorder = RowFactory.createRowWithVerticalBorders(
         type,
         row,
         borderGlyphs
@@ -426,7 +427,7 @@ export class Versitable implements VersitableType {
   // Helper functions
   createRowsFromStrings(tableContentStrings: string[][]): Row[] {
     return tableContentStrings.map((rowContentStrings) =>
-      Row.createRowFromStrings(rowContentStrings)
+      RowFactory.createRowFromStrings(rowContentStrings)
     );
   }
 

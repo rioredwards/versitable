@@ -1,15 +1,25 @@
 import { Cell } from "../src/Cell";
-import { Row } from "../src/Row";
+import { RowFactory } from "../src/RowFactory";
 
-describe("Rows: ", () => {
+describe("RowFactory: ", () => {
   beforeEach(() => {
     jest.resetModules();
   });
 
-  describe("Constructor: ", () => {
-    it("should create a row with cells", () => {
-      const row = new Row([new Cell(), new Cell()]);
+  describe("createRowFromStrings: ", () => {
+    it("should create a row from strings", () => {
+      const row = RowFactory.createRowFromStrings(["one", "two"]);
       expect(row.cells.length).toBe(2);
+      expect(row.cells[0].content).toBe("one");
+      expect(row.cells[1].content).toBe("two");
+    });
+  });
+
+  describe("createBlankRowOfLength: ", () => {
+    it("should create a blank row of a given length with a given type", () => {
+      const row = RowFactory.createBlankRowOfLength(4, "primary");
+      expect(row.cells.length).toBe(4);
+      expect(row.cells[0].type).toBe("primary");
     });
   });
 });

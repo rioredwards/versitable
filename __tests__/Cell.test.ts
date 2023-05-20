@@ -71,8 +71,6 @@ describe("Cells: ", () => {
   describe("isBorder", () => {
     it("should return true if the cell is a border", () => {
       const cell = new Cell("top", "content", 7);
-      console.log("cell: ", cell);
-      console.log(cell.isBorder());
       expect(cell.isBorder()).toBe(true);
     });
     it("should return false if the cell is not a border", () => {
