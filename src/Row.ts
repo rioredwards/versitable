@@ -39,6 +39,19 @@ export class Row {
     return borderTypes;
   }
 
+  findCellsAboveLengths(length: number[]): [Cell[], number[]] {
+    return this.cells.reduce(
+      (acc: [Cell[], number[]], cell: Cell, idx: number) => {
+        if (cell.length > length[idx]) {
+          acc[0].push(cell);
+          acc[1].push(idx);
+        }
+        return acc;
+      },
+      [[], []] as [Cell[], number[]]
+    );
+  }
+
   splice(startIdx: number, endIdx: number, insertCells?: Cell[]): void {
     this.cells.splice(startIdx, endIdx, ...(insertCells ?? []));
   }

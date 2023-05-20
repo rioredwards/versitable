@@ -45,7 +45,7 @@ export class Versitable {
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
     this._rows = this.createRowsFromStrings(limitInputColsTable);
     this._colWidths = this.calcColWidths();
-    this.splitCellsBetweenRows();
+    this.splitTooLongCellsAndInsertOverflow();
     this.padCells();
     this.addBorders();
     // this.addColors();
@@ -309,7 +309,7 @@ export class Versitable {
 
   findLongestStrLenPerCol(): number[] {
     let longestStrings: number[] = [];
-    for (let i = 0; i < this.colCount - 1; i++) {
+    for (let i = 0; i < this.colCount; i++) {
       const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
         if (cell.length > acc) acc = cell.length;
         return acc;
@@ -340,64 +340,47 @@ export class Versitable {
     return inputTable.map((row) => row.slice(0, actualMaxColumns));
   }
 
-  splitCellsBetweenRows(): void {
-    // Create a map to store rowIdxs and their respective insertRows
-    // Iterate through each row
-    //
-    // create an empty array to store overflow rows
-    // Recursively:
-    //  Find lengthyCellIdxs in row: cell.length > maxColWidth[colIdx]
-    //  If lengthyCellIdxs > 0, create an overflowRow
-    //  Split any lengthyCells into the new row at correct colIdx
-    // If on last last insertRow and cells are still too long, truncate them in place:
-    //  If lengthyCellIdxs.length > 0 && insertRows.length === maxRowHeight
-    //   truncate all lengthyCells to maxColWidth
-    //  Add overflowRow to overflowRows
-    //  Base case: lengthyCellIdxs.length === 0 || insertRows.length === maxRowHeight
-    //
-    // if overflowRows.length > 0, insert them into insertRows
-    // insertRows into table
-
+  splitTooLongCellsAndInsertOverflow(): void {
     const maxRowHeight = this._options.maxRowHeight;
     const originalRowCount = this.rowCount;
+    const originalRowLength = this._rows[0].length;
     let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
 
     for (let i = 0; i < originalRowCount; i++) {
       let insertRows: Row[] = [];
       const rowIdxWithInserts = i + totalInsertRows;
 
-      for (let colIdx = 0; colIdx < this.colCount; colIdx++) {
+      for (let colIdx = 0; colIdx < originalRowLength; colIdx++) {
         const maxColWidth = this._colWidths[colIdx];
-        const cell = this.getCellByCoords(rowIdxWithInserts, colIdx);
+        const cell = this._rows[rowIdxWithInserts].cellAtIdx(colIdx);
 
         // Cell isn't too long to fit in column, skip over it
         if (cell.length <= maxColWidth) continue;
         // Row height is one, so just split cell in place and continue
         if (maxRowHeight === 1) {
-          cell.truncateToLength(maxColWidth);
+          cell.splitAt(maxColWidth);
           continue;
         }
         // Row height is greater than one, so split cell and insert overflow into new rows
         let sliceNum = 0;
         let lastSlice: Cell | undefined;
-        while (sliceNum < maxRowHeight) {
+        while (sliceNum < maxRowHeight - 1) {
           const targetCell = lastSlice || cell;
           // If last slice reached end of cell, break out of loop
           if (targetCell.content[sliceNum * maxColWidth] === undefined) break;
           // Create new insert row if needed
           if (insertRows[sliceNum] === undefined) {
-            const rowType = sliceNum === 0 ? "primary" : "overflow";
-            insertRows.push(this.createBlankRow(rowType));
+            insertRows.push(this.createBlankRow("overflow"));
             totalInsertRows++;
           }
-          const [insertCell, overflowCell] = targetCell.splitAtIdx(maxColWidth);
-          const isLastInsertRow = sliceNum === maxRowHeight - 1;
+          const insertCell = targetCell.splitAt(maxColWidth);
+          const isLastInsertRow = sliceNum === maxRowHeight - 2;
           if (insertCell.length > maxColWidth && isLastInsertRow) {
-            insertCell.truncateToLength(maxColWidth);
+            insertCell.splitAt(maxColWidth);
           }
           // Add new cell to insert row
           insertRows[sliceNum].insertCellAtIdx(colIdx, insertCell);
-          lastSlice = overflowCell;
+          lastSlice = insertCell;
           sliceNum++;
         }
       }

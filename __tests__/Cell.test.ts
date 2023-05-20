@@ -44,9 +44,9 @@ describe("Cells: ", () => {
     it("should split a cell at the given index", () => {
       const content = "some content";
       const cell = new Cell("primary", "some content", content.length);
-      const [left, right] = cell.splitAtIdx(4);
-      expect(left.content).toBe("some");
-      expect(right.content).toBe(" content");
+      const overFlowCell = cell.splitAt(4);
+      expect(cell.content).toBe("some");
+      expect(overFlowCell.content).toBe(" content");
     });
   });
 

@@ -24,26 +24,13 @@ export class Cell {
     this.length = length;
   }
 
-  // Splits cell into two cells at index
-  splitAtIdx(index: number): Cell[] {
-    const firstSliceContent = this.content.substring(0, index);
-    const secondSliceContent = this.content.substring(index);
-    const firstSliceLength = index;
-    const secondSliceLength = this.length - firstSliceLength;
-    const firstCell = new Cell(
-      this.type,
-      firstSliceContent,
-      firstSliceLength,
-      this.style
-    );
-    const secondCell = new Cell(
-      "overflow",
-      secondSliceContent,
-      secondSliceLength,
-      this.style
-    );
-
-    return [firstCell, secondCell];
+  // Splits cell into two cells at index. Mutates the original cell and returns new cell with overflow.
+  splitAt(index: number): Cell {
+    const overflowContent = this.content.substring(index);
+    const overflowLength = this.length - index;
+    this.content = this.content.substring(0, index);
+    this.length = index;
+    return new Cell("overflow", overflowContent, overflowLength);
   }
 
   pad(padLength: number, align: Align = "left"): void {
