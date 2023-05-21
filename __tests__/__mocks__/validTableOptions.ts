@@ -17,7 +17,7 @@ export const validTableOptions: PartialTableOptions = {
     borderStyle: { fgColor: "#9148d5" },
     rowStyles: [
       { fgColor: "red", bgColor: "blue", modifier: "bold" },
-      { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "italics" },
+      { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "italic" },
     ],
     targetCellStyles: [
       {

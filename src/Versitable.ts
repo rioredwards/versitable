@@ -108,7 +108,9 @@ export class Versitable {
   }
 
   borderExists(type: AnyBorder) {
-    return !nullUndefinedOrFalse(this.borders.sides[type]);
+    return (
+      !!this.borders.sides && !nullUndefinedOrFalse(this.borders.sides[type])
+    );
   }
 
   populateArrFromMaxColWidths(): number[] {

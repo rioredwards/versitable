@@ -37,11 +37,11 @@ const rowStyles3 = [
 ];
 
 const updatedOptions: PartialTableOptions = {
-  maxRows: 11,
+  maxRows: 8,
   maxColumns: 8,
-  maxColWidths: [15, 15, 10],
+  maxColWidths: [10, 15, 10],
   maxRowHeight: 3,
-  cellPadding: 5,
+  cellPadding: 3,
   borders: {
     sides: {
       betweenRows: false,
@@ -78,7 +78,7 @@ const hotkeysFormattedForTable = hotkeys.map((hotkey) => {
 const sleep = (ms = 100) => new Promise((r) => setTimeout(r, ms));
 
 function main() {
-  // logAllBorderCombos(hotkeysFormattedForTable);
+  logAllBorderCombos(hotkeysFormattedForTable);
 
   // console.table(
   //   validTableData
@@ -87,9 +87,9 @@ function main() {
   // );
 
   // console.log("__________________________________________________");
-  console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(validTableData, updatedOptions);
-  myVersitable.print();
+  // console.log("\n\n\n\n\n\n\n\n");
+  // const myVersitable = Versitable.make(validTableData, updatedOptions);
+  // myVersitable.print();
 }
 
 main();
@@ -98,33 +98,17 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
   for (let i = 0; i < allBorderCombos.length - 1; i++) {
     const borderCombo = allBorderCombos[i];
     const borderOptions: PartialTableOptions = {
-      ...TABLE_DEFAULTS,
-      maxRows: 8,
-      maxColWidths: [6, 10, 6],
-      maxRowHeight: 2,
+      ...updatedOptions,
       borders: {
         sides: { ...borderCombo },
-        glyphs: {
-          horizontalLine: "━",
-          verticalLine: "┃",
-          topLeftCorner: "┏",
-          topRightCorner: "┓",
-          bottomLeftCorner: "┗",
-          bottomRightCorner: "┛",
-          topSeparator: "┳",
-          bottomSeparator: "┻",
-          middleSeparator: "╋",
-          rightSeparator: "┫",
-          leftSeparator: "┣",
-        } as BorderGlyphs,
       },
       styles: {
-        rowStyles: rowStyles3,
+        rowStyles: rowStyles1,
       },
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);
+    console.log("\n\n\n\n\n");
     myVersitable.print();
-    console.log("\n\n\n\n\n\n");
-    await sleep(1000); // wait 1 second before printing next table
+    await sleep(500); // wait 1 second before printing next table
   }
 }

@@ -22,7 +22,7 @@ describe("Versitable: ", () => {
     jest.resetModules();
   });
 
-  describe.skip("make: ", () => {
+  describe("make: ", () => {
     it("should create a Versitable if passed in a string[][]", () => {
       const myVersitable = Versitable.make(validTableData);
       expect(myVersitable).toBeInstanceOf(VersitableFacade);
@@ -81,7 +81,6 @@ describe("Versitable: ", () => {
         cellPadding: 0,
         styles: false,
       });
-      myVersitable.print();
       expect(myVersitable[0][0].length).toBeLessThanOrEqual(7);
     });
 
