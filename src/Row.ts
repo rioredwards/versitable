@@ -39,17 +39,13 @@ export class Row {
     return borderTypes;
   }
 
-  findCellsAboveLengths(length: number[]): [Cell[], number[]] {
-    return this.cells.reduce(
-      (acc: [Cell[], number[]], cell: Cell, idx: number) => {
-        if (cell.length > length[idx]) {
-          acc[0].push(cell);
-          acc[1].push(idx);
-        }
-        return acc;
-      },
-      [[], []] as [Cell[], number[]]
-    );
+  findIdxsCellsAboveLengths(lengths: number[]): number[] {
+    return this.cells.reduce((acc: number[], cell: Cell, idx: number) => {
+      if (cell.length > lengths[idx]) {
+        acc.push(idx);
+      }
+      return acc;
+    }, [] as number[]);
   }
 
   splice(startIdx: number, deleteCount: number, ...insertCells: Cell[]): void {
@@ -62,5 +58,26 @@ export class Row {
 
   insertCellAtIdx(idx: number, cell: Cell): void {
     this.cells.splice(idx, 0, cell);
+  }
+
+  splitAtCellLengths(lengths: number[]): Row {
+    const idxsAboveLengths = this.findIdxsCellsAboveLengths(lengths);
+    if (idxsAboveLengths.length === 0) return this;
+
+    // Create new row with empty overflow cells
+    const rowLength = this.length;
+    const emptyOverflowCells = Array.from(
+      { length: rowLength },
+      () => new Cell("overflow")
+    );
+    const overflowRow = new Row(emptyOverflowCells);
+
+    // Split cells that are too long and insert into overflow row
+    idxsAboveLengths.forEach((idx) => {
+      const tooLongCell = this.cellAtIdx(idx);
+      const overflowCell = tooLongCell.splitAt(lengths[idx]);
+      overflowRow.splice(idx, 1, overflowCell);
+    });
+    return overflowRow;
   }
 }
