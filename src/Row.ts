@@ -60,9 +60,9 @@ export class Row {
     this.cells.splice(idx, 0, cell);
   }
 
-  splitAtCellLengths(lengths: number[]): Row {
+  splitAtCellLengths(lengths: number[]): Row | undefined {
     const idxsAboveLengths = this.findIdxsCellsAboveLengths(lengths);
-    if (idxsAboveLengths.length === 0) return this;
+    if (idxsAboveLengths.length === 0) return undefined;
 
     // Create new row with empty overflow cells
     const rowLength = this.length;

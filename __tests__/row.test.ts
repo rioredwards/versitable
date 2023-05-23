@@ -124,6 +124,8 @@ describe("Rows: ", () => {
     it.only("should return a new row with the overflow type and content", () => {
       const overflowRow = row.splitAtCellLengths(lengths);
       expect(row.type).toBe("primary");
+      expect(overflowRow).toBeInstanceOf(Row);
+      if (!overflowRow) return;
       expect(overflowRow.type).toBe("overflow");
       expect(overflowRow.length).toBe(2);
       expect(overflowRow.cells[0].content).toBe(" world!");

@@ -46,7 +46,7 @@ export class Versitable {
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
     this._rows = this.createRowsFromStrings(limitInputColsTable);
     this._colWidths = this.calcColWidths();
-    this.splitTooLongCellsAndInsertOverflow();
+    this.splitAndInsertRowsWithLengthyCells();
     this.padCells();
     this.addBorders();
     this.addColors();
@@ -342,60 +342,35 @@ export class Versitable {
     return inputTable.map((row) => row.slice(0, actualMaxColumns));
   }
 
-  splitTooLongCellsAndInsertOverflow(): void {
+  splitAndInsertRowsWithLengthyCells(): void {
     const maxRowHeight = this._options.maxRowHeight;
     const originalRowCount = this.rowCount;
-    const originalRowLength = this._rows[0].length;
     let totalInsertRows = 0; // used to adjust rowIdx for inserted rows
 
     for (let i = 0; i < originalRowCount; i++) {
-      let insertRows: Row[] = [];
       const rowIdxWithInserts = i + totalInsertRows;
+      let insertRows: Row[] = [];
+      let rowToSplit: Row | undefined = this._rows[rowIdxWithInserts];
 
-      for (let colIdx = 0; colIdx < originalRowLength; colIdx++) {
-        const maxColWidth = this._colWidths[colIdx];
-        const cell = this._rows[rowIdxWithInserts].cellAtIdx(colIdx);
-
-        // Cell isn't too long to fit in column, skip over it
-        if (cell.length <= maxColWidth) continue;
-        // Row height is one, so just split cell in place and continue
-        if (maxRowHeight === 1) {
-          cell.splitAt(maxColWidth);
-          continue;
-        }
-        // Row height is greater than one, so split cell and insert overflow into new rows
-        let sliceNum = 0;
-        let lastSlice: Cell | undefined;
-        while (sliceNum < maxRowHeight - 1) {
-          const targetCell = lastSlice || cell;
-          // If last slice reached end of cell, break out of loop
-          if (targetCell.content[sliceNum * maxColWidth] === undefined) break;
-          // Create new insert row if needed
-          if (insertRows[sliceNum] === undefined) {
-            insertRows.push(this.createBlankRow("overflow"));
-            totalInsertRows++;
-          }
-          const insertCell = targetCell.splitAt(maxColWidth);
-          const isLastInsertRow = sliceNum === maxRowHeight - 2;
-          if (insertCell.length > maxColWidth && isLastInsertRow) {
-            insertCell.splitAt(maxColWidth);
-          }
-          // Add new cell to insert row
-          insertRows[sliceNum].splice(colIdx, 1, insertCell);
-          lastSlice = insertCell;
-          sliceNum++;
+      while (insertRows.length < maxRowHeight - 1) {
+        rowToSplit = rowToSplit.splitAtCellLengths(this._colWidths);
+        // Exit loop if no cells in row are too long
+        if (rowToSplit === undefined) break;
+        insertRows.push(rowToSplit);
+        // On the last run through the loop, split the last row incase it's too long
+        if (insertRows.length === maxRowHeight - 1) {
+          const lastRow = insertRows[insertRows.length - 1];
+          lastRow.splitAtCellLengths(this._colWidths);
         }
       }
+
       // Add insert rows to table
       if (insertRows.length > 0) {
         this._rows.splice(rowIdxWithInserts + 1, 0, ...insertRows);
+        totalInsertRows += insertRows.length;
         insertRows = [];
       }
     }
-  }
-
-  createBlankRow(type: CellType): Row {
-    return RowFactory.createBlankRowOfLength(this.colCount, type);
   }
 
   padCells(): void {
