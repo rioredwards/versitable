@@ -38,3 +38,7 @@ export function insert2DArray(
 export function nullUndefinedOrFalse(val: any) {
   return val === null || val === undefined || val === false;
 }
+
+export function alternate<T>(arr: T[], idx: number): T {
+  return arr[idx % arr.length];
+}

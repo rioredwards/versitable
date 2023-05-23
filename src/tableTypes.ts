@@ -59,11 +59,6 @@ export type Borders = DeepPartial<CustomBorders> | boolean;
 
 export type ComplexOptions = "borders" | "styles";
 
-export type CustomStylesTarget =
-  | "borderStyle"
-  | "rowStyles"
-  | "targetCellStyles";
-
 export interface CustomStyles {
   borderStyle: PartialCellStyle;
   rowStyles: PartialCellStyle[];
