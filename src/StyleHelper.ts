@@ -1,6 +1,6 @@
 import chalk = require("chalk");
 
-// This class provides a variety of methods for parsing and manipulating color strings
+// This class provides a variety of methods for parsing and manipulating color/chalk strings
 export class StyleHelper {
   static convertRGBToComponents(color: string): number[] {
     const rgb = this.convertToRGBString(color);

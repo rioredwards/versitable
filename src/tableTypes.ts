@@ -1,6 +1,3 @@
-import { Cell } from "./Cell";
-import { Row } from "./Row";
-
 export type RowType =
   | "primary"
   | "overflow"
@@ -59,6 +56,8 @@ export type OptionChecks = "error" | "warn" | "skip";
 export type Styles = Partial<CustomStyles> | boolean;
 
 export type Borders = DeepPartial<CustomBorders> | boolean;
+
+export type ComplexOptions = "borders" | "styles";
 
 export type CustomStylesTarget =
   | "borderStyle"

@@ -1,4 +1,4 @@
-import { TableOptions } from "./tableTypes";
+import { CustomStyles, TableOptions } from "./tableTypes";
 
 /* Defaults */
 const VALIDATION_MODE = "error";

@@ -25,6 +25,7 @@ import { StyleHelper } from "./StyleHelper";
 import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
+import { ComplexOptions } from "./tableTypes";
 
 // Main class which does all the work
 export class Versitable {
@@ -36,20 +37,24 @@ export class Versitable {
     inputTable: string[][],
     inputOptions?: PartialTableOptions
   ) {
+    // Validations
     this.validateTable(inputTable);
     this.validateOptions(inputOptions);
 
-    this._options = deepMerge(TABLE_DEFAULTS, inputOptions || {});
-    this.populateBordersOptWithDefaults();
-    this.populateStylesOptWithDefaults();
+    // Merge options with defaults
+    this._options = this.deepMergeOptions(inputOptions, TABLE_DEFAULTS);
+
+    // Limit Rows and Columns of input table (string[][])
     const limitInputRowsTable = this.limitInputRows(inputTable);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
+
+    // Create Rows from input table and mutate them as specified in options
     this._rows = this.createRowsFromStrings(limitInputColsTable);
     this._colWidths = this.calcColWidths();
     this.splitAndInsertRowsWithLengthyCells();
     this.padCells();
     this.addBorders();
-    this.addColors();
+    this.addStylesToCells();
   }
 
   // This is how users will create a new table
@@ -113,6 +118,34 @@ export class Versitable {
     );
   }
 
+  deepMergeOptions(
+    inputOptions: PartialTableOptions = {},
+    defaultOptions: TableOptions
+  ) {
+    const options = deepMerge(defaultOptions, inputOptions);
+    options.borders = this.populateComplexOptWithDefaults("borders", options);
+    options.styles = this.populateComplexOptWithDefaults("styles", options);
+    return options;
+  }
+
+  // These options can be set as a boolean or an object
+  // When set to true, they become the default object
+  populateComplexOptWithDefaults<T extends ComplexOptions>(
+    key: T,
+    options: PartialTableOptions
+  ): TableOptions[T] | false {
+    if (typeof options[key] === "boolean") {
+      if (options[key] === true) {
+        return TABLE_DEFAULTS[key];
+      } else return false;
+    } else {
+      return deepMerge(
+        TABLE_DEFAULTS[key],
+        options[key] as Partial<TableOptions[T]>
+      );
+    }
+  }
+
   populateArrFromMaxColWidths(): number[] {
     const colCount = this.colCount;
     const userMaxColWidths = this._options.maxColWidths;
@@ -130,34 +163,8 @@ export class Versitable {
     }
   }
 
-  populateBordersOptWithDefaults(): void {
-    if (typeof this._options.borders === "boolean") {
-      if (this._options.borders === true) {
-        this._options.borders = TABLE_DEFAULTS.borders as CustomBorders;
-      } else return;
-    } else {
-      this._options.borders = deepMerge(
-        TABLE_DEFAULTS.borders,
-        this._options.borders
-      ) as CustomBorders;
-    }
-  }
-
-  populateStylesOptWithDefaults(): void {
-    if (typeof this._options.styles === "boolean") {
-      if (this._options.styles === true) {
-        this._options.styles = TABLE_DEFAULTS.styles as CustomStyles;
-      } else return;
-    } else {
-      this._options.styles = deepMerge(
-        TABLE_DEFAULTS.styles,
-        this._options.styles
-      ) as CustomStyles;
-    }
-  }
-
   // Mutations to table
-  addColors() {
+  addStylesToCells() {
     if (nullUndefinedOrFalse(this.styles)) return;
 
     const { targetCellStyles, rowStyles, borderStyle } = this.styles;
@@ -321,7 +328,7 @@ export class Versitable {
     return longestStrings;
   }
 
-  // Helper functions
+  // Helper methods
   createRowsFromStrings(tableContentStrings: string[][]): Row[] {
     return tableContentStrings.map((rowContentStrings) =>
       RowFactory.createRowFromStrings(rowContentStrings)
