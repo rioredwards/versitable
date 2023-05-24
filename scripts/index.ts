@@ -104,6 +104,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
       },
       styles: {
         rowStyles: rowStyles1,
+        borderStyle: { fgColor: "#c8c8c8", bgColor: "#525252" },
       },
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);
