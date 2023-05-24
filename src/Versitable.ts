@@ -89,28 +89,56 @@ export class Versitable {
     return this._rows.map((row) => row.type);
   }
 
+  getNonBorderRowIdxs(): number[] {
+    return this._rows.reduce((acc, row, idx) => {
+      if (!this.isBorderRow(row)) {
+        acc.push(idx);
+      }
+      return acc;
+    }, [] as number[]);
+  }
+
+  getNonBorderColIdxs(): number[] {
+    const referenceRow = this.getNonBorderRowByIdx(0);
+    return referenceRow.getNonBorderIdxs();
+  }
+
   getNonBorderRows(): Row[] {
-    return this._rows.filter((row) => !this.isBorderRow(row));
+    const nonBorderRowIdxs = this.getNonBorderRowIdxs();
+    return nonBorderRowIdxs.reduce((acc, rowIdx) => {
+      acc.push(this._rows[rowIdx]);
+      return acc;
+    }, [] as Row[]);
   }
 
   getNonBorderRowByIdx(rowIdx: number): Row {
-    return this.getNonBorderRows()[rowIdx];
+    const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
+    return this._rows[adjustedRowIdx];
   }
 
-  getNonBorderCols(): Cell[][] {
-    const referenceRow = this.getNonBorderRowByIdx(0);
-    const nonBorderColIdxs = referenceRow.getNonBorderIdxs();
-    return this._rows.map((row) => {
-      return row.getCellsByIdxs(nonBorderColIdxs);
-    });
+  getColByIdx(colIdx: number): Cell[] {
+    return this._rows.map((row) => row.cellAtIdx(colIdx));
   }
 
   getNonBorderColByIdx(colIdx: number): Cell[] {
-    return this.getNonBorderCols()[colIdx];
+    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
+    return this.getColByIdx(adjustedColIdx);
+  }
+
+  getCols(): Cell[][] {
+    const colIdxs = Array.from({ length: this.colCount }, (_, i) => i);
+    return colIdxs.map((colIdx) => this.getColByIdx(colIdx));
+  }
+
+  getNonBorderCols(): Cell[][] {
+    const nonBorderColIdxs = this.getNonBorderColIdxs();
+    return nonBorderColIdxs.map((colIdx) => this.getColByIdx(colIdx));
   }
 
   getNonBorderCellByCoords(rowIdx: number, colIdx: number): Cell {
-    return this.getNonBorderRowByIdx(rowIdx).getNonBorderCells()[colIdx];
+    const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
+    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
+    return this.getCellByCoords(adjustedRowIdx, adjustedColIdx);
   }
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
@@ -363,7 +391,7 @@ export class Versitable {
   findLongestStrLenPerCol(): number[] {
     let longestStrings: number[] = [];
     for (let i = 0; i < this.colCount; i++) {
-      const longestInCol = this.getNonBorderColByIdx(i).reduce((acc, cell) => {
+      const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
         if (cell.length > acc) acc = cell.length;
         return acc;
       }, 0);

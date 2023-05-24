@@ -48,7 +48,7 @@ export class Row {
   }
 
   getNonBorderIdxs(): number[] {
-    return this.cells.reduce((acc: number[], cell: Cell, idx: number) => {
+    return this.cells.reduce((acc, cell, idx) => {
       if (!cell.isBorder()) acc.push(idx);
       return acc;
     }, [] as number[]);
