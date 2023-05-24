@@ -13,6 +13,7 @@ import {
   AnyBorder,
   RowType,
   PartialCellStyle,
+  TargetCellStyle,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -29,8 +30,8 @@ import { ComplexOptions } from "./tableTypes";
 // Main class which does all the work
 export class Versitable {
   _rows: Row[];
-  _options: TableOptions;
   _colWidths: number[];
+  _options: TableOptions;
 
   private constructor(
     inputTable: string[][],
@@ -43,7 +44,7 @@ export class Versitable {
     // Merge options with defaults
     this._options = this.deepMergeOptions(inputOptions, TABLE_DEFAULTS);
 
-    // Limit Rows and Columns of input table (string[][])
+    // Limit Rows and Columns of input table
     const limitInputRowsTable = this.limitInputRows(inputTable);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
 
@@ -76,10 +77,6 @@ export class Versitable {
     return this._rows[0].length;
   }
 
-  get rowTypes(): RowType[] {
-    return this._rows.map((row) => row.type);
-  }
-
   get borders(): CustomBorders {
     return this._options.borders as CustomBorders;
   }
@@ -88,26 +85,55 @@ export class Versitable {
     return this._options.styles as CustomStyles;
   }
 
-  getColByIdx(colIdx: number): Cell[] {
-    return this._rows.map((row) => row.cells[colIdx]);
+  getRowTypes(): RowType[] {
+    return this._rows.map((row) => row.type);
+  }
+
+  getNonBorderRows(): Row[] {
+    return this._rows.filter((row) => !this.isBorderRow(row));
+  }
+
+  getNonBorderRowByIdx(rowIdx: number): Row {
+    return this.getNonBorderRows()[rowIdx];
+  }
+
+  getNonBorderCols(): Cell[][] {
+    const referenceRow = this.getNonBorderRowByIdx(0);
+    const nonBorderColIdxs = referenceRow.getNonBorderIdxs();
+    return this._rows.map((row) => {
+      return row.getCellsByIdxs(nonBorderColIdxs);
+    });
+  }
+
+  getNonBorderColByIdx(colIdx: number): Cell[] {
+    return this.getNonBorderCols()[colIdx];
+  }
+
+  getNonBorderCellByCoords(rowIdx: number, colIdx: number): Cell {
+    return this.getNonBorderRowByIdx(rowIdx).getNonBorderCells()[colIdx];
   }
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
     return this._rows[rowIdx].cellAtIdx(colIdx);
   }
 
-  isAnyBorder(type: CellType) {
-    if (type !== "primary" && type !== "overflow") return true;
+  isBorderRow(row: Row): boolean {
+    return row.type !== "primary" && row.type !== "overflow";
+  }
+
+  isBorderCell(cell: Cell) {
+    if (cell.type !== "primary" && cell.type !== "overflow") return true;
     return false;
   }
 
-  isOuterBorder(type: CellType) {
-    if (this.isAnyBorder(type) && !this.isInnerBorder(type)) return true;
+  isOuterBorderCell(cell: Cell) {
+    if (this.isBorderCell(cell) && !this.isInnerBorderCell(cell)) return true;
     return false;
   }
 
-  isInnerBorder(type: CellType) {
-    if (type === "betweenColumns" || type === "betweenRows") return true;
+  isInnerBorderCell(cell: Cell) {
+    if (cell.type === "betweenColumns" || cell.type === "betweenRows")
+      return true;
     return false;
   }
 
@@ -169,7 +195,7 @@ export class Versitable {
     let rowStylesIdx = 0; // iterator for rowStyles when alternating
 
     this._rows.forEach((row, rowIdx) => {
-      const rowType = this.rowTypes[rowIdx];
+      const rowType = this.getRowTypes()[rowIdx];
       const needRowStyle = this.checkRowNeedsStyle("rowStyles", rowType);
       if (!needRowStyle) return;
       const needAvgColor = this.checkAvgBgColorNeeded(
@@ -183,7 +209,7 @@ export class Versitable {
       let avgRowBgColor: string | undefined = undefined;
 
       row.cells.forEach((cell) => {
-        if (this.isOuterBorder(cell.type)) return;
+        if (this.isOuterBorderCell(cell)) return;
         // Save style from previous cell if it exists
         // Cycle through rowStyles if alternating
         let cellStyle = savedRowStyle ?? alternate(rowStyles, rowStylesIdx);
@@ -199,7 +225,7 @@ export class Versitable {
         }
 
         // Adjust cellStyle if cell is a border
-        if (this.isInnerBorder(cell.type)) {
+        if (this.isInnerBorderCell(cell)) {
           if (borderStyle) {
             cellStyle = {
               ...borderStyle,
@@ -231,11 +257,45 @@ export class Versitable {
     if (!borderStyle) return;
     this._rows.forEach((row) => {
       row.cells.forEach((cell) => {
-        if (this.isOuterBorder(cell.type)) {
+        if (this.isOuterBorderCell(cell)) {
           const styledString = this.createStyledCell(cell.content, borderStyle);
           cell.content = styledString;
         }
       });
+    });
+  }
+
+  addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
+    if (!targetCellStyles) return;
+    targetCellStyles.forEach((targetCellStyle) => {
+      const { column, row } = targetCellStyle;
+      if (column && row) {
+        // If column and row specified, apply style to that single cell
+        const cell = this.getNonBorderCellByCoords(row, column);
+        const styledString = this.createStyledCell(
+          cell.content,
+          targetCellStyle
+        );
+        cell.content = styledString;
+      } else if (column) {
+        // If only column specified, apply style to all cells in that column
+        this.getNonBorderColByIdx(column).forEach((cell) => {
+          const styledString = this.createStyledCell(
+            cell.content,
+            targetCellStyle
+          );
+          cell.content = styledString;
+        });
+      } else {
+        // If only row specified, apply style to all cells in that row
+        this.getNonBorderRowByIdx(row!).cells.forEach((cell) => {
+          const styledString = this.createStyledCell(
+            cell.content,
+            targetCellStyle
+          );
+          cell.content = styledString;
+        });
+      }
     });
   }
 
@@ -276,6 +336,7 @@ export class Versitable {
 
     this.addRowStyles(rowStyles, borderStyle);
     this.addBorderStyles(borderStyle);
+    this.addTargetCellStyles(targetCellStyles);
   }
 
   createStyledCell(cellString: string, styleObj: StyleObj): string {
@@ -302,7 +363,7 @@ export class Versitable {
   findLongestStrLenPerCol(): number[] {
     let longestStrings: number[] = [];
     for (let i = 0; i < this.colCount; i++) {
-      const longestInCol = this.getColByIdx(i).reduce((acc, cell) => {
+      const longestInCol = this.getNonBorderColByIdx(i).reduce((acc, cell) => {
         if (cell.length > acc) acc = cell.length;
         return acc;
       }, 0);
@@ -385,7 +446,7 @@ export class Versitable {
     let insertIdxs: number[] = [];
     switch (type) {
       case "betweenRows":
-        insertIdxs = this.rowTypes.reduce((acc, type, idx) => {
+        insertIdxs = this.getRowTypes().reduce((acc, type, idx) => {
           if (idx > 0 && type === "primary") acc.push(idx);
           return acc;
         }, [] as number[]);

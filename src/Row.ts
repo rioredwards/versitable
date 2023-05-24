@@ -39,11 +39,17 @@ export class Row {
     return borderTypes;
   }
 
-  findIdxsCellsAboveLengths(lengths: number[]): number[] {
+  getCellsByIdxs(idxs: number[]): Cell[] {
+    return idxs.map((idx) => this.cells[idx]);
+  }
+
+  getNonBorderCells(): Cell[] {
+    return this.cells.filter((cell) => !cell.isBorder());
+  }
+
+  getNonBorderIdxs(): number[] {
     return this.cells.reduce((acc: number[], cell: Cell, idx: number) => {
-      if (cell.length > lengths[idx]) {
-        acc.push(idx);
-      }
+      if (!cell.isBorder()) acc.push(idx);
       return acc;
     }, [] as number[]);
   }
@@ -58,6 +64,15 @@ export class Row {
 
   insertCellAtIdx(idx: number, cell: Cell): void {
     this.cells.splice(idx, 0, cell);
+  }
+
+  findIdxsCellsAboveLengths(lengths: number[]): number[] {
+    return this.cells.reduce((acc: number[], cell: Cell, idx: number) => {
+      if (cell.length > lengths[idx]) {
+        acc.push(idx);
+      }
+      return acc;
+    }, [] as number[]);
   }
 
   splitAtCellLengths(lengths: number[]): Row | undefined {
