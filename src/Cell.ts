@@ -1,22 +1,19 @@
 import { countCharsWithEmojis } from "./emojis";
-import { Align, CellType } from "./tableTypes";
+import { Align, CellType, StyleObj } from "./tableTypes";
 
 export class Cell {
   type: CellType;
   content: string;
   length: number;
-  style?: string;
 
   constructor(
     type: CellType = "primary",
     content: string = "",
-    length: number = countCharsWithEmojis(content),
-    style?: string
+    length: number = countCharsWithEmojis(content)
   ) {
     this.type = type;
     this.content = content;
     this.length = length;
-    this.style = style;
   }
 
   truncateToLength(length: number): void {

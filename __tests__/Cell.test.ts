@@ -1,4 +1,5 @@
 import { Cell } from "../src/Cell";
+import { StyleObj } from "../src/tableTypes";
 
 describe("Cells: ", () => {
   beforeEach(() => {
@@ -11,7 +12,6 @@ describe("Cells: ", () => {
       expect(cell.type).toBe("primary");
       expect(cell.content).toBe("");
       expect(cell.length).toBe(0);
-      expect(cell.style).toBeUndefined();
     });
     it("should create a cell with a type", () => {
       const cell = new Cell("primary");
@@ -24,10 +24,6 @@ describe("Cells: ", () => {
     it("should create a cell with a length", () => {
       const cell = new Cell("primary", "content", 7);
       expect(cell.length).toBe(7);
-    });
-    it("should create a cell with a color", () => {
-      const cell = new Cell("primary", "content", 7, "red");
-      expect(cell.style).toBe("red");
     });
   });
 
