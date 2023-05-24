@@ -1,10 +1,11 @@
 import { Cell } from "./Cell";
+import { StyledCell } from "./StyledCell";
 import { AnyBorder, RegularCellContent, RowType } from "./tableTypes";
 
 export class Row {
-  cells: Cell[];
+  cells: (Cell | StyledCell)[];
 
-  constructor(cells: Cell[]) {
+  constructor(cells: (Cell | StyledCell)[]) {
     this.cells = cells;
   }
 
@@ -49,7 +50,9 @@ export class Row {
 
   getNonBorderIdxs(): number[] {
     return this.cells.reduce((acc, cell, idx) => {
-      if (!cell.isBorder()) acc.push(idx);
+      if (!cell.isBorder()) {
+        acc.push(idx);
+      }
       return acc;
     }, [] as number[]);
   }
