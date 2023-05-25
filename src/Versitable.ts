@@ -103,6 +103,15 @@ export class Versitable {
     }, [] as number[]);
   }
 
+  getPrimaryRowIdxs(): number[] {
+    return this._rows.reduce((acc, row, idx) => {
+      if (row.type === "primary") {
+        acc.push(idx);
+      }
+      return acc;
+    }, [] as number[]);
+  }
+
   getNonBorderColIdxs(): number[] {
     const referenceRow = this.getNonBorderRowByIdx(0);
     return referenceRow.getNonBorderIdxs();
@@ -140,8 +149,14 @@ export class Versitable {
     return nonBorderColIdxs.map((colIdx) => this.getColByIdx(colIdx));
   }
 
-  getNonBorderCoordsFromCoords(rowIdx: number, colIdx: number): number[] {
+  convertCoordsToNonBorderCoords(rowIdx: number, colIdx: number): number[] {
     const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
+    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
+    return [adjustedRowIdx, adjustedColIdx];
+  }
+
+  convertCoordsToPrimaryCoords(rowIdx: number, colIdx: number): number[] {
+    const adjustedRowIdx = this.getPrimaryRowIdxs()[rowIdx];
     const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
     return [adjustedRowIdx, adjustedColIdx];
   }
@@ -301,7 +316,7 @@ export class Versitable {
       if (column !== undefined && row !== undefined) {
         // If column and row specified, apply style to that single cell
         const [adjustedRowIdx, adjustedColIdx] =
-          this.getNonBorderCoordsFromCoords(row, column);
+          this.convertCoordsToPrimaryCoords(row, column);
         this.transformCellAtCoordsToStyledCell(
           adjustedRowIdx,
           adjustedColIdx,
