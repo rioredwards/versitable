@@ -15,6 +15,7 @@ import {
   PartialCellStyle,
   TargetCellStyle,
   ComplexOptions,
+  Coords,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -117,7 +118,7 @@ export class Versitable {
     }, [] as number[]);
   }
 
-  getCellCoordsSubset(filterFn: (cell: Cell) => boolean): number[][] {
+  getCellCoordsSubset(filterFn: (cell: Cell) => boolean): Coords[] {
     const cellCoords = this._rows.reduce((acc, row, rowIdx) => {
       row.cells.forEach((cell, colIdx) => {
         if (filterFn(cell)) {
@@ -125,8 +126,34 @@ export class Versitable {
         }
       });
       return acc;
-    }, [] as number[][]);
+    }, [] as Coords[]);
     return cellCoords;
+  }
+
+  groupCoordsByPrimaryRow(cellCoords: Coords[]): Map<number, Coords[]> {
+    cellCoords.sort((a, b) => a[0] - b[0]);
+    const rowTypes = this.getRowTypes();
+    return cellCoords.reduce((acc, [rowIdx, colIdx]) => {
+      // If rowIdx is a primary row
+      if (rowTypes[rowIdx] === "primary") {
+        //-- if it doesn't exist as a key, add it to the accumulator as a key
+        if (!acc.has(rowIdx)) {
+          acc.set(rowIdx, [[rowIdx, colIdx]]);
+        } else {
+          //-- if it does exist as a key,
+          //-- add it's coords to the key with the same rowIdx
+          const rowCoords = acc.get(rowIdx);
+          rowCoords!.push([rowIdx, colIdx]);
+        }
+      } else {
+        // If it's not a primary row (overflow)
+        //-- add it's coords to the last key
+        const lastKey = Array.from(acc.keys()).pop();
+        const rowCoords = acc.get(lastKey!);
+        rowCoords!.push([rowIdx, colIdx]);
+      }
+      return acc;
+    }, new Map<number, Coords[]>());
   }
 
   getColByIdx(colIdx: number): Cell[] {
@@ -138,8 +165,8 @@ export class Versitable {
     return colIdxs.map((colIdx) => this.getColByIdx(colIdx));
   }
 
-  getCellByCoords(rowIdx: number, colIdx: number): Cell {
-    return this._rows[rowIdx].cellAtIdx(colIdx);
+  getCellByCoords(coords: Coords): Cell {
+    return this._rows[coords[0]].cellAtIdx(coords[1]);
   }
 
   borderExists(type: AnyBorder) {
@@ -196,42 +223,18 @@ export class Versitable {
   addRowStyles(rowStyles: PartialCellStyle[]) {
     if (!rowStyles) return;
 
-    const isAlternating = rowStyles.length > 1;
-    let rowStylesIdx = 0; // iterator for rowStyles when alternating
-
     const targetCellCoords = this.getCellCoordsSubset(
       (cell) => cell.type === "primary" || cell.type === "overflow"
     );
 
-    const rowTypes = this.getRowTypes();
-    const coordsGroupedByPrimaryRow = targetCellCoords.reduce(
-      (acc, [rowIdx, colIdx]) => {
-        // If rowIdx is a primary row
-        if (rowTypes[rowIdx] === "primary") {
-          //-- if it doesn't exist as a key, add it to the accumulator as a key
-          if (!acc.has(rowIdx)) {
-            acc.set(rowIdx, [[rowIdx, colIdx]]);
-          } else {
-            //-- if it does exist as a key,
-            //-- add it's coords to the key with the same rowIdx
-            const rowCoords = acc.get(rowIdx);
-            rowCoords!.push([rowIdx, colIdx]);
-          }
-        } else {
-          // If it's not a primary row (overflow)
-          //-- add it's coords to the last key
-          const lastKey = Array.from(acc.keys()).pop();
-          const rowCoords = acc.get(lastKey!);
-          rowCoords!.push([rowIdx, colIdx]);
-        }
-        return acc;
-      },
-      new Map<number, number[][]>()
-    );
+    const coordsGroupedByPrimaryRow =
+      this.groupCoordsByPrimaryRow(targetCellCoords);
 
+    const isAlternating = rowStyles.length > 1;
+    let rowStylesIdx = 0; // iterator for rowStyles when alternating
     coordsGroupedByPrimaryRow.forEach((coords) => {
       coords.forEach(([rowIdx, colIdx]) => {
-        const cell = this.getCellByCoords(rowIdx, colIdx);
+        const cell = this.getCellByCoords([rowIdx, colIdx]);
         const cellStyle = alternate(rowStyles, rowStylesIdx);
         this._rows[rowIdx].splice(colIdx, 1, new StyledCell(cell, cellStyle));
       });
@@ -389,7 +392,7 @@ export class Versitable {
   padCells(): void {
     for (let rowIdx = 0; rowIdx < this.rowCount; rowIdx++) {
       for (let colIdx = 0; colIdx < this.colCount; colIdx++) {
-        const cell = this.getCellByCoords(rowIdx, colIdx);
+        const cell = this.getCellByCoords([rowIdx, colIdx]);
         const maxColWidth = this._colWidths[colIdx];
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;

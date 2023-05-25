@@ -1,7 +1,4 @@
-export interface hasCoords {
-  rowIdx: number;
-  colIdx: number;
-}
+export type Coords = [number, number];
 
 export type RowType =
   | "primary"
