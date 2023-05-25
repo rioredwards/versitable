@@ -298,7 +298,7 @@ export class Versitable {
     if (!targetCellStyles) return;
     targetCellStyles.forEach((targetCellStyle) => {
       const { column, row } = targetCellStyle;
-      if (column && row) {
+      if (column !== undefined && row !== undefined) {
         // If column and row specified, apply style to that single cell
         const [adjustedRowIdx, adjustedColIdx] =
           this.getNonBorderCoordsFromCoords(row, column);
@@ -307,7 +307,7 @@ export class Versitable {
           adjustedColIdx,
           targetCellStyle
         );
-      } else if (column) {
+      } else if (column !== undefined) {
         // If only column specified, apply style to all cells in that column
         const cellsInColumn = this.getNonBorderColByIdx(column);
         cellsInColumn.forEach((cell) => {
