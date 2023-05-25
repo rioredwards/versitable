@@ -6,13 +6,8 @@ export class StyledCell extends Cell {
   style: StyleObj;
   styledContent: string;
 
-  constructor(
-    type: CellType,
-    content: string,
-    length: number,
-    style: StyleObj
-  ) {
-    super(type, content, length);
+  constructor(cell: Cell, style: StyleObj) {
+    super(cell.type, cell.content, cell.length);
     this.style = style;
     this.styledContent = this.getStyledContent(style);
   }

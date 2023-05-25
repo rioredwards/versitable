@@ -26,6 +26,7 @@ import { StyleHelper } from "./StyleHelper";
 import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
+import { StyledCell } from "./StyledCell";
 
 // Main class which does all the work
 export class Versitable {
@@ -55,10 +56,6 @@ export class Versitable {
     this.padCells();
     this.addBordersToRows();
     this.addStylesToCells();
-    let firstCell = this.getCellByCoords(1, 1);
-    firstCell.content = this.createStyledString(firstCell.content, {
-      bgColor: "red",
-    });
   }
 
   // This is how users will create a new table
@@ -70,7 +67,11 @@ export class Versitable {
   }
 
   static stringifyTable(versitable: Versitable): string[][] {
-    return versitable._rows.map((row) => row.cells.map((cell) => cell.content));
+    return versitable._rows.map((row) =>
+      row.cells.map((cell) => {
+        return cell instanceof StyledCell ? cell.styledContent : cell.content;
+      })
+    );
   }
 
   get rowCount(): number {
@@ -139,10 +140,10 @@ export class Versitable {
     return nonBorderColIdxs.map((colIdx) => this.getColByIdx(colIdx));
   }
 
-  getNonBorderCellByCoords(rowIdx: number, colIdx: number): Cell {
+  getNonBorderCoordsFromCoords(rowIdx: number, colIdx: number): number[] {
     const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
     const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
-    return this.getCellByCoords(adjustedRowIdx, adjustedColIdx);
+    return [adjustedRowIdx, adjustedColIdx];
   }
 
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
@@ -239,7 +240,7 @@ export class Versitable {
       let savedRowStyle: PartialCellStyle | undefined = undefined;
       let avgRowBgColor: string | undefined = undefined;
 
-      row.cells.forEach((cell) => {
+      row.cells.forEach((cell, colIdx) => {
         if (this.isOuterBorderCell(cell)) return;
         // Save style from previous cell if it exists
         // Cycle through rowStyles if alternating
@@ -269,10 +270,8 @@ export class Versitable {
               : savedRowStyle!.bgColor;
         }
 
-        // Color is determined, so apply it to the cell and save it for the next cells
         savedRowStyle ??= cellStyle;
-        const styledString = this.createStyledString(cell.content, cellStyle);
-        cell.content = styledString;
+        this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, cellStyle);
       });
 
       // Alternate rowStylesIdx if next row is a primary row
@@ -286,14 +285,10 @@ export class Versitable {
 
   addBorderStyles(borderStyle: PartialCellStyle) {
     if (!borderStyle) return;
-    this._rows.forEach((row) => {
-      row.cells.forEach((cell) => {
+    this._rows.forEach((row, rowIdx) => {
+      row.cells.forEach((cell, colIdx) => {
         if (this.isOuterBorderCell(cell)) {
-          const styledString = this.createStyledString(
-            cell.content,
-            borderStyle
-          );
-          cell.content = styledString;
+          this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, borderStyle);
         }
       });
     });
@@ -305,29 +300,24 @@ export class Versitable {
       const { column, row } = targetCellStyle;
       if (column && row) {
         // If column and row specified, apply style to that single cell
-        const cell = this.getNonBorderCellByCoords(row, column);
-        const styledString = this.createStyledString(
-          cell.content,
+        const [adjustedRowIdx, adjustedColIdx] =
+          this.getNonBorderCoordsFromCoords(row, column);
+        this.transformCellAtCoordsToStyledCell(
+          adjustedRowIdx,
+          adjustedColIdx,
           targetCellStyle
         );
-        cell.content = styledString;
       } else if (column) {
         // If only column specified, apply style to all cells in that column
-        this.getNonBorderColByIdx(column).forEach((cell) => {
-          const styledString = this.createStyledString(
-            cell.content,
-            targetCellStyle
-          );
-          cell.content = styledString;
+        const cellsInColumn = this.getNonBorderColByIdx(column);
+        cellsInColumn.forEach((cell) => {
+          Object.assign(cell, new StyledCell(cell, targetCellStyle));
         });
       } else {
         // If only row specified, apply style to all cells in that row
-        this.getNonBorderRowByIdx(row!).cells.forEach((cell) => {
-          const styledString = this.createStyledString(
-            cell.content,
-            targetCellStyle
-          );
-          cell.content = styledString;
+        const targetRow = this.getNonBorderRowByIdx(row!);
+        targetRow.cells.forEach((cell) => {
+          Object.assign(cell, new StyledCell(cell, targetCellStyle));
         });
       }
     });
@@ -373,15 +363,13 @@ export class Versitable {
     this.addTargetCellStyles(targetCellStyles);
   }
 
-  createStyledString(cellString: string, styleObj: StyleObj): string {
-    // StyleHelper.validateColor(styleObj.color); // TODO
-    const { fgColor, bgColor, modifier } = styleObj;
-    return StyleHelper.createStyledString(
-      cellString,
-      fgColor,
-      bgColor,
-      modifier
-    );
+  transformCellAtCoordsToStyledCell(
+    rowIdx: number,
+    colIdx: number,
+    styleObj: StyleObj
+  ): void {
+    const targetCell = this._rows[rowIdx].cells[colIdx];
+    this._rows[rowIdx].cells[colIdx] = new StyledCell(targetCell, styleObj);
   }
 
   // Calculations for table properties
