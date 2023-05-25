@@ -1,3 +1,8 @@
+export interface hasCoords {
+  rowIdx: number;
+  colIdx: number;
+}
+
 export type RowType =
   | "primary"
   | "overflow"

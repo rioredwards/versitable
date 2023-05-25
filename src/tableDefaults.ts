@@ -11,7 +11,7 @@ const HEADER = true;
 // Color Options
 const BORDER_STYLE = {
   fgColor: "#e0e0e0",
-  bgColor: undefined,
+  bgColor: "#2f2f2f",
   modifier: undefined,
 };
 const ROW_STYLES = [

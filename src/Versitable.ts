@@ -94,49 +94,43 @@ export class Versitable {
     return this._rows.map((row) => row.type);
   }
 
-  getNonBorderRowIdxs(): number[] {
+  getRowSubset(filterFn: (row: Row) => boolean): Row[] {
+    return this._rows.filter(filterFn);
+  }
+
+  getRowIdxSubset(filterFn: (row: Row) => boolean): number[] {
     return this._rows.reduce((acc, row, idx) => {
-      if (!this.isBorderRow(row)) {
+      if (filterFn(row)) {
         acc.push(idx);
       }
       return acc;
     }, [] as number[]);
   }
 
-  getPrimaryRowIdxs(): number[] {
-    return this._rows.reduce((acc, row, idx) => {
-      if (row.type === "primary") {
+  getColumnIdxSubset(filterFn: (col: Cell[]) => boolean): number[] {
+    const cols = this.getCols();
+    return cols.reduce((acc, col, idx) => {
+      if (filterFn(col)) {
         acc.push(idx);
       }
       return acc;
     }, [] as number[]);
   }
 
-  getNonBorderColIdxs(): number[] {
-    const referenceRow = this.getNonBorderRowByIdx(0);
-    return referenceRow.getNonBorderIdxs();
-  }
-
-  getNonBorderRows(): Row[] {
-    const nonBorderRowIdxs = this.getNonBorderRowIdxs();
-    return nonBorderRowIdxs.reduce((acc, rowIdx) => {
-      acc.push(this._rows[rowIdx]);
+  getCellCoordsSubset(filterFn: (cell: Cell) => boolean): number[][] {
+    const cellCoords = this._rows.reduce((acc, row, rowIdx) => {
+      row.cells.forEach((cell, colIdx) => {
+        if (filterFn(cell)) {
+          acc.push([rowIdx, colIdx]);
+        }
+      });
       return acc;
-    }, [] as Row[]);
-  }
-
-  getNonBorderRowByIdx(rowIdx: number): Row {
-    const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
-    return this._rows[adjustedRowIdx];
+    }, [] as number[][]);
+    return cellCoords;
   }
 
   getColByIdx(colIdx: number): Cell[] {
     return this._rows.map((row) => row.cellAtIdx(colIdx));
-  }
-
-  getNonBorderColByIdx(colIdx: number): Cell[] {
-    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
-    return this.getColByIdx(adjustedColIdx);
   }
 
   getCols(): Cell[][] {
@@ -144,45 +138,8 @@ export class Versitable {
     return colIdxs.map((colIdx) => this.getColByIdx(colIdx));
   }
 
-  getNonBorderCols(): Cell[][] {
-    const nonBorderColIdxs = this.getNonBorderColIdxs();
-    return nonBorderColIdxs.map((colIdx) => this.getColByIdx(colIdx));
-  }
-
-  convertCoordsToNonBorderCoords(rowIdx: number, colIdx: number): number[] {
-    const adjustedRowIdx = this.getNonBorderRowIdxs()[rowIdx];
-    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
-    return [adjustedRowIdx, adjustedColIdx];
-  }
-
-  convertCoordsToPrimaryCoords(rowIdx: number, colIdx: number): number[] {
-    const adjustedRowIdx = this.getPrimaryRowIdxs()[rowIdx];
-    const adjustedColIdx = this.getNonBorderColIdxs()[colIdx];
-    return [adjustedRowIdx, adjustedColIdx];
-  }
-
   getCellByCoords(rowIdx: number, colIdx: number): Cell {
     return this._rows[rowIdx].cellAtIdx(colIdx);
-  }
-
-  isBorderRow(row: Row): boolean {
-    return row.type !== "primary" && row.type !== "overflow";
-  }
-
-  isBorderCell(cell: Cell) {
-    if (cell.type !== "primary" && cell.type !== "overflow") return true;
-    return false;
-  }
-
-  isOuterBorderCell(cell: Cell) {
-    if (this.isBorderCell(cell) && !this.isInnerBorderCell(cell)) return true;
-    return false;
-  }
-
-  isInnerBorderCell(cell: Cell) {
-    if (cell.type === "betweenColumns" || cell.type === "betweenRows")
-      return true;
-    return false;
   }
 
   borderExists(type: AnyBorder) {
@@ -236,123 +193,91 @@ export class Versitable {
     }
   }
 
-  addRowStyles(rowStyles: PartialCellStyle[], borderStyle?: PartialCellStyle) {
+  addRowStyles(rowStyles: PartialCellStyle[]) {
     if (!rowStyles) return;
 
     const isAlternating = rowStyles.length > 1;
     let rowStylesIdx = 0; // iterator for rowStyles when alternating
 
-    this._rows.forEach((row, rowIdx) => {
-      const needRowStyle = this.checkRowNeedsStyle("rowStyles", row.type);
-      if (!needRowStyle) return;
-      const needAvgColor = this.checkAvgBgColorNeeded(
-        row.type,
-        rowStyles,
-        rowStylesIdx
-      );
+    const targetCellCoords = this.getCellCoordsSubset(
+      (cell) => cell.type === "primary" || cell.type === "overflow"
+    );
 
-      // save style from previous cell if it exists because style doesn't change across row
-      let savedRowStyle: PartialCellStyle | undefined = undefined;
-      let avgRowBgColor: string | undefined = undefined;
-
-      row.cells.forEach((cell, colIdx) => {
-        if (this.isOuterBorderCell(cell)) return;
-        // Save style from previous cell if it exists
-        // Cycle through rowStyles if alternating
-        let cellStyle = savedRowStyle ?? alternate(rowStyles, rowStylesIdx);
-
-        // If cell is a betweenRow border cell, calculate avg bg color from adjacent rows
-        if (needAvgColor && !avgRowBgColor) {
-          const aboveCellBgColor = alternate(rowStyles, rowStylesIdx).bgColor;
-          const nextRowBgColor = alternate(rowStyles, rowStylesIdx + 1).bgColor;
-          avgRowBgColor = StyleHelper.calcAvgColor(
-            aboveCellBgColor!,
-            nextRowBgColor!
-          );
-        }
-
-        // Adjust cellStyle if cell is a border
-        if (this.isInnerBorderCell(cell)) {
-          if (borderStyle) {
-            cellStyle = {
-              ...borderStyle,
-            };
+    const rowTypes = this.getRowTypes();
+    const coordsGroupedByPrimaryRow = targetCellCoords.reduce(
+      (acc, [rowIdx, colIdx]) => {
+        // If rowIdx is a primary row
+        if (rowTypes[rowIdx] === "primary") {
+          //-- if it doesn't exist as a key, add it to the accumulator as a key
+          if (!acc.has(rowIdx)) {
+            acc.set(rowIdx, [[rowIdx, colIdx]]);
+          } else {
+            //-- if it does exist as a key,
+            //-- add it's coords to the key with the same rowIdx
+            const rowCoords = acc.get(rowIdx);
+            rowCoords!.push([rowIdx, colIdx]);
           }
-          // Add different bgColor based on if cell is betweenRows or betweenCols
-          cellStyle.bgColor =
-            cell.type === "betweenRows"
-              ? avgRowBgColor
-              : savedRowStyle!.bgColor;
+        } else {
+          // If it's not a primary row (overflow)
+          //-- add it's coords to the last key
+          const lastKey = Array.from(acc.keys()).pop();
+          const rowCoords = acc.get(lastKey!);
+          rowCoords!.push([rowIdx, colIdx]);
         }
+        return acc;
+      },
+      new Map<number, number[][]>()
+    );
 
-        savedRowStyle ??= cellStyle;
-        this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, cellStyle);
+    coordsGroupedByPrimaryRow.forEach((coords) => {
+      coords.forEach(([rowIdx, colIdx]) => {
+        const cell = this.getCellByCoords(rowIdx, colIdx);
+        const cellStyle = alternate(rowStyles, rowStylesIdx);
+        this._rows[rowIdx].splice(colIdx, 1, new StyledCell(cell, cellStyle));
       });
-
-      // Alternate rowStylesIdx if next row is a primary row
-      const nextRow =
-        rowIdx < this.rowCount - 1 ? this._rows[rowIdx + 1] : undefined;
-      if (isAlternating && nextRow?.type === "primary") {
-        rowStylesIdx++;
-      }
+      rowStylesIdx = isAlternating ? rowStylesIdx + 1 : rowStylesIdx;
     });
   }
 
-  addBorderStyles(borderStyle: PartialCellStyle) {
-    if (!borderStyle) return;
-    this._rows.forEach((row, rowIdx) => {
-      row.cells.forEach((cell, colIdx) => {
-        if (this.isOuterBorderCell(cell)) {
-          this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, borderStyle);
-        }
-      });
-    });
-  }
+  // addBorderStyles(borderStyle: PartialCellStyle) {
+  //   if (!borderStyle) return;
+  //   this._rows.forEach((row, rowIdx) => {
+  //     row.cells.forEach((cell, colIdx) => {
+  //       if (this.isOuterBorderCell(cell)) {
+  //         this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, borderStyle);
+  //       }
+  //     });
+  //   });
+  // }
 
-  addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
-    if (!targetCellStyles) return;
-    targetCellStyles.forEach((targetCellStyle) => {
-      const { column, row } = targetCellStyle;
-      if (column !== undefined && row !== undefined) {
-        // If column and row specified, apply style to that single cell
-        const [adjustedRowIdx, adjustedColIdx] =
-          this.convertCoordsToPrimaryCoords(row, column);
-        this.transformCellAtCoordsToStyledCell(
-          adjustedRowIdx,
-          adjustedColIdx,
-          targetCellStyle
-        );
-      } else if (column !== undefined) {
-        // If only column specified, apply style to all cells in that column
-        const cellsInColumn = this.getNonBorderColByIdx(column);
-        cellsInColumn.forEach((cell) => {
-          Object.assign(cell, new StyledCell(cell, targetCellStyle));
-        });
-      } else {
-        // If only row specified, apply style to all cells in that row
-        const targetRow = this.getNonBorderRowByIdx(row!);
-        targetRow.cells.forEach((cell) => {
-          Object.assign(cell, new StyledCell(cell, targetCellStyle));
-        });
-      }
-    });
-  }
-
-  checkRowNeedsStyle(styleType: keyof CustomStyles, rowType: RowType) {
-    switch (styleType) {
-      case "rowStyles":
-        switch (rowType) {
-          case "primary":
-          case "overflow":
-          case "innerBorder":
-            return true;
-          default:
-            return false;
-        }
-      default:
-        return false;
-    }
-  }
+  // addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
+  //   if (!targetCellStyles) return;
+  //   targetCellStyles.forEach((targetCellStyle) => {
+  //     const { column, row } = targetCellStyle;
+  //     if (column !== undefined && row !== undefined) {
+  //       // If column and row specified, apply style to that single cell
+  //       const [adjustedRowIdx, adjustedColIdx] =
+  //         this.convertCoordsToPrimaryCoords(row, column);
+  //       this.transformCellAtCoordsToStyledCell(
+  //         adjustedRowIdx,
+  //         adjustedColIdx,
+  //         targetCellStyle
+  //       );
+  //     } else if (column !== undefined) {
+  //       // If only column specified, apply style to all cells in that column
+  //       const cellsInColumn = this.getNonBorderColByIdx(column);
+  //       cellsInColumn.forEach((cell) => {
+  //         Object.assign(cell, new StyledCell(cell, targetCellStyle));
+  //       });
+  //     } else {
+  //       // If only row specified, apply style to all cells in that row
+  //       const targetRow = this.getNonBorderRowByIdx(row!);
+  //       targetRow.cells.forEach((cell) => {
+  //         Object.assign(cell, new StyledCell(cell, targetCellStyle));
+  //       });
+  //     }
+  //   });
+  // }
 
   checkAvgBgColorNeeded(
     rowType: RowType,
@@ -373,9 +298,9 @@ export class Versitable {
 
     const { targetCellStyles, rowStyles, borderStyle } = this.styles;
 
-    this.addRowStyles(rowStyles, borderStyle);
-    this.addBorderStyles(borderStyle);
-    this.addTargetCellStyles(targetCellStyles);
+    this.addRowStyles(rowStyles);
+    // this.addBorderStyles(borderStyle);
+    // this.addTargetCellStyles(targetCellStyles);
   }
 
   transformCellAtCoordsToStyledCell(
@@ -469,7 +394,7 @@ export class Versitable {
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
         if (cellPadding > 0) {
-          cell.pad(cellPadding, "right");
+          cell.pad(cellPadding, "center");
         }
       }
     }

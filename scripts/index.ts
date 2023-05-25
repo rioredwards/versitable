@@ -44,7 +44,7 @@ const updatedOptions: PartialTableOptions = {
   cellPadding: 3,
   borders: {
     sides: {
-      betweenRows: false,
+      betweenRows: true,
       betweenColumns: true,
       top: true,
       bottom: true,
@@ -91,7 +91,10 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(validTableData, updatedOptions);
+  const myVersitable = Versitable.make(
+    hotkeysFormattedForTable,
+    updatedOptions
+  );
   myVersitable.print();
 }
 

@@ -65,6 +65,10 @@ export class Row {
     return this.cells[idx];
   }
 
+  getCellSubset(filterFn: (cell: Cell) => boolean): Cell[] {
+    return this.cells.filter(filterFn);
+  }
+
   insertCellAtIdx(idx: number, cell: Cell): void {
     this.cells.splice(idx, 0, cell);
   }
