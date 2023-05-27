@@ -99,9 +99,9 @@ export class Versitable {
     return this._rows.filter(filterFn);
   }
 
-  getRowIdxSubset(filterFn: (row: Row) => boolean): number[] {
+  getRowIdxSubset(filterFn: (row: Row, idx: number) => boolean): number[] {
     return this._rows.reduce((acc, row, idx) => {
-      if (filterFn(row)) {
+      if (filterFn(row, idx)) {
         acc.push(idx);
       }
       return acc;
@@ -133,6 +133,7 @@ export class Versitable {
   groupCoordsByPrimaryRow(cellCoords: Coords[]): Map<number, Coords[]> {
     cellCoords.sort((a, b) => a[0] - b[0]);
     const rowTypes = this.getRowTypes();
+
     return cellCoords.reduce((acc, [rowIdx, colIdx]) => {
       // If rowIdx is a primary row
       if (rowTypes[rowIdx] === "primary") {
@@ -223,12 +224,12 @@ export class Versitable {
   addRowStyles(rowStyles: PartialCellStyle[]) {
     if (!rowStyles) return;
 
-    const targetCellCoords = this.getCellCoordsSubset(
+    const mainCellCoords = this.getCellCoordsSubset(
       (cell) => cell.type === "primary" || cell.type === "overflow"
     );
 
     const coordsGroupedByPrimaryRow =
-      this.groupCoordsByPrimaryRow(targetCellCoords);
+      this.groupCoordsByPrimaryRow(mainCellCoords);
 
     const isAlternating = rowStyles.length > 1;
     let rowStylesIdx = 0; // iterator for rowStyles when alternating
@@ -242,16 +243,17 @@ export class Versitable {
     });
   }
 
-  // addBorderStyles(borderStyle: PartialCellStyle) {
-  //   if (!borderStyle) return;
-  //   this._rows.forEach((row, rowIdx) => {
-  //     row.cells.forEach((cell, colIdx) => {
-  //       if (this.isOuterBorderCell(cell)) {
-  //         this.transformCellAtCoordsToStyledCell(rowIdx, colIdx, borderStyle);
-  //       }
-  //     });
-  //   });
-  // }
+  addBorderStyles(borderStyle: PartialCellStyle) {
+    if (!borderStyle) return;
+
+    const borderCellCoords = this.getCellCoordsSubset(
+      (cell) => cell.type !== "primary" && cell.type !== "overflow"
+    );
+
+    borderCellCoords.forEach((coords) => {
+      this.transformCellAtCoordsToStyledCell(coords, borderStyle);
+    });
+  }
 
   // addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
   //   if (!targetCellStyles) return;
@@ -302,15 +304,12 @@ export class Versitable {
     const { targetCellStyles, rowStyles, borderStyle } = this.styles;
 
     this.addRowStyles(rowStyles);
-    // this.addBorderStyles(borderStyle);
+    this.addBorderStyles(borderStyle);
     // this.addTargetCellStyles(targetCellStyles);
   }
 
-  transformCellAtCoordsToStyledCell(
-    rowIdx: number,
-    colIdx: number,
-    styleObj: StyleObj
-  ): void {
+  transformCellAtCoordsToStyledCell(coords: Coords, styleObj: StyleObj): void {
+    const [rowIdx, colIdx] = coords;
     const targetCell = this._rows[rowIdx].cells[colIdx];
     this._rows[rowIdx].cells[colIdx] = new StyledCell(targetCell, styleObj);
   }
@@ -411,10 +410,9 @@ export class Versitable {
     let insertIdxs: number[] = [];
     switch (type) {
       case "betweenRows":
-        insertIdxs = this.getRowTypes().reduce((acc, type, idx) => {
-          if (idx > 0 && type === "primary") acc.push(idx);
-          return acc;
-        }, [] as number[]);
+        insertIdxs = this.getRowIdxSubset(
+          (row: Row, idx: number) => idx > 0 && row.type === "primary"
+        );
         break;
       case "top":
         insertIdxs.push(0);

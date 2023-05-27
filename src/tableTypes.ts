@@ -1,5 +1,7 @@
 export type Coords = [number, number];
 
+export type FilterFn = (val: any, idx: any) => boolean;
+
 export type RowType =
   | "primary"
   | "overflow"
