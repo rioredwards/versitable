@@ -13,7 +13,6 @@ import {
   AnyBorder,
   RowType,
   PartialCellStyle,
-  TargetCellStyle,
   ComplexOptions,
   Coords,
 } from "./tableTypes";
@@ -23,7 +22,6 @@ import {
 } from "./inputValidations";
 import { alternate, deepMerge, nullUndefinedOrFalse } from "./utils";
 import { Cell } from "./Cell";
-import { StyleHelper } from "./StyleHelper";
 import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
@@ -118,10 +116,10 @@ export class Versitable {
     }, [] as number[]);
   }
 
-  getCellCoordsSubset(filterFn: (cell: Cell) => boolean): Coords[] {
+  getCellCoordsSubsetByCellTypes(cellTypes: CellType[]): Coords[] {
     const cellCoords = this._rows.reduce((acc, row, rowIdx) => {
       row.cells.forEach((cell, colIdx) => {
-        if (filterFn(cell)) {
+        if (cellTypes.includes(cell.type)) {
           acc.push([rowIdx, colIdx]);
         }
       });
@@ -224,9 +222,10 @@ export class Versitable {
   addRowStyles(rowStyles: PartialCellStyle[]) {
     if (!rowStyles) return;
 
-    const mainCellCoords = this.getCellCoordsSubset(
-      (cell) => cell.type === "primary" || cell.type === "overflow"
-    );
+    const mainCellCoords = this.getCellCoordsSubsetByCellTypes([
+      "primary",
+      "overflow",
+    ]);
 
     const coordsGroupedByPrimaryRow =
       this.groupCoordsByPrimaryRow(mainCellCoords);
@@ -246,12 +245,34 @@ export class Versitable {
   addBorderStyles(borderStyle: PartialCellStyle) {
     if (!borderStyle) return;
 
-    const borderCellCoords = this.getCellCoordsSubset(
-      (cell) => cell.type !== "primary" && cell.type !== "overflow"
-    );
+    const outerBorderCellCoords = this.getCellCoordsSubsetByCellTypes([
+      "top",
+      "bottom",
+      "left",
+      "right",
+    ]);
 
-    borderCellCoords.forEach((coords) => {
+    outerBorderCellCoords.forEach((coords) => {
       this.transformCellAtCoordsToStyledCell(coords, borderStyle);
+    });
+
+    const betweenColumnsCells = this.getCellCoordsSubsetByCellTypes([
+      "betweenColumns",
+    ]);
+
+    betweenColumnsCells.forEach(([rowIdx, colIdx]) => {
+      const adjacentCell = this._rows[rowIdx].cellAtIdx(colIdx - 1);
+      if (!(adjacentCell instanceof StyledCell) || !adjacentCell.style.bgColor)
+        return;
+      const adjacentCellBgColor = adjacentCell.style.bgColor;
+      const borderStyleWithAdjacentCellBgColor = {
+        ...borderStyle,
+        bgColor: adjacentCellBgColor,
+      };
+      this.transformCellAtCoordsToStyledCell(
+        [rowIdx, colIdx],
+        borderStyleWithAdjacentCellBgColor
+      );
     });
   }
 

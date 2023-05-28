@@ -1,11 +1,15 @@
 import { Cell } from "./Cell";
-import { StyledCell } from "./StyledCell";
-import { AnyBorder, RegularCellContent, RowType } from "./tableTypes";
+import {
+  AnyBorder,
+  AnyCellType,
+  RegularCellContent,
+  RowType,
+} from "./tableTypes";
 
 export class Row {
-  cells: (Cell | StyledCell)[];
+  cells: AnyCellType[];
 
-  constructor(cells: (Cell | StyledCell)[]) {
+  constructor(cells: AnyCellType[]) {
     this.cells = cells;
   }
 
@@ -40,11 +44,11 @@ export class Row {
     return borderTypes;
   }
 
-  getCellsByIdxs(idxs: number[]): Cell[] {
+  getCellsByIdxs(idxs: number[]): AnyCellType[] {
     return idxs.map((idx) => this.cells[idx]);
   }
 
-  getNonBorderCells(): Cell[] {
+  getNonBorderCells(): AnyCellType[] {
     return this.cells.filter((cell) => !cell.isBorder());
   }
 
@@ -57,15 +61,19 @@ export class Row {
     }, [] as number[]);
   }
 
-  splice(startIdx: number, deleteCount: number, ...insertCells: Cell[]): void {
+  splice(
+    startIdx: number,
+    deleteCount: number,
+    ...insertCells: AnyCellType[]
+  ): void {
     this.cells.splice(startIdx, deleteCount, ...insertCells);
   }
 
-  cellAtIdx(idx: number): Cell {
+  cellAtIdx(idx: number): AnyCellType {
     return this.cells[idx];
   }
 
-  getCellSubset(filterFn: (cell: Cell) => boolean): Cell[] {
+  getCellSubset(filterFn: (cell: AnyCellType) => boolean): AnyCellType[] {
     return this.cells.filter(filterFn);
   }
 

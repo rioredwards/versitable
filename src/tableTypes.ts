@@ -1,4 +1,9 @@
+import { Cell } from "./Cell";
+import { StyledCell } from "./StyledCell";
+
 export type Coords = [number, number];
+
+export type AnyCellType = Cell | StyledCell;
 
 export type FilterFn = (val: any, idx: any) => boolean;
 
