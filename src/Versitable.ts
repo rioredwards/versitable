@@ -97,6 +97,25 @@ export class Versitable {
     return this._rows.filter(filterFn);
   }
 
+  getColByIdx(colIdx: number): Cell[] {
+    return this._rows.map((row) => row.cellAtIdx(colIdx));
+  }
+
+  getCols(): Cell[][] {
+    const colIdxs = Array.from({ length: this.colCount }, (_, i) => i);
+    return colIdxs.map((colIdx) => this.getColByIdx(colIdx));
+  }
+
+  getCellByCoords(coords: Coords): Cell {
+    return this._rows[coords[0]].cellAtIdx(coords[1]);
+  }
+
+  borderExists(type: AnyBorder) {
+    return (
+      !!this.borders.sides && !nullUndefinedOrFalse(this.borders.sides[type])
+    );
+  }
+
   getRowIdxSubset(filterFn: (row: Row, idx: number) => boolean): number[] {
     return this._rows.reduce((acc, row, idx) => {
       if (filterFn(row, idx)) {
@@ -153,25 +172,6 @@ export class Versitable {
       }
       return acc;
     }, new Map<number, Coords[]>());
-  }
-
-  getColByIdx(colIdx: number): Cell[] {
-    return this._rows.map((row) => row.cellAtIdx(colIdx));
-  }
-
-  getCols(): Cell[][] {
-    const colIdxs = Array.from({ length: this.colCount }, (_, i) => i);
-    return colIdxs.map((colIdx) => this.getColByIdx(colIdx));
-  }
-
-  getCellByCoords(coords: Coords): Cell {
-    return this._rows[coords[0]].cellAtIdx(coords[1]);
-  }
-
-  borderExists(type: AnyBorder) {
-    return (
-      !!this.borders.sides && !nullUndefinedOrFalse(this.borders.sides[type])
-    );
   }
 
   deepMergeOptions(
@@ -245,6 +245,11 @@ export class Versitable {
   addBorderStyles(borderStyle: PartialCellStyle) {
     if (!borderStyle) return;
 
+    this.addOuterBorderStyles(borderStyle);
+    this.addBetweenColumnBorderStyles(borderStyle);
+  }
+
+  addOuterBorderStyles(borderStyle: PartialCellStyle) {
     const outerBorderCellCoords = this.getCellCoordsSubsetByCellTypes([
       "top",
       "bottom",
@@ -255,7 +260,11 @@ export class Versitable {
     outerBorderCellCoords.forEach((coords) => {
       this.transformCellAtCoordsToStyledCell(coords, borderStyle);
     });
+  }
 
+  addBetweenRowBorderStyles(borderStyle: PartialCellStyle) {}
+
+  addBetweenColumnBorderStyles(borderStyle: PartialCellStyle) {
     const betweenColumnsCells = this.getCellCoordsSubsetByCellTypes([
       "betweenColumns",
     ]);
