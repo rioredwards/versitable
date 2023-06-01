@@ -26,6 +26,7 @@ import { Row } from "./Row";
 import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
 import { StyledCell } from "./StyledCell";
+import { StyleHelper } from "./StyleHelper";
 
 // Main class which does all the work
 export class Versitable {
@@ -154,18 +155,18 @@ export class Versitable {
     return cellCoords.reduce((acc, [rowIdx, colIdx]) => {
       // If rowIdx is a primary row
       if (rowTypes[rowIdx] === "primary") {
-        //-- if it doesn't exist as a key, add it to the accumulator as a key
+        // if it doesn't exist as a key, add it to the accumulator as a key
         if (!acc.has(rowIdx)) {
           acc.set(rowIdx, [[rowIdx, colIdx]]);
         } else {
-          //-- if it does exist as a key,
-          //-- add it's coords to the key with the same rowIdx
+          // if it does exist as a key,
+          // add it's coords to the key with the same rowIdx
           const rowCoords = acc.get(rowIdx);
           rowCoords!.push([rowIdx, colIdx]);
         }
       } else {
         // If it's not a primary row (overflow)
-        //-- add it's coords to the last key
+        // add it's coords to the last key
         const lastKey = Array.from(acc.keys()).pop();
         const rowCoords = acc.get(lastKey!);
         rowCoords!.push([rowIdx, colIdx]);
@@ -247,6 +248,7 @@ export class Versitable {
 
     this.addOuterBorderStyles(borderStyle);
     this.addBetweenColumnBorderStyles(borderStyle);
+    this.addBetweenRowBorderStyles(borderStyle);
   }
 
   addOuterBorderStyles(borderStyle: PartialCellStyle) {
@@ -262,7 +264,48 @@ export class Versitable {
     });
   }
 
-  addBetweenRowBorderStyles(borderStyle: PartialCellStyle) {}
+  addBetweenRowBorderStyles(borderStyle: PartialCellStyle) {
+    const betweenRowCells = this.getCellCoordsSubsetByCellTypes([
+      "betweenRows",
+    ]);
+
+    let avgBgColor: string | undefined;
+    let lastRowIdx: number | undefined; // Used to keep track of when we're on a new row so we know to find a new avgBgColor
+    betweenRowCells.forEach(([rowIdx, colIdx]) => {
+      // If it's the first cell in the row, set lastRowIdx
+      if (lastRowIdx === undefined) {
+        lastRowIdx = rowIdx;
+      } else if (lastRowIdx !== rowIdx) {
+        // If it's a new row, reset avgBgColor and lastRowIdx
+        avgBgColor = undefined;
+        lastRowIdx = rowIdx;
+      } else {
+        // Do nothing because we're still on the same row
+      }
+      const aboveCell = this._rows[rowIdx - 1].cellAtIdx(colIdx);
+      const belowCell = this._rows[rowIdx + 1].cellAtIdx(colIdx);
+      if (
+        !avgBgColor &&
+        aboveCell instanceof StyledCell &&
+        belowCell instanceof StyledCell &&
+        aboveCell.style.bgColor &&
+        belowCell.style.bgColor
+      ) {
+        avgBgColor = StyleHelper.calcAvgColor(
+          aboveCell.style.bgColor,
+          belowCell.style.bgColor
+        );
+      }
+      const borderStyleWithAvgBgColor = {
+        ...borderStyle,
+        ...(avgBgColor && { bgColor: avgBgColor }),
+      };
+      this.transformCellAtCoordsToStyledCell(
+        [rowIdx, colIdx],
+        borderStyleWithAvgBgColor
+      );
+    });
+  }
 
   addBetweenColumnBorderStyles(borderStyle: PartialCellStyle) {
     const betweenColumnsCells = this.getCellCoordsSubsetByCellTypes([
