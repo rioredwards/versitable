@@ -65,6 +65,10 @@ const stylesOptionValidators: Record<
   string,
   { validationFn: ValidationFn; errorMsg: string }
 > = {
+  headerStyle: {
+    validationFn: (style: StyleObj) => isValidStyleObj(style),
+    errorMsg: "Invalid headerStyle",
+  },
   borderStyle: {
     validationFn: (style: StyleObj) => isValidStyleObj(style),
     errorMsg: "Invalid borderStyle",

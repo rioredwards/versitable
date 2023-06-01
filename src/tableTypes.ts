@@ -80,6 +80,7 @@ export interface CustomStyles {
   borderStyle: PartialCellStyle;
   rowStyles: PartialCellStyle[];
   targetCellStyles: TargetCellStyle[];
+  headerStyle: PartialCellStyle;
   blend: Blend;
 }
 

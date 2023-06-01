@@ -9,6 +9,11 @@ export const TABLE_DEFAULTS: TableOptions = {
   maxRowHeight: 2,
   header: undefined,
   styles: {
+    headerStyle: {
+      fgColor: "#e0e0e0",
+      bgColor: "#2f2f2f",
+      modifier: "bold",
+    },
     borderStyle: {
       fgColor: "#e0e0e0",
       bgColor: "#2f2f2f",

@@ -58,7 +58,6 @@ export class Versitable {
     this.padCells();
     this.addBordersToRows();
     this.addStylesToCells();
-    console.log(this.getRowTypes());
   }
 
   // This is how users will create a new table
@@ -130,8 +129,9 @@ export class Versitable {
   }
 
   getColumnIdxSubset(filterFn: (cell: Cell) => boolean): number[] {
-    const definingRowIdx = this.borderExists("top") ? 1 : 0;
-    const definingRow = this._rows[definingRowIdx];
+    const rowTypes = this.getRowTypes();
+    const firstPrimaryRowIdx = rowTypes.indexOf("primary");
+    const definingRow = this._rows[firstPrimaryRowIdx];
     return definingRow.cells.reduce((acc, cell, idx) => {
       if (filterFn(cell)) {
         acc.push(idx);
@@ -252,6 +252,20 @@ export class Versitable {
     return [header, ...inputTable];
   }
 
+  addHeaderStyle(headerStyle: PartialCellStyle) {
+    if (!this._options.header || !headerStyle) return;
+
+    const headerCoords = this.getCellCoordsSubsetByCellTypes([
+      "header",
+      "headerOverflow",
+    ]);
+
+    headerCoords.forEach(([rowIdx, colIdx]) => {
+      const cell = this.getCellByCoords([rowIdx, colIdx]);
+      this._rows[rowIdx].splice(colIdx, 1, new StyledCell(cell, headerStyle));
+    });
+  }
+
   addRowStyles(rowStyles: PartialCellStyle[]) {
     if (!rowStyles) return;
 
@@ -275,7 +289,7 @@ export class Versitable {
     });
   }
 
-  addBorderStyles(borderStyle: PartialCellStyle) {
+  addBorderStyle(borderStyle: PartialCellStyle) {
     if (!borderStyle) return;
 
     this.addOuterBorderStyles(borderStyle);
@@ -367,16 +381,13 @@ export class Versitable {
           const translatedRowIdx = this.translateRowIdxToPrimaryRowIdx(row);
           // Check if there are overflow cells in the row and add them to the target cell coords
           const rowTypes = this.getRowTypes();
-          const tableHasOverflowRows =
-            rowTypes.includes("primaryOverflow") ||
-            rowTypes.includes("headerOverflow");
+          const tableHasOverflowRows = rowTypes.includes("primaryOverflow");
           let overFlowRowIdxs: number[] = [];
           if (tableHasOverflowRows) {
             let rowIdx = translatedRowIdx + 1;
             while (
-              (rowIdx < rowTypes.length &&
-                rowTypes[rowIdx] === "primaryOverflow") ||
-              rowTypes[rowIdx] === "headerOverflow"
+              rowIdx < rowTypes.length &&
+              rowTypes[rowIdx] === "primaryOverflow"
             ) {
               overFlowRowIdxs.push(rowIdx);
               rowIdx++;
@@ -426,9 +437,7 @@ export class Versitable {
             (row) =>
               row.getType() === "innerBorder" ||
               row.getType() === "primary" ||
-              row.getType() === "header" ||
-              row.getType() === "primaryOverflow" ||
-              row.getType() === "headerOverflow"
+              row.getType() === "primaryOverflow"
           );
 
           const targetCellStylesToAdd = innerRowIdxs.map((rowIdx) => ({
@@ -444,15 +453,12 @@ export class Versitable {
           // Check if there are overflow cells in the row and add them to the target cell coords
           const rowTypes = this.getRowTypes();
           let overFlowRowIdxs: number[] = [];
-          const tableHasOverflowRows =
-            rowTypes.includes("primaryOverflow") ||
-            rowTypes.includes("headerOverflow");
+          const tableHasOverflowRows = rowTypes.includes("primaryOverflow");
           if (tableHasOverflowRows) {
             let rowIdx = translatedRowIdx + 1;
             while (
-              (rowIdx < rowTypes.length &&
-                rowTypes[rowIdx] === "primaryOverflow") ||
-              rowTypes[rowIdx] === "headerOverflow"
+              rowIdx < rowTypes.length &&
+              rowTypes[rowIdx] === "primaryOverflow"
             ) {
               overFlowRowIdxs.push(rowIdx);
               rowIdx++;
@@ -506,11 +512,13 @@ export class Versitable {
   addStylesToCells() {
     if (nullUndefinedOrFalse(this.styles)) return;
 
-    const { targetCellStyles, rowStyles, borderStyle } = this.styles;
+    const { targetCellStyles, rowStyles, borderStyle, headerStyle } =
+      this.styles;
 
+    this.addHeaderStyle(headerStyle);
     this.addRowStyles(rowStyles);
     this.addTargetCellStyles(targetCellStyles);
-    this.addBorderStyles(borderStyle);
+    this.addBorderStyle(borderStyle);
   }
 
   transformCellAtCoordsToStyledCell(coords: Coords, styleObj: StyleObj): void {

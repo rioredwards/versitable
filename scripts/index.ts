@@ -57,6 +57,10 @@ const updatedOptions: PartialTableOptions = {
   },
   styles: {
     rowStyles: rowStyles1,
+    headerStyle: {
+      fgColor: "#e0e0e0",
+      bgColor: "#565656",
+    },
     blend: false,
     borderStyle: {
       fgColor: "#e0e0e0",
@@ -82,10 +86,7 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
-  );
+  const myVersitable = Versitable.make(hotkeysFormattedForTable);
   myVersitable.print();
 }
 

@@ -14,6 +14,7 @@ export const validTableOptions: PartialTableOptions = {
   maxRowHeight: 2,
   header: ["Header 1", "Header 2", "Header 3"],
   styles: {
+    headerStyle: { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "bold" },
     borderStyle: { fgColor: "#9148d5" },
     rowStyles: [
       { fgColor: "red", bgColor: "blue", modifier: "bold" },
@@ -130,6 +131,10 @@ export const validStylesOption: Styles[] = [
       { fgColor: "red", bgColor: "blue", modifier: "bold" },
       { fgColor: "#48d0d5", bgColor: "#8342b1", modifier: "italics" },
     ],
+    headerStyle: {
+      bgColor: "#8342b1",
+      modifier: "italics",
+    },
     targetCellStyles: [
       {
         column: 0,

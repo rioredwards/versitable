@@ -21,12 +21,17 @@ export const invalidTableOptions = [
   },
   {
     styles: {
-      targetCellStylestyles: 1, // number instead of array
+      headerStyle: false, // boolean instead of array
     },
   },
   {
     styles: {
-      targetCellStylestyles: [
+      targetCellStyle: 1, // number instead of array
+    },
+  },
+  {
+    styles: {
+      targetCellStyle: [
         {
           column: -1, // negative column number
         },
@@ -192,31 +197,31 @@ export const invalidStylesOption = [
   {
     rowStyle: [{ fgColor: [], bgColor: 6, style: { bold: "bold" } }],
   },
-  { targetCellStyles: {} },
+  { headerStyle: {} },
   { targetCellStyles: 4 },
-  { targetCellStyles: ["red"] },
-  { targetCellStyles: [] },
+  { rowStyle: ["red"] },
+  { headerStyle: [] },
   { targetCellStyles: [{ column: -1 }] },
-  { targetCellStyles: [{ column: "hello" }] },
-  { targetCellStyles: [{ column: true, row: 0 }] },
+  { borderStyle: [{ column: "hello" }] },
+  { headerStyle: [{ column: true, row: 0 }] },
   { targetCellStyles: [{ column: false, row: 0 }] },
-  { targetCellStyles: [{ row: -1, column: 0 }] },
+  { rowStyle: [{ row: -1, column: 0 }] },
   { targetCellStyles: [{ row: "hello", column: 0 }] },
   { targetCellStyles: [{ row: true }] },
-  { targetCellStyles: [{ row: false }] },
-  { targetCellStyles: [{ fgColor: "red" }] },
+  { headerStyle: [{ row: false }] },
+  { rowStyle: [{ fgColor: "red" }] },
   { targetCellStyles: [{ bgColor: "red" }] },
-  { targetCellStyles: [{ modifier: "bold" }] },
-  { targetCellStyles: [{ fgColor: -1, row: 0 }] },
+  { borderStyle: [{ modifier: "bold" }] },
+  { rowStyle: [{ fgColor: -1, row: 0 }] },
   { targetCellStyles: [{ fgColor: {}, row: 0 }] },
-  { targetCellStyles: [{ fgColor: true, row: 0 }] },
-  { targetCellStyles: [{ fgColor: false, row: 0 }] },
+  { rowStyle: [{ fgColor: true, row: 0 }] },
+  { headerStyle: [{ fgColor: false, row: 0 }] },
   { targetCellStyles: [{ bgColor: -1, row: 0 }] },
-  { targetCellStyles: [{ bgColor: {}, row: 0 }] },
+  { borderStyle: [{ bgColor: {}, row: 0 }] },
   { targetCellStyles: [{ bgColor: true, row: 0 }] },
-  { targetCellStyles: [{ bgColor: false, row: 0 }] },
+  { headerStyle: [{ bgColor: false, row: 0 }] },
   { targetCellStyles: [{ modifier: -1, column: 0 }] },
-  { targetCellStyles: [{ modifier: {}, column: 0 }] },
+  { rowStyle: [{ modifier: {}, column: 0 }] },
   { targetCellStyles: [{ modifier: true, column: 0 }] },
-  { targetCellStyles: [{ modifier: false, column: 0 }] },
+  { borderStyle: [{ modifier: false, column: 0 }] },
 ];
