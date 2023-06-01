@@ -7,7 +7,7 @@ export const TABLE_DEFAULTS: TableOptions = {
   maxRows: 100,
   maxColWidths: 40,
   maxRowHeight: 2,
-  header: true,
+  header: undefined,
   styles: {
     borderStyle: {
       fgColor: "#e0e0e0",

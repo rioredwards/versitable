@@ -22,11 +22,14 @@ describe("Rows: ", () => {
 
   describe("type should return the type of the row when: ", () => {
     it("left border is NOT present", () => {
-      const row = new Row([new Cell("overflow"), new Cell("overflow")]);
+      const row = new Row([
+        new Cell("primaryOverflow"),
+        new Cell("primaryOverflow"),
+      ]);
       expect(row.getType()).toBe("overflow");
     });
     it("left border IS present", () => {
-      const row = new Row([new Cell("left"), new Cell("overflow")]);
+      const row = new Row([new Cell("left"), new Cell("primaryOverflow")]);
       expect(row.getType()).toBe("overflow");
     });
     it("row contains top border cells", () => {
@@ -40,6 +43,10 @@ describe("Rows: ", () => {
     it("row contains betweenRows border cells", () => {
       const row = new Row([new Cell("betweenRows")]);
       expect(row.getType()).toBe("innerBorder");
+    });
+    it("row is a header row", () => {
+      const row = new Row([new Cell("header")]);
+      expect(row.getType()).toBe("header");
     });
   });
 
@@ -57,7 +64,7 @@ describe("Rows: ", () => {
     it("should return an empty set when no border cells are in row", () => {
       const row = new Row([
         new Cell("primary"),
-        new Cell("overflow"),
+        new Cell("primaryOverflow"),
         new Cell("primary"),
       ]);
       expect(row.getBorders()).toEqual(new Set([]));
@@ -80,12 +87,12 @@ describe("Rows: ", () => {
   describe("cellAtIdx: ", () => {
     it("should return a cell", () => {
       const row = new Row([
-        new Cell("overflow", "content1"),
+        new Cell("primaryOverflow", "content1"),
         new Cell("primary", "content2"),
       ]);
       expect(row.cellAtIdx(0)).toBeInstanceOf(Cell);
       expect(row.cellAtIdx(1)).toBeInstanceOf(Cell);
-      expect(row.cellAtIdx(0)).toEqual(new Cell("overflow", "content1"));
+      expect(row.cellAtIdx(0)).toEqual(new Cell("primaryOverflow", "content1"));
       expect(row.cellAtIdx(1)).toEqual(new Cell("primary", "content2"));
     });
   });
@@ -128,7 +135,7 @@ describe("Rows: ", () => {
       expect(row.getType()).toBe("primary");
       expect(overflowRow).toBeInstanceOf(Row);
       if (!overflowRow) return;
-      expect(overflowRow.getType()).toBe("overflow");
+      expect(overflowRow.getType()).toBe("primaryOverflow");
       expect(overflowRow.length).toBe(2);
       expect(overflowRow.cells[0].content).toBe(" world!");
       expect(overflowRow.cells[0].length).toBe(7);

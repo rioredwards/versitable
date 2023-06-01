@@ -9,11 +9,12 @@ describe("RowFactory: ", () => {
   describe("createRowFromCells: ", () => {
     it("should create a row from strings", () => {
       const cell1 = new Cell("primary", "one");
-      const cell2 = new Cell("overflow", "two");
+      const cell2 = new Cell("primaryOverflow", "two");
       const row = RowFactory.createRowFromCells([cell1, cell2]);
       expect(row.cells.length).toBe(2);
       expect(row.cells[0].type).toBe("primary");
       expect(row.cells[1].content).toBe("two");
+      expect(row.cells[1].type).toBe("primaryOverflow");
     });
   });
 

@@ -41,6 +41,7 @@ const rowStyles3 = [
 const updatedOptions: PartialTableOptions = {
   maxRows: 10,
   maxColumns: 12,
+  header: ["App", "Hotkey", "Description"],
   maxColWidths: [12, 18, 10],
   maxRowHeight: 3,
   cellPadding: 2,

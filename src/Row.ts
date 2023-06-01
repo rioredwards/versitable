@@ -96,9 +96,11 @@ export class Row {
 
     // Create new row with empty overflow cells
     const rowLength = this.length;
+    const newRowType =
+      this.getType() === "primary" ? "primaryOverflow" : "headerOverflow";
     const emptyOverflowCells = Array.from(
       { length: rowLength },
-      () => new Cell("overflow")
+      () => new Cell(newRowType)
     );
     const overflowRow = new Row(emptyOverflowCells);
 

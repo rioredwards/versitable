@@ -7,7 +7,7 @@ export const invalidTableOptions = [
   { maxRows: 1001 }, // too many rows
   { maxColWidths: false }, // boolean instead of number[] or number
   { maxRowHeight: 100 }, // too large row height
-  { header: "true" }, // string instead of boolean
+  { header: "hello" }, // string instead of array
   { styles: "yellow" }, // string instead of object
   {
     styles: {
@@ -151,6 +151,8 @@ export const invalidHeader = [
   "hello",
   "10",
   { foo: "bar" },
+  [-1, 0, 1],
+  [true, false, true],
 ];
 
 export const invalidBordersOption = [

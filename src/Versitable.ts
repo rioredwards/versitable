@@ -249,7 +249,7 @@ export class Versitable {
 
     const mainCellCoords = this.getCellCoordsSubsetByCellTypes([
       "primary",
-      "overflow",
+      "primaryOverflow",
     ]);
 
     const coordsGroupedByPrimaryRow =
@@ -359,12 +359,16 @@ export class Versitable {
           const translatedRowIdx = this.translateRowIdxToPrimaryRowIdx(row);
           // Check if there are overflow cells in the row and add them to the target cell coords
           const rowTypes = this.getRowTypes();
+          const tableHasOverflowRows =
+            rowTypes.includes("primaryOverflow") ||
+            rowTypes.includes("headerOverflow");
           let overFlowRowIdxs: number[] = [];
-          if (rowTypes.includes("overflow")) {
+          if (tableHasOverflowRows) {
             let rowIdx = translatedRowIdx + 1;
             while (
-              rowIdx < rowTypes.length &&
-              rowTypes[rowIdx] === "overflow"
+              (rowIdx < rowTypes.length &&
+                rowTypes[rowIdx] === "primaryOverflow") ||
+              rowTypes[rowIdx] === "headerOverflow"
             ) {
               overFlowRowIdxs.push(rowIdx);
               rowIdx++;
@@ -414,7 +418,9 @@ export class Versitable {
             (row) =>
               row.getType() === "innerBorder" ||
               row.getType() === "primary" ||
-              row.getType() === "overflow"
+              row.getType() === "header" ||
+              row.getType() === "primaryOverflow" ||
+              row.getType() === "headerOverflow"
           );
 
           const targetCellStylesToAdd = innerRowIdxs.map((rowIdx) => ({
@@ -430,11 +436,15 @@ export class Versitable {
           // Check if there are overflow cells in the row and add them to the target cell coords
           const rowTypes = this.getRowTypes();
           let overFlowRowIdxs: number[] = [];
-          if (rowTypes.includes("overflow")) {
+          const tableHasOverflowRows =
+            rowTypes.includes("primaryOverflow") ||
+            rowTypes.includes("headerOverflow");
+          if (tableHasOverflowRows) {
             let rowIdx = translatedRowIdx + 1;
             while (
-              rowIdx < rowTypes.length &&
-              rowTypes[rowIdx] === "overflow"
+              (rowIdx < rowTypes.length &&
+                rowTypes[rowIdx] === "primaryOverflow") ||
+              rowTypes[rowIdx] === "headerOverflow"
             ) {
               overFlowRowIdxs.push(rowIdx);
               rowIdx++;

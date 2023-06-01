@@ -1,3 +1,4 @@
+import { isString } from "util";
 import {
   Borders,
   OptionChecks,
@@ -54,7 +55,8 @@ const standardOptionValidators: Record<
     errorMsg: `maxRowHeight must be a number between ${MIN_MAX_ROW_HEIGHT} and ${MAX_MAX_ROW_HEIGHT}`,
   },
   header: {
-    validationFn: isBoolean,
+    validationFn: (header: string[]) =>
+      isValidArray(header, (s) => typeof s === "string"),
     errorMsg: "header must be a boolean",
   },
 };
@@ -148,6 +150,10 @@ function isActuallyObject(value: any) {
 function isValidArray(array: any, validationFn: ValidationFn) {
   if (!Array.isArray(array)) {
     handleInvalidEntry(`Invalid array: ${array}. Must be an array.`);
+    return false;
+  }
+  if (array.length <= 0) {
+    handleInvalidEntry(`Invalid array: ${array}. Must not be empty.`);
     return false;
   }
   if (!array.every(validationFn)) {

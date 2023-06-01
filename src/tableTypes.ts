@@ -9,7 +9,9 @@ export type FilterFn = (val: any, idx: any) => boolean;
 
 export type RowType =
   | "primary"
-  | "overflow"
+  | "primaryOverflow"
+  | "header"
+  | "headerOverflow"
   | "upperBorder"
   | "lowerBorder"
   | "innerBorder";
@@ -18,7 +20,11 @@ export type Align = "left" | "right" | "center";
 
 export type CellType = RegularCellContent | AnyBorder;
 
-export type RegularCellContent = "primary" | "overflow";
+export type RegularCellContent =
+  | "primary"
+  | "primaryOverflow"
+  | "header"
+  | "headerOverflow";
 
 export type AnyBorder = HorizontalBorder | VerticalBorder;
 
@@ -28,7 +34,9 @@ export type VerticalBorder = "left" | "right" | "betweenColumns";
 
 export const cellTypesArr: CellType[] = [
   "primary",
-  "overflow",
+  "primaryOverflow",
+  "header",
+  "headerOverflow",
   "top",
   "bottom",
   "left",
@@ -53,7 +61,7 @@ export interface TableOptions {
   maxRows: number; // Max number of rows (not including "overflow rows": rows with height > 1)
   maxColWidths: number[] | number; // Max column widths (doesn't include padding)
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
-  header: boolean; // Whether to include a header row (this defaults to the first row of the table)
+  header: string[] | undefined; // Header row should be an array of strings or undefined
   styles: Styles; // Styles for borders, alternate rows and targetCells colors
   borders: Borders; // AnyBorder sides and glyphs
 }

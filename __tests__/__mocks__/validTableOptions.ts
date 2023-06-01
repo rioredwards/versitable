@@ -12,7 +12,7 @@ export const validTableOptions: PartialTableOptions = {
   maxRows: 8,
   maxColWidths: [30, 30, 60],
   maxRowHeight: 2,
-  header: true,
+  header: ["Header 1", "Header 2", "Header 3"],
   styles: {
     borderStyle: { fgColor: "#9148d5" },
     rowStyles: [
@@ -35,6 +35,7 @@ export const validTableOptions: PartialTableOptions = {
         bgColor: "yellowBright",
       },
     ],
+    blend: true,
   },
   borders: {
     glyphs: {
@@ -74,7 +75,7 @@ export const validMaxColWidths = [
   [1, 10, 100, 400],
 ];
 export const validMaxRowHeight = [1, 7, 25, 50];
-export const validHeader = [true, false];
+export const validHeader = [["hello", "world"], ["hello"], ["world"]];
 
 export const validBordersOption: Borders[] = [
   {

@@ -44,6 +44,18 @@ describe("Cells: ", () => {
       expect(cell.content).toBe("some");
       expect(overFlowCell.content).toBe(" content");
     });
+    it("split cell should have correct overflow type", () => {
+      const content = "some content";
+      const primaryCell = new Cell("primary", "some content", content.length);
+      const primaryOverFlowCell = primaryCell.splitAt(4);
+      expect(primaryCell.type).toBe("primary");
+      expect(primaryOverFlowCell.type).toBe("primaryOverflow");
+
+      const headerCell = new Cell("header", "some content", content.length);
+      const headerOverFlowCell = headerCell.splitAt(4);
+      expect(headerCell.type).toBe("header");
+      expect(headerOverFlowCell.type).toBe("headerOverflow");
+    });
   });
 
   describe("pad: ", () => {
@@ -65,13 +77,49 @@ describe("Cells: ", () => {
   });
 
   describe("isBorder", () => {
-    it("should return true if the cell is a border", () => {
-      const cell = new Cell("top", "content", 7);
-      expect(cell.isBorder()).toBe(true);
+    describe("should return true if the cell is a ", () => {
+      it("top cell", () => {
+        const cell = new Cell("top", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
+      it("bottom cell", () => {
+        const cell = new Cell("bottom", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
+      it("left cell", () => {
+        const cell = new Cell("left", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
+      it("right cell", () => {
+        const cell = new Cell("right", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
+      it("betweenColumns cell", () => {
+        const cell = new Cell("betweenColumns", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
+      it("betweenRows cell", () => {
+        const cell = new Cell("betweenRows", "content", 7);
+        expect(cell.isBorder()).toBe(true);
+      });
     });
-    it("should return false if the cell is not a border", () => {
-      const cell = new Cell("primary", "content", 7);
-      expect(cell.isBorder()).toBe(false);
+    describe("should return false if the cell is a ", () => {
+      it("primary cell", () => {
+        const cell = new Cell("primary", "content", 7);
+        expect(cell.isBorder()).toBe(false);
+      });
+      it("primaryOverflow cell", () => {
+        const cell = new Cell("primaryOverflow", "content", 7);
+        expect(cell.isBorder()).toBe(false);
+      });
+      it("header cell", () => {
+        const cell = new Cell("header", "content", 7);
+        expect(cell.isBorder()).toBe(false);
+      });
+      it("headerOverflow cell", () => {
+        const cell = new Cell("headerOverflow", "content", 7);
+        expect(cell.isBorder()).toBe(false);
+      });
     });
   });
 });

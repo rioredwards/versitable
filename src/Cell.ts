@@ -27,7 +27,9 @@ export class Cell {
     const overflowLength = this.length - index;
     this.content = this.content.substring(0, index);
     this.length = index;
-    return new Cell("overflow", overflowContent, overflowLength);
+    const newCellType =
+      this.type === "primary" ? "primaryOverflow" : "headerOverflow";
+    return new Cell(newCellType, overflowContent, overflowLength);
   }
 
   pad(padLength: number, align: Align = "left"): void {
@@ -54,6 +56,14 @@ export class Cell {
   }
 
   isBorder(): boolean {
-    return this.type !== "primary" && this.type !== "overflow";
+    switch (this.type) {
+      case "header":
+      case "headerOverflow":
+      case "primary":
+      case "primaryOverflow":
+        return false;
+      default:
+        return true;
+    }
   }
 }
