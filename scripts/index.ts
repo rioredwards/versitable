@@ -5,6 +5,8 @@ import { TABLE_DEFAULTS } from "../src/tableDefaults";
 import { Versitable } from "../src/Versitable";
 import { StyleHelper } from "../src/StyleHelper";
 import { allBorderCombos } from "../__tests__/__mocks__/validTableOptions";
+import { canvasTableData } from "../__tests__/__mocks__/canvasTableData";
+import { versitableDrawing } from "../__tests__/__mocks__/drawingData";
 
 const rowStyles1 = [
   { fgColor: "#e0e0e0", bgColor: "#447c65" },
@@ -37,19 +39,19 @@ const rowStyles3 = [
 ];
 
 const updatedOptions: PartialTableOptions = {
-  maxRows: 10,
-  maxColumns: 10,
-  maxColWidths: [10, 15, 10],
-  maxRowHeight: 2,
-  cellPadding: 3,
+  maxRows: 49,
+  maxColumns: 100,
+  maxColWidths: [12, 18, 10],
+  maxRowHeight: 1,
+  cellPadding: 1,
   borders: {
     sides: {
-      betweenRows: true,
-      betweenColumns: true,
-      top: true,
-      bottom: true,
-      left: true,
-      right: true,
+      betweenRows: false,
+      betweenColumns: false,
+      top: false,
+      bottom: false,
+      left: false,
+      right: false,
     },
     glyphs: {
       horizontalLine: " ",
@@ -66,13 +68,8 @@ const updatedOptions: PartialTableOptions = {
     },
   },
   styles: {
-    borderStyle: { fgColor: "#898989" },
-    rowStyles: rowStyles2,
-    targetCellStyles: [
-      { bgColor: "#c06767", column: 1 },
-      { bgColor: "#3a8d9c", row: 1 },
-      { bgColor: "#1c76ad", row: 3, column: 4 },
-    ],
+    rowStyles: [{ bgColor: "#525252" }],
+    targetCellStyles: versitableDrawing,
   },
 };
 
@@ -93,7 +90,7 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(validTableData, updatedOptions);
+  const myVersitable = Versitable.make(canvasTableData, updatedOptions);
   myVersitable.print();
 }
 
@@ -109,7 +106,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
       },
       styles: {
         rowStyles: rowStyles1,
-        borderStyle: { fgColor: "#c8c8c8", bgColor: "#525252" },
+        borderStyle: { fgColor: "#b2b2b2", bgColor: "#525252" },
       },
     };
     const myVersitable = Versitable.make(validTableData, borderOptions);

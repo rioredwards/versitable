@@ -14,7 +14,7 @@ type ValidationFn = (value: any) => boolean | never;
 
 let optionChecks: OptionChecks;
 
-const MAX_MAX_COLUMNS = 100;
+const MAX_MAX_COLUMNS = 300;
 const MIN_MAX_COLUMNS = 1;
 const MAX_MAX_ROWS = 1000;
 const MIN_MAX_ROWS = 1;

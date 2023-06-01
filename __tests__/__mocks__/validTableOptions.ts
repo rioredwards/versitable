@@ -23,7 +23,7 @@ export const validTableOptions: PartialTableOptions = {
       {
         column: 0,
         row: 0,
-        fgColor: "orange",
+        fgColor: "yellow",
         modifier: "bold",
         bgColor: "magenta",
       },

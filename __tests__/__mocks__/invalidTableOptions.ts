@@ -2,7 +2,7 @@
 export const invalidTableOptions = [
   // { optionChecks: 0 }, // number instead of OptionChecks type
   { cellPadding: "2" }, // string instead of number
-  { maxColumns: 200 }, // too many columns
+  { maxColumns: 400 }, // too many columns
   { maxRows: -1 }, // negative number of rows
   { maxRows: 1001 }, // too many rows
   { maxColWidths: false }, // boolean instead of number[] or number
@@ -86,7 +86,7 @@ export const invalidMaxColumns = [
   -1,
   -100,
   0,
-  101,
+  301,
   true,
   "",
   "hello",
