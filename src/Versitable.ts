@@ -47,7 +47,8 @@ export class Versitable {
     this._options = this.deepMergeOptions(inputOptions, TABLE_DEFAULTS);
 
     // Limit Rows and Columns of input table
-    const limitInputRowsTable = this.limitInputRows(inputTable);
+    const inputTableWithHeader = this.addHeaderToInputTable(inputTable);
+    const limitInputRowsTable = this.limitInputRows(inputTableWithHeader);
     const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
 
     // Create Rows from input table and mutate them as specified in options
@@ -57,6 +58,7 @@ export class Versitable {
     this.padCells();
     this.addBordersToRows();
     this.addStylesToCells();
+    console.log(this.getRowTypes());
   }
 
   // This is how users will create a new table
@@ -242,6 +244,12 @@ export class Versitable {
     } else {
       return userMaxColWidths;
     }
+  }
+
+  addHeaderToInputTable(inputTable: string[][]): string[][] {
+    const header = this._options.header;
+    if (!header) return inputTable;
+    return [header, ...inputTable];
   }
 
   addRowStyles(rowStyles: PartialCellStyle[]) {
@@ -535,9 +543,12 @@ export class Versitable {
 
   // Helper methods
   createRowsFromStrings(tableContentStrings: string[][]): Row[] {
-    return tableContentStrings.map((rowContentStrings) =>
-      RowFactory.createRowFromStrings(rowContentStrings)
-    );
+    return tableContentStrings.map((rowContentStrings, rowIdx) => {
+      if (rowIdx === 0 && this._options.header) {
+        return RowFactory.createRowFromStrings(rowContentStrings, "header");
+      }
+      return RowFactory.createRowFromStrings(rowContentStrings);
+    });
   }
 
   limitInputRows(inputTable: string[][]): string[][] {

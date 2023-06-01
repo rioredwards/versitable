@@ -57,6 +57,18 @@ describe("Versitable: ", () => {
       }
     });
 
+    it("should create a header as the top row of the table if passed in a valid header option", () => {
+      const myVersitable = Versitable.make(validTableData, {
+        header: ["header1", "header2"],
+        borders: false,
+        maxRows: 10,
+        maxRowHeight: 1,
+        styles: false,
+      });
+      expect(myVersitable[0][0].trim()).toBe("header1");
+      expect(myVersitable[0][1].trim()).toBe("header2");
+    });
+
     it("should limit the rows created based on the maxRows option", () => {
       const myVersitable = Versitable.make(validTableData, {
         borders: false,
