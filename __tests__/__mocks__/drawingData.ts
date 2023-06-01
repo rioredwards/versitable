@@ -120,7 +120,7 @@ export const canvasOptions: PartialTableOptions = {
   maxRowHeight: 1,
   cellPadding: 1,
   borders: {
-    sides: {
+    positions: {
       betweenRows: false,
       betweenColumns: false,
       top: false,

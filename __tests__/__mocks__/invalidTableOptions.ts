@@ -58,17 +58,17 @@ export const invalidTableOptions = [
   },
   {
     borders: {
-      sides: "hello", // string instead of BorderSides
+      positions: "hello", // string instead of BorderPositions object
     },
   },
   {
     borders: {
-      sides: { top: 1 }, // number instead of boolean
+      positions: { top: 1 }, // number instead of boolean
     },
   },
   {
     borders: {
-      sides: { betweenColumns: {} }, // obj instead of boolean
+      positions: { betweenColumns: {} }, // obj instead of boolean
     },
   },
 ];
@@ -172,7 +172,7 @@ export const invalidBordersOption = [
   "10",
   { foo: "bar" },
   [{ foo: "bar" }],
-  [{ sides: { top: true } }],
+  [{ positions: { top: true } }],
 ];
 
 export const invalidStylesOption = [

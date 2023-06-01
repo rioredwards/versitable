@@ -45,7 +45,7 @@ export const cellTypesArr: CellType[] = [
   "betweenRows",
 ];
 
-export const borderSides = [
+export const borderPositions = [
   "top",
   "right",
   "bottom",
@@ -63,7 +63,7 @@ export interface TableOptions {
   maxRowHeight: number; // Lines of text per cell (only applies if cell content will be truncated)
   header: string[] | undefined; // Header row should be an array of strings or undefined
   styles: Styles; // Styles for borders, alternate rows and targetCells colors
-  borders: Borders; // AnyBorder sides and glyphs
+  borders: Borders; // AnyBorder positions and glyphs
 }
 
 export interface PartialTableOptions extends DeepPartial<TableOptions> {}
@@ -103,7 +103,7 @@ export type PartialCellStyle = StyleObj &
 export type TargetCellStyle = PartialCellStyle &
   ({ column: number; row?: number } | { column?: number; row: number });
 
-export interface BorderSides {
+export interface BorderPositions {
   top: boolean;
   bottom: boolean;
   left: boolean;
@@ -113,7 +113,7 @@ export interface BorderSides {
 }
 
 export interface CustomBorders {
-  sides: BorderSides;
+  positions: BorderPositions;
   glyphs: BorderGlyphs;
 }
 

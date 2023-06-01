@@ -148,7 +148,7 @@ describe("Versitable: ", () => {
         maxColWidths: 25,
         maxRowHeight: 3,
         borders: {
-          sides: {
+          positions: {
             left: false,
             right: false,
             top: false,

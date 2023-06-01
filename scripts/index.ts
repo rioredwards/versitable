@@ -46,7 +46,7 @@ const updatedOptions: PartialTableOptions = {
   maxRowHeight: 3,
   cellPadding: 2,
   borders: {
-    sides: {
+    positions: {
       betweenRows: true,
       betweenColumns: true,
       top: true,
@@ -86,7 +86,9 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(hotkeysFormattedForTable);
+  const myVersitable = Versitable.make(hotkeysFormattedForTable, {
+    header: ["header1", "header2", "header3"],
+  });
   myVersitable.print();
 }
 
@@ -98,7 +100,7 @@ async function logAllBorderCombos(hotkeysFormattedForTable: string[][]) {
     const borderOptions: PartialTableOptions = {
       ...updatedOptions,
       borders: {
-        sides: { ...borderCombo },
+        positions: { ...borderCombo },
       },
       styles: {
         rowStyles: rowStyles1,

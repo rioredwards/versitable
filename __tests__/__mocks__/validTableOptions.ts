@@ -52,7 +52,7 @@ export const validTableOptions: PartialTableOptions = {
       bottomSeparator: "┴",
       middleSeparator: "┼",
     },
-    sides: {
+    positions: {
       top: true,
       bottom: false,
       left: true,
@@ -93,7 +93,7 @@ export const validBordersOption: Borders[] = [
       bottomSeparator: "┴",
       middleSeparator: "┼",
     },
-    sides: {
+    positions: {
       top: true,
       bottom: false,
       left: true,
@@ -106,7 +106,7 @@ export const validBordersOption: Borders[] = [
     glyphs: {
       middleSeparator: "┼",
     },
-    sides: {
+    positions: {
       bottom: false,
     },
   },
@@ -116,7 +116,7 @@ export const validBordersOption: Borders[] = [
     },
   },
   {
-    sides: {
+    positions: {
       top: true,
     },
   },
@@ -148,9 +148,9 @@ export const validStylesOption: Styles[] = [
 ];
 
 /* Code used to generate the allBorderCombos */
-// let sidesCombinations: any = [];
+// let positionsCombinations: any = [];
 
-// const sides: Searchable = {
+// const positions: Searchable = {
 //   betweenRows: true,
 //   betweenColumns: true,
 //   left: true,
@@ -187,11 +187,11 @@ export const validStylesOption: Styles[] = [
 //   );
 // }
 
-// const sidesKeys = Object.keys(sides);
-// const uniqueSidesCombinations: Searchable[] = [];
-// generateCombinations(sidesKeys, 0, {}, uniqueSidesCombinations);
+// const positionsKeys = Object.keys(positions);
+// const uniquePositionsCombinations: Searchable[] = [];
+// generateCombinations(positionsKeys, 0, {}, uniquePositionsCombinations);
 
-// console.log(uniqueSidesCombinations);
+// console.log(uniquePositionsCombinations);
 
 export const allBorderCombos = [
   {

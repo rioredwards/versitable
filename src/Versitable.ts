@@ -115,7 +115,8 @@ export class Versitable {
 
   borderExists(type: AnyBorder) {
     return (
-      !!this.borders.sides && !nullUndefinedOrFalse(this.borders.sides[type])
+      !!this.borders.positions &&
+      !nullUndefinedOrFalse(this.borders.positions[type])
     );
   }
 
@@ -672,16 +673,16 @@ export class Versitable {
 
   addBordersToRows(): void {
     if (this._options.borders === false) return;
-    const sides = this.borders.sides;
+    const positions = this.borders.positions;
 
     // Insert horizontal borders
-    if (sides.betweenRows) this.insertHorizontalBorder("betweenRows");
-    if (sides.top) this.insertHorizontalBorder("top");
-    if (sides.bottom) this.insertHorizontalBorder("bottom");
+    if (positions.betweenRows) this.insertHorizontalBorder("betweenRows");
+    if (positions.top) this.insertHorizontalBorder("top");
+    if (positions.bottom) this.insertHorizontalBorder("bottom");
     // Insert vertical borders
-    if (sides.betweenColumns) this.insertVerticalBorder("betweenColumns");
-    if (sides.right) this.insertVerticalBorder("right");
-    if (sides.left) this.insertVerticalBorder("left");
+    if (positions.betweenColumns) this.insertVerticalBorder("betweenColumns");
+    if (positions.right) this.insertVerticalBorder("right");
+    if (positions.left) this.insertVerticalBorder("left");
   }
 
   getGlyphsForBorderType(type: HorizontalBorder): HorizontalGlyphs;

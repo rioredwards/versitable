@@ -1,13 +1,12 @@
-import { isString } from "util";
 import {
   Borders,
   OptionChecks,
   BorderGlyphs,
-  BorderSides,
+  BorderPositions,
   PartialTableOptions,
   StyleObj,
   TargetCellStyle,
-  borderSides,
+  borderPositions,
   Styles,
 } from "./tableTypes";
 
@@ -212,20 +211,22 @@ function isValidBorderGlyphsOption(glyphs: BorderGlyphs) {
   return true;
 }
 
-function isValidBorderSidesOption(borderSidesOption: BorderSides) {
-  if (borderSidesOption === undefined) return true;
-  if (!isActuallyObject(borderSidesOption)) {
-    handleInvalidEntry("Invalid border sides option. Must be an object.");
+function isValidBorderPositionsOption(borderPositionsOption: BorderPositions) {
+  if (borderPositionsOption === undefined) return true;
+  if (!isActuallyObject(borderPositionsOption)) {
+    handleInvalidEntry("Invalid border positions option. Must be an object.");
     return false;
   }
-  for (const [name, value] of Object.entries(borderSidesOption)) {
+  for (const [name, value] of Object.entries(borderPositionsOption)) {
     if (typeof value !== "boolean") {
-      handleInvalidEntry("Invalid border side option. Must be a boolean.");
+      handleInvalidEntry("Invalid border positions option. Must be a boolean.");
       return false;
     } else {
-      if (!borderSides.includes(name)) {
+      if (!borderPositions.includes(name)) {
         handleInvalidEntry(
-          `Invalid border side option. Must be one of ${borderSides.join(", ")}`
+          `Invalid border position option. Must be one of ${borderPositions.join(
+            ", "
+          )}`
         );
         return false;
       }
@@ -241,8 +242,10 @@ function isValidBordersOption(bordersOption: Borders) {
     handleInvalidEntry("Invalid border option. Must be an object.");
     return false;
   }
-  if (!("sides" in bordersOption || "glyphs" in bordersOption)) {
-    handleInvalidEntry("Invalid border option. Must include sides or glyphs.");
+  if (!("positions" in bordersOption || "glyphs" in bordersOption)) {
+    handleInvalidEntry(
+      "Invalid border option. Must include positions or glyphs."
+    );
     return false;
   }
   for (const [option, value] of Object.entries(bordersOption)) {
@@ -253,11 +256,11 @@ function isValidBordersOption(bordersOption: Borders) {
         );
         return false;
       }
-    } else if (option === "sides") {
-      isValidBorderSidesOption(value as BorderSides);
+    } else if (option === "positions") {
+      isValidBorderPositionsOption(value as BorderPositions);
     } else {
       handleInvalidEntry(
-        "Invalid border option. Must include sides or glyphs."
+        "Invalid border option. Must include positions or glyphs."
       );
       return false;
     }

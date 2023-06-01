@@ -40,7 +40,7 @@ export const TABLE_DEFAULTS: TableOptions = {
       rightSeparator: "┤",
       leftSeparator: "├",
     },
-    sides: {
+    positions: {
       top: true,
       bottom: true,
       left: true,
