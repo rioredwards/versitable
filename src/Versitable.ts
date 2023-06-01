@@ -92,7 +92,7 @@ export class Versitable {
   }
 
   getRowTypes(): RowType[] {
-    return this._rows.map((row) => row.type);
+    return this._rows.map((row) => row.getType());
   }
 
   getRowSubset(filterFn: (row: Row) => boolean): Row[] {
@@ -177,7 +177,9 @@ export class Versitable {
   }
 
   translateRowIdxToPrimaryRowIdx(inputRowIdx: number): number {
-    const primaryRows = this.getRowIdxSubset((row) => row.type === "primary");
+    const primaryRows = this.getRowIdxSubset(
+      (row) => row.getType() === "primary"
+    );
     const primaryRowIdx = primaryRows[inputRowIdx];
     return primaryRowIdx;
   }
@@ -410,9 +412,9 @@ export class Versitable {
             this.translateColIdxToNonBorderColIdx(column);
           const innerRowIdxs = this.getRowIdxSubset(
             (row) =>
-              row.type === "innerBorder" ||
-              row.type === "primary" ||
-              row.type === "overflow"
+              row.getType() === "innerBorder" ||
+              row.getType() === "primary" ||
+              row.getType() === "overflow"
           );
 
           const targetCellStylesToAdd = innerRowIdxs.map((rowIdx) => ({
@@ -596,7 +598,7 @@ export class Versitable {
     switch (type) {
       case "betweenRows":
         insertIdxs = this.getRowIdxSubset(
-          (row: Row, idx: number) => idx > 0 && row.type === "primary"
+          (row: Row, idx: number) => idx > 0 && row.getType() === "primary"
         );
         break;
       case "top":

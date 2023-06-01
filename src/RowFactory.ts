@@ -48,7 +48,7 @@ export class RowFactory {
     if (borderType === "left" || borderType === "right") {
       let borderGlyph: string;
 
-      switch (originalRow.type) {
+      switch (originalRow.getType()) {
         case "upperBorder":
           borderGlyph = topEdge;
           break;

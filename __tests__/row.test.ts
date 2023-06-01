@@ -23,23 +23,23 @@ describe("Rows: ", () => {
   describe("type should return the type of the row when: ", () => {
     it("left border is NOT present", () => {
       const row = new Row([new Cell("overflow"), new Cell("overflow")]);
-      expect(row.type).toBe("overflow");
+      expect(row.getType()).toBe("overflow");
     });
     it("left border IS present", () => {
       const row = new Row([new Cell("left"), new Cell("overflow")]);
-      expect(row.type).toBe("overflow");
+      expect(row.getType()).toBe("overflow");
     });
     it("row contains top border cells", () => {
       const row = new Row([new Cell("top")]);
-      expect(row.type).toBe("upperBorder");
+      expect(row.getType()).toBe("upperBorder");
     });
     it("row contains bottom border cells", () => {
       const row = new Row([new Cell("bottom")]);
-      expect(row.type).toBe("lowerBorder");
+      expect(row.getType()).toBe("lowerBorder");
     });
     it("row contains betweenRows border cells", () => {
       const row = new Row([new Cell("betweenRows")]);
-      expect(row.type).toBe("innerBorder");
+      expect(row.getType()).toBe("innerBorder");
     });
   });
 
@@ -50,7 +50,9 @@ describe("Rows: ", () => {
         new Cell("bottom"),
         new Cell("betweenRows"),
       ]);
-      expect(row.borders).toEqual(new Set(["top", "bottom", "betweenRows"]));
+      expect(row.getBorders()).toEqual(
+        new Set(["top", "bottom", "betweenRows"])
+      );
     });
     it("should return an empty set when no border cells are in row", () => {
       const row = new Row([
@@ -58,7 +60,7 @@ describe("Rows: ", () => {
         new Cell("overflow"),
         new Cell("primary"),
       ]);
-      expect(row.borders).toEqual(new Set([]));
+      expect(row.getBorders()).toEqual(new Set([]));
     });
   });
 
@@ -123,10 +125,10 @@ describe("Rows: ", () => {
     });
     it.only("should return a new row with the overflow type and content", () => {
       const overflowRow = row.splitAtCellLengths(lengths);
-      expect(row.type).toBe("primary");
+      expect(row.getType()).toBe("primary");
       expect(overflowRow).toBeInstanceOf(Row);
       if (!overflowRow) return;
-      expect(overflowRow.type).toBe("overflow");
+      expect(overflowRow.getType()).toBe("overflow");
       expect(overflowRow.length).toBe(2);
       expect(overflowRow.cells[0].content).toBe(" world!");
       expect(overflowRow.cells[0].length).toBe(7);

@@ -17,8 +17,8 @@ export class Row {
     return this.cells.length;
   }
 
-  get type(): RowType {
-    const definingCell = this.borders.has("left")
+  getType(): RowType {
+    const definingCell = this.getBorders().has("left")
       ? this.cells[1]
       : this.cells[0];
     if (definingCell.isBorder()) {
@@ -36,7 +36,7 @@ export class Row {
     return definingCell.type as RegularCellContent;
   }
 
-  get borders(): Set<AnyBorder> {
+  getBorders(): Set<AnyBorder> {
     const borderTypes: Set<AnyBorder> = new Set();
     this.cells.forEach((cell) => {
       if (cell.isBorder()) borderTypes.add(cell.type as AnyBorder);
