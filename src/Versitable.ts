@@ -27,6 +27,7 @@ import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
 import { StyledCell } from "./StyledCell";
 import { StyleHelper } from "./StyleHelper";
+import { TargetCellStyle } from "./tableTypes";
 
 // Main class which does all the work
 export class Versitable {
@@ -126,10 +127,11 @@ export class Versitable {
     }, [] as number[]);
   }
 
-  getColumnIdxSubset(filterFn: (col: Cell[]) => boolean): number[] {
-    const cols = this.getCols();
-    return cols.reduce((acc, col, idx) => {
-      if (filterFn(col)) {
+  getColumnIdxSubset(filterFn: (cell: Cell) => boolean): number[] {
+    const definingRowIdx = this.borderExists("top") ? 1 : 0;
+    const definingRow = this._rows[definingRowIdx];
+    return definingRow.cells.reduce((acc, cell, idx) => {
+      if (filterFn(cell)) {
         acc.push(idx);
       }
       return acc;
@@ -149,7 +151,6 @@ export class Versitable {
   }
 
   groupCoordsByPrimaryRow(cellCoords: Coords[]): Map<number, Coords[]> {
-    cellCoords.sort((a, b) => a[0] - b[0]);
     const rowTypes = this.getRowTypes();
 
     return cellCoords.reduce((acc, [rowIdx, colIdx]) => {
@@ -173,6 +174,27 @@ export class Versitable {
       }
       return acc;
     }, new Map<number, Coords[]>());
+  }
+
+  translateRowIdxToPrimaryRowIdx(inputRowIdx: number): number {
+    const primaryRows = this.getRowIdxSubset((row) => row.type === "primary");
+    const primaryRowIdx = primaryRows[inputRowIdx];
+    return primaryRowIdx;
+  }
+
+  translateColIdxToNonBorderColIdx(inputColIdx: number): number {
+    const nonBorderColumns = this.getColumnIdxSubset(
+      (cell) => cell.type === "primary"
+    );
+    const nonBorderColIdx = nonBorderColumns[inputColIdx];
+    return nonBorderColIdx;
+  }
+
+  translateCoordsByPrimaryCell(inputCoords: Coords): Coords {
+    const [rowIdx, colIdx] = inputCoords;
+    const primaryRowIdx = this.translateRowIdxToPrimaryRowIdx(rowIdx);
+    const nonBorderColIdx = this.translateColIdxToNonBorderColIdx(colIdx);
+    return [primaryRowIdx, nonBorderColIdx];
   }
 
   deepMergeOptions(
@@ -328,34 +350,63 @@ export class Versitable {
     });
   }
 
-  // addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
-  //   if (!targetCellStyles) return;
-  //   targetCellStyles.forEach((targetCellStyle) => {
-  //     const { column, row } = targetCellStyle;
-  //     if (column !== undefined && row !== undefined) {
-  //       // If column and row specified, apply style to that single cell
-  //       const [adjustedRowIdx, adjustedColIdx] =
-  //         this.convertCoordsToPrimaryCoords(row, column);
-  //       this.transformCellAtCoordsToStyledCell(
-  //         adjustedRowIdx,
-  //         adjustedColIdx,
-  //         targetCellStyle
-  //       );
-  //     } else if (column !== undefined) {
-  //       // If only column specified, apply style to all cells in that column
-  //       const cellsInColumn = this.getNonBorderColByIdx(column);
-  //       cellsInColumn.forEach((cell) => {
-  //         Object.assign(cell, new StyledCell(cell, targetCellStyle));
-  //       });
-  //     } else {
-  //       // If only row specified, apply style to all cells in that row
-  //       const targetRow = this.getNonBorderRowByIdx(row!);
-  //       targetRow.cells.forEach((cell) => {
-  //         Object.assign(cell, new StyledCell(cell, targetCellStyle));
-  //       });
-  //     }
-  //   });
-  // }
+  addTargetCellStyles(targetCellStyles: TargetCellStyle[]) {
+    if (!targetCellStyles) return;
+
+    const populatedTargetCellCoords = targetCellStyles.reduce(
+      (acc, targetCellStyle) => {
+        const { row, column } = targetCellStyle;
+        if (row !== undefined && column === undefined) {
+          // Add the chosen style to every inner border column in the row
+          // And translate the column and row indices to their respective primary row and non-border column indices
+          const translatedRowIdx = this.translateRowIdxToPrimaryRowIdx(row);
+          const innerColIdxs = this.getColumnIdxSubset(
+            (cell) => !cell.isBorder() || cell.type === "betweenColumns"
+          );
+          const targetCellStylesToAdd = innerColIdxs.map((colIdx) => ({
+            ...targetCellStyle,
+            ...{ column: colIdx, row: translatedRowIdx },
+          }));
+
+          acc.push(...targetCellStylesToAdd);
+        } else if (row === undefined && column !== undefined) {
+          // Add the chosen style to every cell in the column
+          // And translate the column and row indices to their respective primary row and non-border column indices
+          const translatedColIdx =
+            this.translateColIdxToNonBorderColIdx(column);
+          const innerRowIdxs = this.getRowIdxSubset(
+            (row) =>
+              row.type === "innerBorder" ||
+              row.type === "primary" ||
+              row.type === "overflow"
+          );
+
+          const targetCellStylesToAdd = innerRowIdxs.map((rowIdx) => ({
+            ...targetCellStyle,
+            ...{ column: translatedColIdx, row: rowIdx },
+          }));
+          acc.push(...targetCellStylesToAdd);
+        } else {
+          // Cell style already has row and column specified, so just add it to the list
+          const [translatedRowIdx, translatedColIdx] =
+            this.translateCoordsByPrimaryCell([row, column] as Coords);
+          acc.push({
+            ...targetCellStyle,
+            row: translatedRowIdx,
+            column: translatedColIdx,
+          });
+        }
+        return acc;
+      },
+      [] as TargetCellStyle[]
+    );
+
+    console.log(populatedTargetCellCoords);
+    populatedTargetCellCoords.forEach((targetCellStyle) => {
+      const { row, column, ...style } = targetCellStyle;
+      this.transformCellAtCoordsToStyledCell([row!, column!], style);
+    });
+  }
 
   checkAvgBgColorNeeded(
     rowType: RowType,
@@ -378,7 +429,7 @@ export class Versitable {
 
     this.addRowStyles(rowStyles);
     this.addBorderStyles(borderStyle);
-    // this.addTargetCellStyles(targetCellStyles);
+    this.addTargetCellStyles(targetCellStyles);
   }
 
   transformCellAtCoordsToStyledCell(coords: Coords, styleObj: StyleObj): void {

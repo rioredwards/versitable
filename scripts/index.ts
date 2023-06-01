@@ -69,7 +69,8 @@ const updatedOptions: PartialTableOptions = {
     borderStyle: { fgColor: "#898989" },
     rowStyles: rowStyles1,
     targetCellStyles: [
-      { fgColor: "#000000", bgColor: "#ffffff", row: 2, column: 0 },
+      { bgColor: "#9c3a3a", column: 1 },
+      { bgColor: "#9c3a3a", row: 1 },
     ],
   },
 };
