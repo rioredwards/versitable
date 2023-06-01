@@ -291,33 +291,9 @@ export class Versitable {
       "betweenRows",
     ]);
 
-    let avgBgColor: string | undefined;
-    let lastRowIdx: number | undefined; // Used to keep track of when we're on a new row so we know to find a new avgBgColor
     betweenRowCells.forEach(([rowIdx, colIdx]) => {
-      // If it's the first cell in the row, set lastRowIdx
-      if (lastRowIdx === undefined) {
-        lastRowIdx = rowIdx;
-      } else if (lastRowIdx !== rowIdx) {
-        // If it's a new row, reset avgBgColor and lastRowIdx
-        avgBgColor = undefined;
-        lastRowIdx = rowIdx;
-      } else {
-        // Do nothing because we're still on the same row
-      }
-      const aboveCell = this._rows[rowIdx - 1].cellAtIdx(colIdx);
-      const belowCell = this._rows[rowIdx + 1].cellAtIdx(colIdx);
-      if (
-        !avgBgColor &&
-        aboveCell instanceof StyledCell &&
-        belowCell instanceof StyledCell &&
-        aboveCell.style.bgColor &&
-        belowCell.style.bgColor
-      ) {
-        avgBgColor = StyleHelper.calcAvgColor(
-          aboveCell.style.bgColor,
-          belowCell.style.bgColor
-        );
-      }
+      const avgBgColor = this.getAvgBgColorForBetweenRowCell(rowIdx, colIdx);
+
       const borderStyleWithAvgBgColor = {
         ...borderStyle,
         ...(avgBgColor && { bgColor: avgBgColor }),
@@ -327,6 +303,25 @@ export class Versitable {
         borderStyleWithAvgBgColor
       );
     });
+  }
+
+  getAvgBgColorForBetweenRowCell(
+    rowIdx: number,
+    colIdx: number
+  ): string | undefined {
+    const aboveCell = this._rows[rowIdx - 1].cellAtIdx(colIdx);
+    const belowCell = this._rows[rowIdx + 1].cellAtIdx(colIdx);
+    if (
+      aboveCell instanceof StyledCell &&
+      belowCell instanceof StyledCell &&
+      aboveCell.style.bgColor &&
+      belowCell.style.bgColor
+    ) {
+      return StyleHelper.calcAvgColor(
+        aboveCell.style.bgColor,
+        belowCell.style.bgColor
+      );
+    }
   }
 
   addBetweenColumnBorderStyles(borderStyle: PartialCellStyle) {
@@ -360,13 +355,52 @@ export class Versitable {
           // Add the chosen style to every inner border column in the row
           // And translate the column and row indices to their respective primary row and non-border column indices
           const translatedRowIdx = this.translateRowIdxToPrimaryRowIdx(row);
+          // Check if there are overflow cells in the row and add them to the target cell coords
+          const rowTypes = this.getRowTypes();
+          let overFlowRowIdxs: number[] = [];
+          if (rowTypes.includes("overflow")) {
+            let rowIdx = translatedRowIdx + 1;
+            while (
+              rowIdx < rowTypes.length &&
+              rowTypes[rowIdx] === "overflow"
+            ) {
+              overFlowRowIdxs.push(rowIdx);
+              rowIdx++;
+            }
+          }
+
           const innerColIdxs = this.getColumnIdxSubset(
             (cell) => !cell.isBorder() || cell.type === "betweenColumns"
           );
-          const targetCellStylesToAdd = innerColIdxs.map((colIdx) => ({
-            ...targetCellStyle,
-            ...{ column: colIdx, row: translatedRowIdx },
-          }));
+
+          let targetCellStylesToAdd = innerColIdxs.map((colIdx) => {
+            // If the cell is a border cell, don't add border foreground colors
+            const newTargetCellStyle = {
+              ...targetCellStyle,
+              ...{ column: colIdx, row: translatedRowIdx },
+            };
+            if (
+              targetCellStyle.fgColor &&
+              this.getCellByCoords([translatedRowIdx, colIdx]).isBorder()
+            ) {
+              newTargetCellStyle.fgColor = undefined;
+            }
+
+            return newTargetCellStyle;
+          });
+
+          // If there are overflow row styles to add, add them
+          if (overFlowRowIdxs.length > 0) {
+            overFlowRowIdxs.forEach((rowIdx) => {
+              innerColIdxs.forEach((colIdx) => {
+                const overFlowCellStyle = {
+                  ...targetCellStyle,
+                  ...{ column: colIdx, row: rowIdx },
+                };
+                targetCellStylesToAdd.push(overFlowCellStyle);
+              });
+            });
+          }
 
           acc.push(...targetCellStylesToAdd);
         } else if (row === undefined && column !== undefined) {
@@ -390,18 +424,45 @@ export class Versitable {
           // Cell style already has row and column specified, so just add it to the list
           const [translatedRowIdx, translatedColIdx] =
             this.translateCoordsByPrimaryCell([row, column] as Coords);
-          acc.push({
-            ...targetCellStyle,
-            row: translatedRowIdx,
-            column: translatedColIdx,
-          });
+
+          // Check if there are overflow cells in the row and add them to the target cell coords
+          const rowTypes = this.getRowTypes();
+          let overFlowRowIdxs: number[] = [];
+          if (rowTypes.includes("overflow")) {
+            let rowIdx = translatedRowIdx + 1;
+            while (
+              rowIdx < rowTypes.length &&
+              rowTypes[rowIdx] === "overflow"
+            ) {
+              overFlowRowIdxs.push(rowIdx);
+              rowIdx++;
+            }
+          }
+          let targetCellStylesToAdd = [
+            {
+              ...targetCellStyle,
+              row: translatedRowIdx,
+              column: translatedColIdx,
+            },
+          ];
+
+          // If there are overflow row styles to add, add them
+          if (overFlowRowIdxs.length > 0) {
+            overFlowRowIdxs.forEach((rowIdx) => {
+              const overFlowCellStyle = {
+                ...targetCellStyle,
+                ...{ column: translatedColIdx, row: rowIdx },
+              };
+              targetCellStylesToAdd.push(overFlowCellStyle);
+            });
+          }
+          acc.push(...targetCellStylesToAdd);
         }
         return acc;
       },
       [] as TargetCellStyle[]
     );
 
-    console.log(populatedTargetCellCoords);
     populatedTargetCellCoords.forEach((targetCellStyle) => {
       const { row, column, ...style } = targetCellStyle;
       this.transformCellAtCoordsToStyledCell([row!, column!], style);
@@ -428,8 +489,8 @@ export class Versitable {
     const { targetCellStyles, rowStyles, borderStyle } = this.styles;
 
     this.addRowStyles(rowStyles);
-    this.addBorderStyles(borderStyle);
     this.addTargetCellStyles(targetCellStyles);
+    this.addBorderStyles(borderStyle);
   }
 
   transformCellAtCoordsToStyledCell(coords: Coords, styleObj: StyleObj): void {

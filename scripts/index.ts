@@ -37,10 +37,10 @@ const rowStyles3 = [
 ];
 
 const updatedOptions: PartialTableOptions = {
-  maxRows: 8,
-  maxColumns: 8,
+  maxRows: 10,
+  maxColumns: 10,
   maxColWidths: [10, 15, 10],
-  maxRowHeight: 3,
+  maxRowHeight: 2,
   cellPadding: 3,
   borders: {
     sides: {
@@ -52,25 +52,26 @@ const updatedOptions: PartialTableOptions = {
       right: true,
     },
     glyphs: {
-      horizontalLine: "━",
-      verticalLine: "┃",
-      topLeftCorner: "┏",
-      topRightCorner: "┓",
-      bottomLeftCorner: "┗",
-      bottomRightCorner: "┛",
-      topSeparator: "┳",
-      bottomSeparator: "┻",
-      middleSeparator: "╋",
-      rightSeparator: "┫",
-      leftSeparator: "┣",
+      horizontalLine: " ",
+      verticalLine: " ",
+      topLeftCorner: " ",
+      topRightCorner: " ",
+      bottomLeftCorner: " ",
+      bottomRightCorner: " ",
+      topSeparator: " ",
+      bottomSeparator: " ",
+      middleSeparator: " ",
+      rightSeparator: " ",
+      leftSeparator: " ",
     },
   },
   styles: {
     borderStyle: { fgColor: "#898989" },
-    rowStyles: rowStyles1,
+    rowStyles: rowStyles2,
     targetCellStyles: [
-      { bgColor: "#9c3a3a", column: 1 },
-      { bgColor: "#9c3a3a", row: 1 },
+      { bgColor: "#c06767", column: 1 },
+      { bgColor: "#3a8d9c", row: 1 },
+      { bgColor: "#1c76ad", row: 3, column: 4 },
     ],
   },
 };
@@ -92,10 +93,7 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(
-    hotkeysFormattedForTable,
-    updatedOptions
-  );
+  const myVersitable = Versitable.make(validTableData, updatedOptions);
   myVersitable.print();
 }
 
