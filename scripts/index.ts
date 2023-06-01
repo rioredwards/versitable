@@ -39,37 +39,28 @@ const rowStyles3 = [
 ];
 
 const updatedOptions: PartialTableOptions = {
-  maxRows: 49,
-  maxColumns: 100,
+  maxRows: 10,
+  maxColumns: 12,
   maxColWidths: [12, 18, 10],
-  maxRowHeight: 1,
-  cellPadding: 1,
+  maxRowHeight: 3,
+  cellPadding: 2,
   borders: {
     sides: {
-      betweenRows: false,
-      betweenColumns: false,
-      top: false,
-      bottom: false,
-      left: false,
-      right: false,
-    },
-    glyphs: {
-      horizontalLine: " ",
-      verticalLine: " ",
-      topLeftCorner: " ",
-      topRightCorner: " ",
-      bottomLeftCorner: " ",
-      bottomRightCorner: " ",
-      topSeparator: " ",
-      bottomSeparator: " ",
-      middleSeparator: " ",
-      rightSeparator: " ",
-      leftSeparator: " ",
+      betweenRows: true,
+      betweenColumns: true,
+      top: true,
+      bottom: true,
+      left: true,
+      right: true,
     },
   },
   styles: {
-    rowStyles: [{ bgColor: "#525252" }],
-    targetCellStyles: versitableDrawing,
+    rowStyles: rowStyles1,
+    blend: false,
+    borderStyle: {
+      fgColor: "#e0e0e0",
+      bgColor: "#565656",
+    },
   },
 };
 
@@ -90,7 +81,10 @@ function main() {
 
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
-  const myVersitable = Versitable.make(canvasTableData, updatedOptions);
+  const myVersitable = Versitable.make(
+    hotkeysFormattedForTable,
+    updatedOptions
+  );
   myVersitable.print();
 }
 

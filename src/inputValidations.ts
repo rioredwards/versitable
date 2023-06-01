@@ -25,7 +25,7 @@ const MIN_MAX_COL_WIDTH = 1;
 const MAX_MAX_ROW_HEIGHT = 50;
 const MIN_MAX_ROW_HEIGHT = 1;
 
-const defaultOptionValidators: Record<
+const standardOptionValidators: Record<
   string,
   { validationFn: ValidationFn; errorMsg: string }
 > = {
@@ -70,6 +70,10 @@ const stylesOptionValidators: Record<
   rowStyles: {
     validationFn: (rows: StyleObj[]) => isValidRowStylesOption(rows),
     errorMsg: "Invalid rowStyles",
+  },
+  blend: {
+    validationFn: isBoolean,
+    errorMsg: "blend must be a boolean",
   },
 };
 
@@ -395,7 +399,7 @@ export function checkTableOptionsAreValid(
       isValidBordersOption(value as Borders);
     } else {
       // Handle all other validations
-      const { validationFn, errorMsg } = defaultOptionValidators[option];
+      const { validationFn, errorMsg } = standardOptionValidators[option];
       isValid(value, validationFn, errorMsg!);
     }
   }

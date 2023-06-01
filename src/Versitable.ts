@@ -291,17 +291,17 @@ export class Versitable {
       "betweenRows",
     ]);
 
+    let avgBgColor: string | undefined;
+    const cellStyle = {
+      ...borderStyle,
+    };
     betweenRowCells.forEach(([rowIdx, colIdx]) => {
-      const avgBgColor = this.getAvgBgColorForBetweenRowCell(rowIdx, colIdx);
+      if (this.styles.blend) {
+        avgBgColor = this.getAvgBgColorForBetweenRowCell(rowIdx, colIdx);
+        cellStyle.bgColor = avgBgColor;
+      }
 
-      const borderStyleWithAvgBgColor = {
-        ...borderStyle,
-        ...(avgBgColor && { bgColor: avgBgColor }),
-      };
-      this.transformCellAtCoordsToStyledCell(
-        [rowIdx, colIdx],
-        borderStyleWithAvgBgColor
-      );
+      this.transformCellAtCoordsToStyledCell([rowIdx, colIdx], cellStyle);
     });
   }
 

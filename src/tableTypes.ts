@@ -72,7 +72,10 @@ export interface CustomStyles {
   borderStyle: PartialCellStyle;
   rowStyles: PartialCellStyle[];
   targetCellStyles: TargetCellStyle[];
+  blend: Blend;
 }
+
+export type Blend = boolean;
 
 export interface StyleObj {
   modifier?: string;

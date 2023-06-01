@@ -1,4 +1,4 @@
-import { TargetCellStyle } from "../../src/tableTypes";
+import { PartialTableOptions, TargetCellStyle } from "../../src/tableTypes";
 
 const topLeft = { row: 0, column: 0 };
 const topRight = { row: 0, column: 99 };
@@ -112,3 +112,38 @@ function singleTileGenerator(
 ): TargetCellStyle[] {
   return [{ bgColor, row, column }];
 }
+
+export const canvasOptions: PartialTableOptions = {
+  maxRows: 49,
+  maxColumns: 100,
+  maxColWidths: [12, 18, 10],
+  maxRowHeight: 1,
+  cellPadding: 1,
+  borders: {
+    sides: {
+      betweenRows: false,
+      betweenColumns: false,
+      top: false,
+      bottom: false,
+      left: false,
+      right: false,
+    },
+    glyphs: {
+      horizontalLine: " ",
+      verticalLine: " ",
+      topLeftCorner: " ",
+      topRightCorner: " ",
+      bottomLeftCorner: " ",
+      bottomRightCorner: " ",
+      topSeparator: " ",
+      bottomSeparator: " ",
+      middleSeparator: " ",
+      rightSeparator: " ",
+      leftSeparator: " ",
+    },
+  },
+  styles: {
+    rowStyles: [{ bgColor: "#525252" }],
+    targetCellStyles: versitableDrawing,
+  },
+};
