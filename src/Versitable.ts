@@ -293,17 +293,18 @@ export class Versitable {
   addBorderStyle(borderStyle: PartialCellStyle) {
     if (!borderStyle) return;
 
-    this.addOuterBorderStyles(borderStyle);
+    this.addOuterAndHeaderBorderStyles(borderStyle);
     this.addBetweenColumnBorderStyles(borderStyle);
     this.addBetweenRowBorderStyles(borderStyle);
   }
 
-  addOuterBorderStyles(borderStyle: PartialCellStyle) {
+  addOuterAndHeaderBorderStyles(borderStyle: PartialCellStyle) {
     const outerBorderCellCoords = this.getCellCoordsSubsetByCellTypes([
       "top",
       "bottom",
       "left",
       "right",
+      "underHeader",
     ]);
 
     outerBorderCellCoords.forEach((coords) => {

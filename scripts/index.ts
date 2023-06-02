@@ -92,7 +92,7 @@ function main() {
     borders: {
       positions: {
         underHeader: true,
-        betweenRows: true,
+        betweenRows: false,
       },
     },
   });
