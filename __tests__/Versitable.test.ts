@@ -155,6 +155,7 @@ describe("Versitable: ", () => {
             bottom: false,
             betweenColumns: false,
             betweenRows: true,
+            underHeader: false,
           },
         },
         styles: false,

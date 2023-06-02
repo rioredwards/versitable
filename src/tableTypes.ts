@@ -14,7 +14,8 @@ export type RowType =
   | "headerOverflow"
   | "upperBorder"
   | "lowerBorder"
-  | "innerBorder";
+  | "innerBorder"
+  | "underHeader";
 
 export type Align = "left" | "right" | "center";
 
@@ -28,7 +29,7 @@ export type RegularCellContent =
 
 export type AnyBorder = HorizontalBorder | VerticalBorder;
 
-export type HorizontalBorder = "top" | "bottom" | "betweenRows";
+export type HorizontalBorder = "top" | "bottom" | "betweenRows" | "underHeader";
 
 export type VerticalBorder = "left" | "right" | "betweenColumns";
 
@@ -43,6 +44,7 @@ export const cellTypesArr: CellType[] = [
   "right",
   "betweenColumns",
   "betweenRows",
+  "underHeader",
 ];
 
 export const borderPositions = [
@@ -52,6 +54,7 @@ export const borderPositions = [
   "left",
   "betweenColumns",
   "betweenRows",
+  "underHeader",
 ];
 
 export interface TableOptions {
@@ -110,6 +113,7 @@ export interface BorderPositions {
   right: boolean;
   betweenColumns: boolean;
   betweenRows: boolean;
+  underHeader: boolean;
 }
 
 export interface CustomBorders {

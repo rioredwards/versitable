@@ -56,6 +56,7 @@ export class RowFactory {
           borderGlyph = bottomEdge;
           break;
         case "innerBorder":
+        case "underHeader":
           borderGlyph = separator;
           break;
         default:
@@ -75,15 +76,26 @@ export class RowFactory {
         const isLastCol = colIdx === originalRow.length - 1;
         if (isLastCol) {
           acc.push(cell);
-        } else if (cell.type === "top" || cell.type === "bottom") {
-          const borderGlyph = cell.type === "top" ? topEdge : bottomEdge;
-          const newBorderCell = new Cell(cell.type, borderGlyph, 1);
-          acc.push(cell, newBorderCell);
         } else {
-          const isBetweenRows = cell.type === "betweenRows";
-          const borderGlyph = isBetweenRows ? separator : verticalLine;
-          const cellType = isBetweenRows ? "betweenRows" : "betweenColumns";
-          const newBorderCell = new Cell(cellType, borderGlyph, 1);
+          let borderGlyph: string;
+          let newCellType = cell.type;
+          switch (cell.type) {
+            case "top":
+              borderGlyph = topEdge;
+              break;
+            case "bottom":
+              borderGlyph = bottomEdge;
+              break;
+            case "betweenRows":
+            case "underHeader":
+              borderGlyph = separator;
+              break;
+            default:
+              // cell is not a border cell
+              newCellType = "betweenColumns";
+              borderGlyph = verticalLine;
+          }
+          const newBorderCell = new Cell(newCellType, borderGlyph, 1);
           acc.push(cell, newBorderCell);
         }
         return acc;

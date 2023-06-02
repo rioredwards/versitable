@@ -88,6 +88,13 @@ function main() {
   console.log("\n\n\n\n\n\n\n\n");
   const myVersitable = Versitable.make(hotkeysFormattedForTable, {
     header: ["header1", "header2", "header3"],
+    maxRows: 10,
+    borders: {
+      positions: {
+        underHeader: true,
+        betweenRows: true,
+      },
+    },
   });
   myVersitable.print();
 }

@@ -47,6 +47,7 @@ export const TABLE_DEFAULTS: TableOptions = {
       right: true,
       betweenColumns: true,
       betweenRows: false,
+      underHeader: true,
     },
   },
 };

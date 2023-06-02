@@ -100,6 +100,7 @@ export const validBordersOption: Borders[] = [
       right: false,
       betweenColumns: true,
       betweenRows: false,
+      underHeader: true,
     },
   },
   {

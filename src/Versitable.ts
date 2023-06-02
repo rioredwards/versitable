@@ -27,7 +27,7 @@ import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
 import { StyledCell } from "./StyledCell";
 import { StyleHelper } from "./StyleHelper";
-import { TargetCellStyle } from "./tableTypes";
+import { TargetCellStyle, BorderPositions } from "./tableTypes";
 
 // Main class which does all the work
 export class Versitable {
@@ -113,7 +113,7 @@ export class Versitable {
     return this._rows[coords[0]].cellAtIdx(coords[1]);
   }
 
-  borderExists(type: AnyBorder) {
+  borderOptionIsDefined(type: AnyBorder) {
     return (
       !!this.borders.positions &&
       !nullUndefinedOrFalse(this.borders.positions[type])
@@ -627,9 +627,16 @@ export class Versitable {
     let insertIdxs: number[] = [];
     switch (type) {
       case "betweenRows":
-        insertIdxs = this.getRowIdxSubset(
-          (row: Row, idx: number) => idx > 0 && row.getType() === "primary"
-        );
+        const headerIsDefined = !!this._options.header;
+        const headerBorderOptionIsDefined =
+          this.borderOptionIsDefined("underHeader");
+        const startIdx = headerIsDefined && headerBorderOptionIsDefined ? 2 : 1;
+        insertIdxs = this.getRowIdxSubset((row: Row, idx: number) => {
+          return idx >= startIdx && row.getType() === "primary";
+        });
+        break;
+      case "underHeader":
+        insertIdxs.push(1);
         break;
       case "top":
         insertIdxs.push(0);
@@ -645,9 +652,9 @@ export class Versitable {
 
   insertHorizontalBorder(type: HorizontalBorder) {
     const insertIdxs = this.findHorizontalBorderInsertIdxs(type);
+    const { horizontalLine } = this.getGlyphsForBorderType(type);
 
     for (let i = insertIdxs.length - 1; i >= 0; i--) {
-      const { horizontalLine } = this.getGlyphsForBorderType(type);
       const border = RowFactory.createHorizontalBorder(
         type,
         this._colWidths,
@@ -677,6 +684,7 @@ export class Versitable {
 
     // Insert horizontal borders
     if (positions.betweenRows) this.insertHorizontalBorder("betweenRows");
+    if (positions.underHeader) this.insertHorizontalBorder("underHeader");
     if (positions.top) this.insertHorizontalBorder("top");
     if (positions.bottom) this.insertHorizontalBorder("bottom");
     // Insert vertical borders
@@ -717,6 +725,7 @@ export class Versitable {
       case "top":
       case "bottom":
       case "betweenRows":
+      case "underHeader":
         return {
           horizontalLine: glyphs.horizontalLine,
         };
