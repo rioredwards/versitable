@@ -1,5 +1,5 @@
 import { countCharsWithEmojis } from "./emojis";
-import { Align, CellType, StyleObj } from "./tableTypes";
+import { TextAlign, CellType, StyleObj } from "./tableTypes";
 
 export class Cell {
   type: CellType;
@@ -32,14 +32,14 @@ export class Cell {
     return new Cell(newCellType, overflowContent, overflowLength);
   }
 
-  pad(padLength: number, align: Align = "left"): void {
+  pad(padLength: number, textAlign: TextAlign = "left"): void {
     let paddedContent: string;
-    switch (align) {
+    switch (textAlign) {
       case "left":
-        paddedContent = " ".repeat(padLength) + this.content;
+        paddedContent = this.content + " ".repeat(padLength);
         break;
       case "right":
-        paddedContent = this.content + " ".repeat(padLength);
+        paddedContent = " ".repeat(padLength) + this.content;
         break;
       case "center":
         const leftPadLength = Math.floor(padLength / 2);

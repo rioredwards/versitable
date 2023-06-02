@@ -613,8 +613,9 @@ export class Versitable {
         const maxColWidth = this._colWidths[colIdx];
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
+        const textAlign = this._options.textAlign;
         if (cellPadding > 0) {
-          cell.pad(cellPadding, "center");
+          cell.pad(cellPadding, textAlign);
         }
       }
     }

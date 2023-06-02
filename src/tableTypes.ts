@@ -17,7 +17,7 @@ export type RowType =
   | "innerBorder"
   | "underHeader";
 
-export type Align = "left" | "right" | "center";
+export type TextAlign = "left" | "right" | "center";
 
 export type CellType = RegularCellContent | AnyBorder;
 
@@ -60,6 +60,7 @@ export const borderPositions = [
 export interface TableOptions {
   optionChecks: OptionChecks; // Should createTable throw errors, warnings or skip checks altogether
   cellPadding: number; // Padding between cell content and cell border (minimum if cells vary in length) (end of cell only)
+  textAlign: TextAlign; // Text alignment within cells
   maxColumns: number; // Max number of columns
   maxRows: number; // Max number of rows (not including "overflow rows": rows with height > 1)
   maxColWidths: number[] | number; // Max column widths (doesn't include padding)
