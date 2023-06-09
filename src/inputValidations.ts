@@ -24,6 +24,7 @@ const MAX_MAX_COL_WIDTH = 400;
 const MIN_MAX_COL_WIDTH = 1;
 const MAX_MAX_ROW_HEIGHT = 50;
 const MIN_MAX_ROW_HEIGHT = 1;
+const VALID_TEXT_ALIGNS = ["left", "right", "center"];
 
 const standardOptionValidators: Record<
   string,
@@ -57,6 +58,10 @@ const standardOptionValidators: Record<
     validationFn: (header: string[]) =>
       isValidArray(header, (s) => typeof s === "string"),
     errorMsg: "header must be a boolean",
+  },
+  textAlign: {
+    validationFn: (textAlign: string) => VALID_TEXT_ALIGNS.includes(textAlign),
+    errorMsg: "Invalid textAlign",
   },
 };
 
