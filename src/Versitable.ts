@@ -686,7 +686,8 @@ export class Versitable {
 
     // Insert horizontal borders
     if (positions.betweenRows) this.insertHorizontalBorder("betweenRows");
-    if (positions.underHeader) this.insertHorizontalBorder("underHeader");
+    if (positions.underHeader && !nullUndefinedOrFalse(this._options.header))
+      this.insertHorizontalBorder("underHeader");
     if (positions.top) this.insertHorizontalBorder("top");
     if (positions.bottom) this.insertHorizontalBorder("bottom");
     // Insert vertical borders
