@@ -49,11 +49,10 @@ export class Versitable {
 
     // Limit Rows and Columns of input table
     const inputTableWithHeader = this.addHeaderToInputTable(inputTable);
-    const limitInputRowsTable = this.limitInputRows(inputTableWithHeader);
-    const limitInputColsTable = this.limitInputCols(limitInputRowsTable);
+    const normalizedInputTable = this.normalizeInputTable(inputTableWithHeader);
 
     // Create Rows from input table and mutate them as specified in options
-    this._rows = this.createRowsFromStrings(limitInputColsTable);
+    this._rows = this.createRowsFromStrings(normalizedInputTable);
     this._colWidths = this.calcColWidths();
     this.splitAndInsertRowsWithLengthyCells();
     this.padCells();
@@ -568,12 +567,36 @@ export class Versitable {
     } else return inputTable;
   }
 
-  limitInputCols(inputTable: string[][]): string[][] {
-    const actualMaxColumns = Math.min(
-      this._options.maxColumns,
-      inputTable[0].length
+  normalizeInputTable(inputTable: string[][]): string[][] {
+    const limitedRows = this.limitInputRows(inputTable);
+    const normalizedRows = this.normalizeRowLengths(limitedRows);
+    return normalizedRows;
+  }
+
+  getInputRowLengths(inputTable: string[][]): number[] {
+    return inputTable.map((row) => {
+      return row.length;
+    });
+  }
+
+  normalizeRowLengths(inputTable: string[][]): string[][] {
+    const longestInputRowLength = Math.max(
+      ...this.getInputRowLengths(inputTable)
     );
-    return inputTable.map((row) => row.slice(0, actualMaxColumns));
+    const targetRowLength = Math.min(
+      longestInputRowLength,
+      this._options.maxColumns
+    );
+    const normalizedTable = inputTable.map((row) => {
+      if (row.length < targetRowLength) {
+        const diff = targetRowLength - row.length;
+        const emptyCells = Array<string>(diff).fill("");
+        return [...row, ...emptyCells];
+      } else if (row.length > targetRowLength) {
+        return row.slice(0, targetRowLength);
+      } else return row;
+    });
+    return normalizedTable;
   }
 
   splitAndInsertRowsWithLengthyCells(): void {

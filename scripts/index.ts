@@ -87,16 +87,16 @@ function main() {
   console.log("__________________________________________________");
   console.log("\n\n\n\n\n\n\n\n");
   const myVersitable = Versitable.make(hotkeysFormattedForTable, {
-    // header: [
-    //   "id",
-    //   "URL",
-    //   "emoji",
-    //   "other emoji",
-    //   "sex",
-    //   "first name",
-    //   "last name",
-    //   "email",
-    // ],
+    header: [
+      "id",
+      // "URL",
+      "emoji",
+      // "other emoji",
+      // "sex",
+      // "first name",
+      // "last name",
+      // "email",
+    ],
     maxRows: 14,
     maxColumns: 12,
     maxColWidths: [14, 14, 12, 12, 10, 10, 10],
