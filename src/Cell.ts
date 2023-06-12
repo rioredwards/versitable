@@ -1,5 +1,5 @@
 import { countCharsWithEmojis } from "./emojis";
-import { TextAlign, CellType, StyleObj } from "./tableTypes";
+import { TextAlign, CellType, StyleObj, PaddingPlacement } from "./tableTypes";
 
 export class Cell {
   type: CellType;
@@ -16,7 +16,7 @@ export class Cell {
     this.length = length;
   }
 
-  truncateToLength(length: number): void {
+  truncate(length: number): void {
     this.content = this.content.substring(0, length);
     this.length = length;
   }
@@ -25,20 +25,19 @@ export class Cell {
   splitAt(index: number): Cell {
     const overflowContent = this.content.substring(index);
     const overflowLength = this.length - index;
-    this.content = this.content.substring(0, index);
-    this.length = index;
+    this.truncate(index);
     const newCellType =
       this.type === "primary" ? "primaryOverflow" : "headerOverflow";
     return new Cell(newCellType, overflowContent, overflowLength);
   }
 
-  pad(padLength: number, textAlign: TextAlign = "left"): void {
+  pad(padLength: number, paddingPlacement: PaddingPlacement = "left"): void {
     let paddedContent: string;
-    switch (textAlign) {
-      case "left":
+    switch (paddingPlacement) {
+      case "right":
         paddedContent = this.content + " ".repeat(padLength);
         break;
-      case "right":
+      case "left":
         paddedContent = " ".repeat(padLength) + this.content;
         break;
       case "center":
@@ -50,9 +49,8 @@ export class Cell {
       default:
         throw new Error("Invalid alignment");
     }
-    const paddedLength = this.length + padLength;
     this.content = paddedContent;
-    this.length = paddedLength;
+    this.length += padLength;
   }
 
   isBorder(): boolean {

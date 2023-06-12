@@ -15,6 +15,7 @@ import {
   PartialCellStyle,
   ComplexOptions,
   Coords,
+  PaddingPlacement,
 } from "./tableTypes";
 import {
   checkTableIsValid,
@@ -27,7 +28,7 @@ import { RowFactory } from "./RowFactory";
 import { VersitableFacade } from "./VersitableFacade";
 import { StyledCell } from "./StyledCell";
 import { StyleHelper } from "./StyleHelper";
-import { TargetCellStyle, BorderPositions } from "./tableTypes";
+import { TargetCellStyle, BorderPositions, TextAlign } from "./tableTypes";
 
 // Main class which does all the work
 export class Versitable {
@@ -606,6 +607,17 @@ export class Versitable {
     }
   }
 
+  convertTextAlignToCellPadding(textAlign: TextAlign): PaddingPlacement {
+    switch (textAlign) {
+      case "left":
+        return "right";
+      case "right":
+        return "left";
+      default:
+        return "center";
+    }
+  }
+
   padCells(): void {
     for (let rowIdx = 0; rowIdx < this.rowCount; rowIdx++) {
       for (let colIdx = 0; colIdx < this.colCount; colIdx++) {
@@ -613,9 +625,11 @@ export class Versitable {
         const maxColWidth = this._colWidths[colIdx];
         const cellPadding =
           maxColWidth - cell.length + this._options.cellPadding;
-        const textAlign = this._options.textAlign;
+        const paddingPlacement = this.convertTextAlignToCellPadding(
+          this._options.textAlign
+        );
         if (cellPadding > 0) {
-          cell.pad(cellPadding, textAlign);
+          cell.pad(cellPadding, paddingPlacement);
         }
       }
     }

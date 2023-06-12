@@ -18,6 +18,7 @@ export type RowType =
   | "underHeader";
 
 export type TextAlign = "left" | "right" | "center";
+export type PaddingPlacement = "left" | "right" | "center";
 
 export type CellType = RegularCellContent | AnyBorder;
 

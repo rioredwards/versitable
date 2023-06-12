@@ -30,7 +30,7 @@ describe("Cells: ", () => {
   describe("truncateToLength: ", () => {
     it("should truncate a cell to the given length", () => {
       const cell = new Cell("primary", "some content", 12);
-      cell.truncateToLength(4);
+      cell.truncate(4);
       expect(cell.content).toBe("some");
       expect(cell.length).toBe(4);
     });
